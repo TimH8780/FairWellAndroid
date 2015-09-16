@@ -7,4 +7,10 @@
     <string name="facebook_app_id">1006925246006126</string>
     <string name="twitter_consumer_key">XHhWNEDZIVVJJpeqJE5iPGWKx</string>
     <string name="twitter_consumer_secret">Se0RMB7HPhevHf3Jy5Y7RCnIJ4NYOefLV0MqxNLtlcQDICjFX1</string>
+    <string name="login_page">==== Temp Login Page ====</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login_button">LOGIN</string>
+    <string name="register_button">REGISTER</string>
+    <string name="forget_passward">Forget password</string>
 </resources>
