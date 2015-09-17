@@ -1,16 +1,29 @@
 <resources>
-    <string name="app_name">FairWell</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+
     <string name="parse_app_id">rb3Z1g2PBGkc6ktXTslZlSDFRPA03udQQcXs8o8J</string>
     <string name="parse_client_id">d6aHhgGoGssZvCaNErxhbG35v8nTbZUOuFrSpXuS</string>
     <string name="facebook_app_id">1006925246006126</string>
     <string name="twitter_consumer_key">XHhWNEDZIVVJJpeqJE5iPGWKx</string>
     <string name="twitter_consumer_secret">Se0RMB7HPhevHf3Jy5Y7RCnIJ4NYOefLV0MqxNLtlcQDICjFX1</string>
+
+    <string name="app_name">FairWell</string>
+    <string name="action_settings">Settings</string>
     <string name="login_page">==== Temp Login Page ====</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="login_button">LOGIN</string>
     <string name="register_button">REGISTER</string>
     <string name="forget_passward">Forget password</string>
+    <string name="registration">== Temp Registration Page ==</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="cancel_button">CANCEL</string>
+    <string name="email">Email Address</string>
+    <string name="confirm_email">Confirm Email Address</string>
+
+    <color name="black">#000000</color>
+    <color name="white">#c1ffd5</color>
+    <string name="title_activity_logged_in">LoggedInActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+
 </resources>

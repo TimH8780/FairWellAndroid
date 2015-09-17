@@ -1,14 +1,18 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/login_screen"
+    android:id="@+id/login_page"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:orientation="vertical"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".LoginActivity">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
 
     <TextView
         android:text="@string/login_page"
@@ -41,7 +45,6 @@
         android:text="@string/register_button"
         android:layout_width="150dp"
         android:layout_height="wrap_content" />
-
     <TextView
         android:id="@+id/forget_password"
         android:text="@string/forget_passward"
@@ -52,3 +55,5 @@
         android:layout_height="wrap_content" />
 
 </LinearLayout>
+
+</RelativeLayout>
