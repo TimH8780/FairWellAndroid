@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         forget_password = (TextView) findViewById(R.id.forget_password);
         login_page = (RelativeLayout) findViewById(R.id.login_page);
         facebookLogin = (com.facebook.login.widget.LoginButton)findViewById(R.id.login_button_facebook);
+
         facebookLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
                         });
             }
         });
+
         login_page.addView(registration_page);
         registration_page.setVisibility(View.GONE);
 
@@ -119,8 +121,7 @@ public class MainActivity extends AppCompatActivity {
                             goToLoggedInPage();
                             return;
                         }
-                        Toast.makeText(getApplicationContext(), "Incorrect Username or Password", Toast.LENGTH_LONG).show();
-                        password.setText("");
+                        Toast.makeText(getApplicationContext(), "Failed to login: invalid username or password", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -202,25 +203,23 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void done(ParseException e) {
                             if (e == null) {
-                                Toast.makeText(getApplicationContext(), "Registered! Please Login.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "Registration Success. Please Login", Toast.LENGTH_SHORT).show();
                                 registration_page.setVisibility(View.GONE);
                                 username.setEnabled(true);
                                 password.setEnabled(true);
                                 return;
                             }
-                            Toast.makeText(getApplicationContext(), "Invalid information or Already used", Toast.LENGTH_LONG).show();
-                            registration_password.setText("");
+                            Log.d("Registration", e.getMessage());
+                            Toast.makeText(getApplicationContext(), "Failed to register: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             registration_confirm_password.setText("");
                         }
                     });
                     return;
                 }
-                Toast.makeText(getApplicationContext(), "Please enter valid information", Toast.LENGTH_LONG).show();
-                registration_password.setText("");
+                Toast.makeText(getApplicationContext(), "Failed to register: information not match", Toast.LENGTH_SHORT).show();
                 registration_confirm_password.setText("");
             }
         });
-
     }
 
     public void setUpUsernameFacebook(final ParseUser user){
@@ -262,9 +261,11 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, LoggedInActivity.class);
         startActivity(intent);
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
     }
+
 }
