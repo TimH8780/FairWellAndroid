@@ -1,12 +1,12 @@
 <resources>
 
-    <string name="parse_app_id">rb3Z1g2PBGkc6ktXTslZlSDFRPA03udQQcXs8o8J</string>
-    <string name="parse_client_id">d6aHhgGoGssZvCaNErxhbG35v8nTbZUOuFrSpXuS</string>
+    <string name="parse_app_id">EbYqSTBrerVZ4b6B48oa52fqjHWKDS6tpO9SHghT</string>
+    <string name="parse_client_id">hGNeor1GdMDoTVviIKS8ZwDPthQRnKlm6LlrvuiD</string>
     <string name="facebook_app_id">1006925246006126</string>
     <string name="twitter_consumer_key">XHhWNEDZIVVJJpeqJE5iPGWKx</string>
     <string name="twitter_consumer_secret">Se0RMB7HPhevHf3Jy5Y7RCnIJ4NYOefLV0MqxNLtlcQDICjFX1</string>
 
-    <string name="app_name">FairWell</string>
+    <string name="app_name">Fairwell</string>
     <string name="action_settings">Settings</string>
     <string name="login_page">==== Temp Login Page ====</string>
     <string name="username">Username</string>
@@ -19,6 +19,8 @@
     <string name="cancel_button">CANCEL</string>
     <string name="email">Email Address</string>
     <string name="confirm_email">Confirm Email Address</string>
+    <string name="please_enter_your_email_address">Please enter your email address</string>
+    <string name="send_password_reset_link">Send password reset link</string>
 
     <color name="black">#000000</color>
     <color name="white">#c1ffd5</color>

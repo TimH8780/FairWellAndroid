@@ -11,7 +11,7 @@ import com.parse.ParseTwitterUtils;
 /**
  * Created by HuMengpei on 9/16/2015.
  */
-public class FairWellApplication extends Application{
+public class FairwellApplication extends Application{
     @Override
     public void onCreate() {
         super.onCreate();
