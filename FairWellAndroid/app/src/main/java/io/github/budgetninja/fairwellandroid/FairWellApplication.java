@@ -23,12 +23,5 @@ public class FairwellApplication extends Application{
         FacebookSdk.sdkInitialize(getApplicationContext());
         ParseFacebookUtils.initialize(getApplicationContext());
         ParseTwitterUtils.initialize(getString(R.string.twitter_consumer_key), getString(R.string.twitter_consumer_secret));
-
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        Intent intent = new Intent(this, MainActivity.class);
-        if (currentUser != null) {
-            intent = new Intent(this, LoggedInActivity.class);
-        }
-        //startActivity(intent);
     }
 }
