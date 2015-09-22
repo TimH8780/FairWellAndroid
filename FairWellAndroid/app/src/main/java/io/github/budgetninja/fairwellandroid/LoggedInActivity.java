@@ -1,9 +1,11 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.parse.ParseUser;
@@ -38,5 +40,11 @@ public class LoggedInActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void logout (View view){
+        user.logOut();
+        Intent intent = new Intent(LoggedInActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 }

@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/registration_page"
-    android:layout_gravity="center"
+    android:layout_gravity="center_horizontal"
     android:orientation="vertical"
-    android:background="@color/white"
-
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
     <TextView
         android:layout_margin="15dp"
-        android:textColor="@color/black"
         android:text="@string/registration"
         android:gravity="center"
         android:textSize="20sp"
@@ -63,8 +59,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-        <LinearLayout
-            android:orientation="horizontal"
+        <RelativeLayout
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
             android:layout_width="match_parent"
@@ -73,16 +68,20 @@
             <Button
                 android:id="@+id/registration_cancel_button"
                 android:text="@string/cancel_button"
-                android:layout_marginLeft="50dp"
+                android:onClick="switchFragment"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="30dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <Button
                 android:id="@+id/registration_register_button"
                 android:text="@string/register_button"
-                android:layout_marginLeft="50dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="30dp"
+                android:onClick="registration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
-        </LinearLayout>
+        </RelativeLayout>
     </LinearLayout>
 
