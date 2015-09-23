@@ -3,18 +3,50 @@
     package="io.github.budgetninja.fairwellandroid" >
 
     <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/SampleTheme" >
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".ContentActivity"
+            android:label="Fairwell"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/title_activity_register"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.github.budgetninja.fairwellandroid.MainActivity" />
+        </activity>
+        <activity
+            android:name=".AddStatementActivity"
+            android:label="Add Statement" >
+        </activity>
+        <activity
+            android:name=".ViewStatementsActivity"
+            android:label="@string/title_activity_view_statements"
+            android:parentActivityName=".ContentActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.github.budgetninja.fairwellandroid.ContentActivity" />
+        </activity>
+        <activity
+            android:name=".ResolveStatementsActivity"
+            android:label="@string/title_activity_resolve_statements"
+            android:parentActivityName=".ContentActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.github.budgetninja.fairwellandroid.ContentActivity" />
         </activity>
     </application>
 
