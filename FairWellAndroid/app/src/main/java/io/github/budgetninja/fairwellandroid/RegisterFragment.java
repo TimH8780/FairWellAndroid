@@ -55,7 +55,7 @@ public class RegisterFragment extends Fragment {
         termCondition = (TextView) rootView.findViewById(R.id.conditionTerm);
         agreement = (CheckBox) rootView.findViewById(R.id.agreeCheckBox);
 
-        //Function of Cancel Function
+        //Function of Cancel Button
         cancelButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -65,7 +65,7 @@ public class RegisterFragment extends Fragment {
             }
         });
 
-        //Function of Confirm Registration
+        //Function of Confirm Registration Buttton
         confirmRegButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

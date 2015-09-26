@@ -20,6 +20,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParseUser;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,10 +39,14 @@ public class ContentActivity extends AppCompatActivity {
     private String mContentText;
     private TextView mContentTextView;
 
+    private ParseUser user;
+
     @Override
     protected void onCreate(Bundle inState) {
         super.onCreate(inState);
         getSupportActionBar().setElevation(0);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.nav_icon);
+        user = ParseUser.getCurrentUser();
 
         if (inState != null) {
             mActivePosition = inState.getInt(STATE_ACTIVE_POSITION);
@@ -50,8 +56,6 @@ public class ContentActivity extends AppCompatActivity {
         mMenuDrawer = MenuDrawer.attach(this, MenuDrawer.MENU_DRAG_CONTENT);
         mMenuDrawer.setContentView(R.layout.activity_content);
         mMenuDrawer.setTouchMode(MenuDrawer.TOUCH_MODE_FULLSCREEN);
-
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.nav_icon);
 
         List<Object> items = new ArrayList<Object>();
         items.add(new Item("Home", R.drawable.ic_action_select_all_dark));
@@ -74,9 +78,8 @@ public class ContentActivity extends AppCompatActivity {
         mMenuDrawer.setMenuView(mList);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-
             //getsupportactionbar
-            //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);          //Uncommented
         }
 
         mContentTextView = (TextView) findViewById(R.id.contentText);
@@ -89,8 +92,7 @@ public class ContentActivity extends AppCompatActivity {
             }
         });
 
-
-
+//3 Button Functions
         Button addStatementButton = (Button) findViewById(R.id.addStatementButton);
         addStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -109,7 +111,6 @@ public class ContentActivity extends AppCompatActivity {
             }
         });
 
-
         Button viewStatementButton = (Button) findViewById(R.id.viewStatementButton);
         viewStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -118,6 +119,11 @@ public class ContentActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+//Display Full Name
+        TextView name = (TextView) findViewById(R.id.name);
+        String nameString = user.getString("First_Name") + " " + user.getString("Last_Name");
+        name.setText(nameString);
 
     }
 
@@ -128,7 +134,15 @@ public class ContentActivity extends AppCompatActivity {
             mMenuDrawer.setActiveView(view, position);
             mContentTextView.setText(((TextView) view).getText());
             mMenuDrawer.closeMenu();
-            Toast.makeText(getApplicationContext(),((TextView) view).getText(), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(),((TextView) view).getText(), Toast.LENGTH_SHORT).show();
+
+            //Logout Function
+            if(((Item)mAdapter.getItem(position)).mTitle.equals("Logout")){
+                user.logOutInBackground();
+                Intent intent = new Intent(ContentActivity.this, MainActivity.class);
+                ContentActivity.this.finish();
+                startActivity(intent);
+            }
         }
     };
 
@@ -145,8 +159,9 @@ public class ContentActivity extends AppCompatActivity {
             case android.R.id.home:
                 mMenuDrawer.toggleMenu();
                 return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

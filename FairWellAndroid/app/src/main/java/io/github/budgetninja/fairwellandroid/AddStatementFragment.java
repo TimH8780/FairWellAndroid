@@ -24,7 +24,7 @@ public class AddStatementFragment extends Fragment {
     @Override
     public void onCreate(Bundle bundle){
         super.onCreate(bundle);
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(true);        //force to recreate optionMenu
     }
 
     @Override

@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         ParseUser currentUser = ParseUser.getCurrentUser();
 
-        if(currentUser != null){            //Already logged in
+        if(currentUser != null){            //Already logged in (current user exists)
             goToLoggedInPage();
         } else {                            //Need to log in
             getSupportActionBar().hide();
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause(){
+    protected void onPause(){           //Kill this activity after login
         super.onPause();
         this.finish();
     }
@@ -69,11 +69,11 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
 
-        if(appear) {
+        if(appear) {        //go to Register Page
             ft.replace(R.id.container, new RegisterFragment(), "Register");
             ft.addToBackStack("Login");
-        }else{
-            ft.replace(R.id.container, new LoginFragment(), "Register");
+        }else{              //go to Login Page
+            ft.replace(R.id.container, new LoginFragment(), "Login");
         }
         ft.commit();
     }

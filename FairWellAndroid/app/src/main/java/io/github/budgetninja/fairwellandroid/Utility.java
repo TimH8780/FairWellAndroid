@@ -16,11 +16,6 @@ import java.util.Calendar;
  */
 public class Utility {
 
-
-
-
-
-
     public static class DatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
 
@@ -40,9 +35,5 @@ public class Utility {
             // Do something with the date chosen by the user
         }
     }
-
-
-
-
 
 }

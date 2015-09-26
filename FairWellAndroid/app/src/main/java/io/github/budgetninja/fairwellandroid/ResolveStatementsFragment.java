@@ -25,7 +25,7 @@ public class ResolveStatementsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        getActivity().setTitle("Solve Statement");
+        getActivity().setTitle("Resolve Statement");
         return inflater.inflate(R.layout.fragment_resolve_statements, container, false);
     }
 

@@ -45,7 +45,7 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(Bundle bundle){
         super.onCreate(bundle);
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(true);        //force to recreate optionMenu
     }
 
     @Override
@@ -183,7 +183,8 @@ public class LoginFragment extends Fragment {
                                     } else {
                                         e.printStackTrace();
                                         Log.d("User", e.getMessage());
-                                        Toast.makeText(getActivity().getApplicationContext(), "Request Failed, Please Retry.", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getActivity().getApplicationContext(), "Request Failed," +
+                                                " Please Retry.", Toast.LENGTH_SHORT).show();
                                         ParseUser.logOutInBackground();
                                     }
                                 }

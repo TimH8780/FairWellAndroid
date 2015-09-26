@@ -13,7 +13,7 @@ public class ContainerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);                 //empty container
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -24,7 +24,7 @@ public class ContainerActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
 
-        switch (index) {
+        switch (index) {                        //fill the container with different fragment based on the index
             case 1:
                 ft.replace(R.id.container, new ViewStatementsFragment(), "View");
                 break;
