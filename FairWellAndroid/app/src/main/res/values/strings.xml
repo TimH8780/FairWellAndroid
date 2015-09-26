@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="parse_app_id">EbYqSTBrerVZ4b6B48oa52fqjHWKDS6tpO9SHghT</string>
@@ -6,26 +7,61 @@
     <string name="twitter_consumer_key">XHhWNEDZIVVJJpeqJE5iPGWKx</string>
     <string name="twitter_consumer_secret">Se0RMB7HPhevHf3Jy5Y7RCnIJ4NYOefLV0MqxNLtlcQDICjFX1</string>
 
+    <string-array name="name_array">
+        <item>Issac</item>
+        <item>Winnie</item>
+        <item>Jarret</item>
+        <item>Mengpei</item>
+        <item>Tim</item>
+        <item>Mohit</item>
+        <item>Saurav</item>
+        <item>ChenYi</item>
+    </string-array>
+
+    <string-array name="mode_array">
+        <item>Split Equally</item>
+        <item>By Percentage</item>
+        <item>By Ratio</item>
+    </string-array>
+
+    <string name="hello_world" > Hello world </string>
+
+    <string name="action_settings" > Action Settings </string>
+
     <string name="app_name">Fairwell</string>
-    <string name="action_settings">Settings</string>
-    <string name="login_page">FairWell</string>
-    <string name="username">Username</string>
-    <string name="password">Password</string>
-    <string name="login_button">LOGIN</string>
-    <string name="register_button">REGISTER</string>
-    <string name="forget_password">Forget password</string>
-    <string name="registration">Registration</string>
-    <string name="confirm_password">Confirm Password</string>
-    <string name="cancel_button">CANCEL</string>
-    <string name="email">Email Address</string>
-    <string name="confirm_email">Confirm Email Address</string>
-    <string name="please_enter_your_email_address">Please enter your email address</string>
-    <string name="send_password_reset_link">Send password reset link</string>
 
-    <string name="title_activity_logged_in">LoggedInActivity</string>
+    <string name="sample_content">Sample of dragging the content.\nThe menu consists of a ListView, for which the
+        active position is saved through configuration changes.\nAdditionally, if the menu is open, a back press will
+        close it.
+    </string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="logout">LOGOUT</string>
+    <string name="sample_window">Sample of dragging the entire window.\nThe menu is a simple ScrollView, with a click
+        listener set on each item.\nThe drawer will animate slightly open, to make it more discoverable.\nAdditionally,
+        if the menu is open, a back press will close it.
+    </string>
 
+    <string name="sample_listactivity">Sample of how to use the drawer with ListActivity.\nWhen running on ICS or
+        greater, the ActionBar up button will blink until clicked by the user. This is done to make the menu more
+        discoverable.\nAdditionally, if the menu is open, a back press will close it.
+    </string>
 
+    <string name="sample_rightmenu">This sample shows how to position the menu to the right of the content.\nRun on
+        an API14+ device to see how it interacts with the overflow button.
+    </string>
+
+    <string name="sample_topmenu">This sample shows how to position the menu above the content.</string>
+
+    <string name="sample_bottommenu">This sample shows how to position the menu below the content.</string>
+
+    <string name="sample_layout">This sample shows how to use the drawer in a layout file.
+        \nThe top drawer is used in this sample.
+    </string>
+
+    <string name="sample_static">This sample shows how to attach a drawer that is always visible.</string>
+    <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_add_statement">AddStatementActivity</string>
+    <string name="title_activity_view_statements">ViewStatementsActivity</string>
+    <string name="title_activity_resolve_statements">ResolveStatementsActivity</string>
+    <string name="title_activity_container">ContainerActivity</string>
+    <string name="title_activity_login_fragment">LoginFragment</string>
 </resources>

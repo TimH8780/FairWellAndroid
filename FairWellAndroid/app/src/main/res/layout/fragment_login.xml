@@ -1,57 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/login_username"
-        android:hint="@string/username"
-        android:layout_marginTop="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginLeft="15dp"
-        android:inputType="textWebEmailAddress"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-    <EditText
-        android:id="@+id/login_password"
-        android:hint="@string/password"
-        android:layout_marginBottom="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginLeft="15dp"
-        android:inputType="textPassword"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-    <com.facebook.login.widget.LoginButton
-        android:id="@+id/login_button_facebook"
-        android:onClick="facebookLogin"
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient">
+
+    <ImageView
+        android:paddingBottom="50dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="15dp" />
-    <Button
-        android:id="@+id/login_button"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/login_button"
-        android:onClick="login"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content" />
-    <Button
-        android:id="@+id/register_button"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/register_button"
-        android:onClick="switchFragment"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content" />
-    <TextView
-        android:id="@+id/forget_password"
-        android:text="@string/forget_password"
-        android:gravity="center_horizontal"
-        android:onClick="forgetPassword"
-        android:paddingTop="10dp"
-        android:clickable="true"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_gravity="center_horizontal" />
+
+    <ImageView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:adjustViewBounds="true"
+        android:src="@drawable/title"
+        android:textSize="40sp"
+        android:id="@+id/loginTitleTextView"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp"/>
+
+    <EditText
+        android:background="#fff"
+        android:alpha="0.5"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:id="@+id/loginUsername"
+        android:inputType="text"
+        android:hint="Your username"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="7dp"/>
+
+    <EditText
+        android:background="#fff"
+        android:alpha="0.5"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:id="@+id/loginPassword"
+        android:inputType="textPassword"
+        android:hint="Your password"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp"/>
+
+    <Button
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:background="@drawable/login_button"
+        android:id="@+id/loginButton"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="7dp"/>
+
+    <Button
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:background="@drawable/register_button"
+        android:id="@+id/registerButton"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="7dp"/>
+
+    <Button
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:background="@drawable/facebook_button"
+        android:id="@+id/facebookButton"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="7dp" />
+
+    <Button
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:background="@drawable/google_button"
+        android:id="@+id/button2"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="3dp"/>
+
+    <TextView
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:textColor="#fff"
+        android:text="Forgot password?"
+        android:id="@+id/forgetPassword"
+        android:clickable="true"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center" />
 
 </LinearLayout>
-

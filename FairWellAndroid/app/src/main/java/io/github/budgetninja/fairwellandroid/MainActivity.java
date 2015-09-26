@@ -1,50 +1,56 @@
 package io.github.budgetninja.fairwellandroid;
 
-import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.text.InputType;
-import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
 
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.parse.LogInCallback;
-import com.parse.ParseException;
+
 import com.parse.ParseFacebookUtils;
-import com.parse.ParseInstallation;
 import com.parse.ParseUser;
-import com.parse.RequestPasswordResetCallback;
-import com.parse.SaveCallback;
-import com.parse.SignUpCallback;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
 
-FragmentManager FragmentManger;
+    /* TODO:
+    Check if the user is first time fragment_login or not. My idea is to have a counter store
+    locally on the phone (probably using SQLite) and increments it as soon as the
+    user finishes the tutorial. Decrement if the user logout.
+
+    Mengpei and Tim, if you guys have better solution. Please use whichever way you
+    feel easier and more feasible.
+     */
+
+    private final static int SHOW_TUTORIAL = 0;     //don't know when to show tutorial
+
+    private SamplesAdapter mAdapter;
+    private int checkState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FragmentManger = getFragmentManager();
-        FragmentTransaction fragmentTransaction = FragmentManger.beginTransaction();
-        fragmentTransaction.replace(R.id.frag_container, new LoginFragment(), "fragTag");
-        fragmentTransaction.commit();
+        //show tutorial slide?
+
+        ParseUser currentUser = ParseUser.getCurrentUser();
+
+        if(currentUser != null){            //Already logged in
+            goToLoggedInPage();
+        } else {                            //Need to log in
+            getSupportActionBar().hide();
+            getSupportActionBar().setElevation(0);
+
+            goToRegisterPage(false);
+        }
     }
 
     @Override
@@ -53,165 +59,105 @@ FragmentManager FragmentManger;
         ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void setUpUsernameFacebook(final ParseUser user){
-        GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(),
-                new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(
-                            JSONObject object,
-                            GraphResponse response) {
-                        try {
-                            user.fetchIfNeeded().put("usernameFacebook", object.getString("name"));
-                            user.saveInBackground(new SaveCallback() {
-                                @Override
-                                public void done(ParseException e) {
-                                    if (e == null) {
-                                        goToLoggedInPage();
-                                    } else {
-                                        e.printStackTrace();
-                                        Log.d("User", e.getMessage());
-                                        Toast.makeText(getApplicationContext(), "request failed, please re-try.", Toast.LENGTH_SHORT).show();
-                                        ParseUser.logOutInBackground();
-                                    }
-                                }
-                            });
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (ParseException e) {
-                        }
-                    }
-                });
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "name,email");
-        request.setParameters(parameters);
-        request.executeAsync();
+    @Override
+    protected void onPause(){
+        super.onPause();
+        this.finish();
+    }
+
+    public void goToRegisterPage(Boolean appear) {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+
+        if(appear) {
+            ft.replace(R.id.container, new RegisterFragment(), "Register");
+            ft.addToBackStack("Login");
+        }else{
+            ft.replace(R.id.container, new LoginFragment(), "Register");
+        }
+        ft.commit();
     }
 
     public void goToLoggedInPage(){
-        Intent intent = new Intent(MainActivity.this, LoggedInActivity.class);
+        Intent intent = new Intent(MainActivity.this, ContentActivity.class);
         startActivity(intent);
     }
 
-    public void switchFragment(View view){
-        Fragment frag = new RegistrationFragment();
-        if(view == findViewById(R.id.registration_cancel_button)){
-            frag = new LoginFragment();
+/*
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
         }
-        FragmentManager FragmentManger = getFragmentManager();
-        FragmentTransaction fragmentTransaction = FragmentManger.beginTransaction();
-        fragmentTransaction.replace(R.id.frag_container, frag, "fragTag");
-        fragmentTransaction.commit();
+        return super.onOptionsItemSelected(item);
     }
+*/
 
-    public void forgetPassword(View view){
-        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        final EditText input = new EditText(MainActivity.this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        builder.setTitle(getString(R.string.please_enter_your_email_address));
-        builder.setView(input);
-        builder.setPositiveButton(getString(R.string.send_password_reset_link), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                final String emailAddress = input.getText().toString();
-                ParseUser.requestPasswordResetInBackground(emailAddress, new RequestPasswordResetCallback() {
-                    public void done(ParseException e) {
-                        if (e == null) {
-                            Toast toast = Toast.makeText(getApplicationContext(), "An email has been sent to " + emailAddress, Toast.LENGTH_SHORT);
-                            toast.show();
-                        } else {
-                            Log.d("ResetPW", e.getMessage());
-                            Toast.makeText(getApplicationContext(), "Failed to reset password: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        final AlertDialog dialog = builder.create();
-        dialog.show();
-    }
 
-    public void facebookLogin(View view) {
-        ParseFacebookUtils.logInWithReadPermissionsInBackground(MainActivity.this,
-                Arrays.asList("public_profile", "email"), new LogInCallback() {
-                    @Override
-                    public void done(final ParseUser user, ParseException e) {
-                        if (e == null) {
-                            if (user == null) {
-                                Log.d("FairWell", "Uh oh. The user cancelled the Facebook login.");
-                            } else if (user.isNew()) {
-                                Log.d("FairWell", "User Signed up and logged in through Facebook!");
-                                setUpUsernameFacebook(user);
-                            } else {
-                                Log.d("FairWell", "User logged in through Facebook!");
-                                setUpUsernameFacebook(user);
-                                //Below is for push notification in the future.
-                                ParseInstallation myInstallation = ParseInstallation.getCurrentInstallation();
-                                myInstallation.put("User", ParseUser.getCurrentUser());
-                                myInstallation.saveInBackground();
-                            }
-                        } else {
-                            Log.d("Facebook Login", e.getMessage());
-                            Toast.makeText(getApplicationContext(), "Failed to Login with facebook: "
-                                    + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
 
-    public void login (View view){
-        LoginFragment temp = (LoginFragment)FragmentManger.findFragmentByTag("fragTag");
-        ParseUser.logInInBackground(temp.username.getText().toString(), temp.password.getText().toString(), new LogInCallback() {
-            @Override
-            public void done(ParseUser parseUser, ParseException e) {
-                if (parseUser != null) {
-                    goToLoggedInPage();
-                    return;
-                }
-                Toast.makeText(getApplicationContext(), "Failed to login: invalid username or password", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 
-    public void registration(View view){
-        RegistrationFragment temp = (RegistrationFragment)FragmentManger.findFragmentByTag("fragTag");
-        String temp_name = temp.registration_username.getText().toString();
-        String temp_pass = temp.registration_password.getText().toString();
-        String temp_mail = temp.registration_email.getText().toString();
-        String temp_c_mail = temp.registration_confirm_email.getText().toString();
-        String temp_c_pass = temp.registration_confirm_password.getText().toString();
-        if( temp_mail.equals(temp_c_mail) && temp_pass.equals(temp_c_pass)){
-            ParseUser user = new ParseUser();
-            user.setUsername(temp_name);
-            user.setPassword(temp_pass);
-            user.setEmail(temp_mail);
-            user.signUpInBackground(new SignUpCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if (e == null) {
-                        Toast.makeText(getApplicationContext(), "Registration Success. Please Login", Toast.LENGTH_SHORT).show();
-                        FragmentManager FragmentManger = getFragmentManager();
-                        FragmentTransaction fragmentTransaction = FragmentManger.beginTransaction();
-                        fragmentTransaction.replace(R.id.frag_container, new LoginFragment(),"fragTag");
-                        fragmentTransaction.commit();
-                        return;
-                    }
-                    Log.d("Registration", e.getMessage());
-                    Toast.makeText(getApplicationContext(), "Failed to register: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    RegistrationFragment temp = (RegistrationFragment)FragmentManger.findFragmentByTag("fragTag");
-                    temp.registration_confirm_password.setText("");
-                }
-            });
-            return;
+    // Do not modify the code below, it is part of the side panel code.
+
+    private static class SampleItem {
+
+        String mTitle;
+        String mSummary;
+        Class mClazz;
+
+        public SampleItem(String title, String summary, Class clazz) {
+            mTitle = title;
+            mSummary = summary;
+            mClazz = clazz;
         }
-        Toast.makeText(getApplicationContext(), "Failed to register: information not match", Toast.LENGTH_SHORT).show();
-        temp.registration_confirm_password.setText("");
     }
 
+    public class SamplesAdapter extends BaseAdapter {
 
+        private List<SampleItem> mSamples = new ArrayList<SampleItem>();
+
+        public void addSample(String title, String summary, Class clazz) {
+            mSamples.add(new SampleItem(title, summary, clazz));
+        }
+
+        @Override
+        public int getCount() {
+            return mSamples.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mSamples.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            SampleItem sample = (SampleItem) getItem(position);
+
+            View v = convertView;
+            if (v == null) {
+                v = getLayoutInflater().inflate(R.layout.list_row_sample, parent, false);
+            }
+
+            ((TextView) v.findViewById(R.id.title)).setText(sample.mTitle);
+            ((TextView) v.findViewById(R.id.summary)).setText(sample.mSummary);
+
+            return v;
+        }
+    }
 }

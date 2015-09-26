@@ -1,14 +1,12 @@
 package io.github.budgetninja.fairwellandroid;
 
 import android.app.Application;
-import android.content.Intent;
 
 import com.facebook.FacebookSdk;
 import com.parse.Parse;
 import com.parse.ParseCrashReporting;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseTwitterUtils;
-import com.parse.ParseUser;
 
 /**
  * Created by HuMengpei on 9/16/2015.

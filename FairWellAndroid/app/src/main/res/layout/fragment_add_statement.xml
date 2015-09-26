@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <EditText
+        android:layout_marginTop="10dp"
+        android:hint="Enter description"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:layout_marginBottom="10dp">
+
+        <ImageView
+            android:layout_gravity="center"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/icon_1"
+            android:clickable="true"
+            android:layout_weight="1"/>
+        <ImageView
+            android:layout_gravity="center"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/icon_2"
+            android:clickable="true"
+            android:layout_weight="1"/>
+        <ImageView
+            android:layout_gravity="center"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/icon_3"
+            android:clickable="true"
+            android:layout_weight="1"/>
+        <ImageView
+            android:layout_gravity="center"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/icon_4"
+            android:clickable="true"
+            android:layout_weight="1"/>
+        <ImageView
+            android:layout_gravity="center"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/icon_5"
+            android:clickable="true"
+            android:layout_weight="1"/>
+        <ImageView
+            android:layout_gravity="center"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/icon_6"
+            android:clickable="true"
+            android:layout_weight="1"/>
+        <ImageView
+            android:layout_gravity="center"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/icon_7"
+            android:clickable="true"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="left"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total Amount:"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="$"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="right"
+            android:hint="0.00"/>
+
+    </LinearLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="0,1"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Paid By:"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginBottom="4dp"/>
+
+            <Spinner
+                android:layout_gravity="center"
+                android:id="@+id/spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_marginBottom="4dp"
+                android:minHeight="30dp"
+                android:minWidth="30dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mode:"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginBottom="4dp"/>
+
+            <Spinner
+                android:layout_gravity="center"
+                android:id="@+id/spinner2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_marginBottom="4dp"
+                android:minHeight="30dp"
+                android:minWidth="30dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date:"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginBottom="4dp"/>
+
+            <Button
+                android:id="@+id/dateButton"
+                android:background="@color/coolActionBar"
+                android:layout_gravity="center"
+                android:text="Pick a Date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:layout_marginBottom="4dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:minHeight="30dp"
+                android:minWidth="30dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Deadline:"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginBottom="4dp"/>
+
+            <Button
+                android:id="@+id/deadlineButton"
+                android:background="@color/coolActionBar"
+                android:layout_gravity="center"
+                android:text="Pick a Date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:layout_marginBottom="4dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:minHeight="30dp"
+                android:minWidth="30dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Member:"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginBottom="4dp"/>
+
+            <Button
+                android:background="@color/coolActionBar"
+                android:layout_gravity="center"
+                android:text="Click to add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:minHeight="30dp"
+                android:minWidth="30dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Snapshot:"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginBottom="4dp"/>
+
+            <Button
+                android:background="@color/coolActionBar"
+                android:layout_gravity="center"
+                android:text="Click to add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:layout_marginBottom="4dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:minHeight="30dp"
+                android:minWidth="30dp" />
+
+        </TableRow>
+
+    </TableLayout>
+
+    <Button
+        android:id="@+id/confirmButton"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="40dp"
+        android:backgroundTint="@color/buttonDark"
+        android:background="@color/buttonMedium"
+        android:textColor="@color/textLight"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="CONFIRM!"
+        android:textStyle="bold"
+        android:textSize="25dp"
+        android:gravity="center"
+        android:layout_marginBottom="4dp" />
+
+</LinearLayout>
+
+</ScrollView>
