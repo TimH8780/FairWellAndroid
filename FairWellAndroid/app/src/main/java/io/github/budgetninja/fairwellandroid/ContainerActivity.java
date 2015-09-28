@@ -1,10 +1,10 @@
 package io.github.budgetninja.fairwellandroid;
 
 
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -14,11 +14,11 @@ public class ContainerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);                 //empty container
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setElevation(0);
-
+        if(getSupportActionBar()!=null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setElevation(0);
+        }
         Bundle bundle = getIntent().getExtras();
         int index = bundle.getInt("Index");
         FragmentManager fm = getSupportFragmentManager();

@@ -36,7 +36,19 @@
             android:name=".ContentActivity"
             android:label="Fairwell" >
         </activity>
+        <activity
+            android:name=".LoginActivity"
+            android:label="Fairwell" >
+        </activity>
 
+        <activity
+            android:name=".RegisterActivity"
+            android:label="Fairwell"
+            android:parentActivityName =".LoginActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LoginActivity" />
+        </activity>
         <activity
             android:name=".ContainerActivity"
             android:label="@string/title_activity_container"

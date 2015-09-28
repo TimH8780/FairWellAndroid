@@ -2,12 +2,12 @@ package io.github.budgetninja.fairwellandroid;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.text.format.DateFormat;
 import android.widget.DatePicker;
-import android.widget.TimePicker;
+
+import com.parse.ParseException;
+import com.parse.ParseUser;
 
 import java.util.Calendar;
 
@@ -15,7 +15,32 @@ import java.util.Calendar;
  * Created by Issac on 9/23/2015.
  */
 public class Utility {
-
+    public static boolean isNormalUser(ParseUser user) {
+        if (!isFacebookUser(user) && !isTwitterUser(user)) {
+            return true;
+        }
+        return false;
+    }
+    public static boolean isFacebookUser(ParseUser user){
+        try {
+            if (user.fetchIfNeeded().get("usernameFacebook") != null) {
+                return true;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    public static boolean isTwitterUser(ParseUser user){
+        try {
+            if (user.fetchIfNeeded().get("usernameTwitter") != null) {
+                return true;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
     public static class DatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
 

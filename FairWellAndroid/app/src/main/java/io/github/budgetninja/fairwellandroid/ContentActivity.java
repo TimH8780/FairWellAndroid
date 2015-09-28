@@ -1,10 +1,6 @@
 package io.github.budgetninja.fairwellandroid;
 
-import net.simonvt.menudrawer.MenuDrawer;
-
-import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,16 +10,22 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.LogOutCallback;
+import com.parse.ParseException;
 import com.parse.ParseUser;
+
+import net.simonvt.menudrawer.MenuDrawer;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static io.github.budgetninja.fairwellandroid.Utility.isFacebookUser;
+import static io.github.budgetninja.fairwellandroid.Utility.isTwitterUser;
 
 //Do not modify this code - it is part of the side panel.
 
@@ -122,7 +124,14 @@ public class ContentActivity extends AppCompatActivity {
 
 //Display Full Name
         TextView name = (TextView) findViewById(R.id.name);
-        String nameString = user.getString("First_Name") + " " + user.getString("Last_Name");
+        String nameString;
+        if(isFacebookUser(user)){
+            nameString = user.getString("usernameFacebook");
+        }else if(isTwitterUser(user)){
+            nameString = user.getString("usernameTwitter");
+        }else {
+            nameString = user.getString("First_Name") + " " + user.getString("Last_Name");
+        }
         name.setText(nameString);
 
     }
@@ -138,10 +147,18 @@ public class ContentActivity extends AppCompatActivity {
 
             //Logout Function
             if(((Item)mAdapter.getItem(position)).mTitle.equals("Logout")){
-                user.logOutInBackground();
-                Intent intent = new Intent(ContentActivity.this, MainActivity.class);
-                ContentActivity.this.finish();
-                startActivity(intent);
+                ParseUser.logOutInBackground(new LogOutCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e == null) {
+                            Intent intent = new Intent(ContentActivity.this, MainActivity.class);
+                            ContentActivity.this.finish();
+                            startActivity(intent);
+                        }else{
+                            Toast.makeText(getApplicationContext(),"Logout Failed",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         }
     };

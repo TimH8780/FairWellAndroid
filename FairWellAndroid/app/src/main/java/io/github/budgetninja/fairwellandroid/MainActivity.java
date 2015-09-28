@@ -2,14 +2,11 @@ package io.github.budgetninja.fairwellandroid;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
 
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
@@ -46,10 +43,8 @@ public class MainActivity extends AppCompatActivity {
         if(currentUser != null){            //Already logged in (current user exists)
             goToLoggedInPage();
         } else {                            //Need to log in
-            getSupportActionBar().hide();
-            getSupportActionBar().setElevation(0);
-
-            goToRegisterPage(false);
+            goToLoginPage();
+            //goToRegisterPage(false);
         }
     }
 
@@ -64,18 +59,9 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         this.finish();
     }
-
-    public void goToRegisterPage(Boolean appear) {
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-
-        if(appear) {        //go to Register Page
-            ft.replace(R.id.container, new RegisterFragment(), "Register");
-            ft.addToBackStack("Login");
-        }else{              //go to Login Page
-            ft.replace(R.id.container, new LoginFragment(), "Login");
-        }
-        ft.commit();
+    public void goToLoginPage(){
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
     }
 
     public void goToLoggedInPage(){
