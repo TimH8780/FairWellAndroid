@@ -33,7 +33,20 @@ public class ContentActivity extends AppCompatActivity {
 
     private static final String STATE_ACTIVE_POSITION = "net.simonvt.menudrawer.samples.ContentActivity.activePosition";
     private static final String STATE_CONTENT_TEXT = "net.simonvt.menudrawer.samples.ContentActivity.contentText";
-
+    private static final int INDEX_VIEW_STATEMENT = 1;
+    private static final int INDEX_ADD_STATEMENT = 2;
+    private static final int INDEX_RESOLVE_STATEMENT = 3;
+    private static final int POSITION_HOME = 0;
+    private static final int POSITION_FEATURES = 1;
+    private static final int POSITION_ADD_FRIEND = 2;
+    private static final int POSITION_REMOVE_FRIEND = 3;
+    private static final int POSITION_SETTING = 4;
+    private static final int POSITION_ACCOUNT_SETTING = 5;
+    private static final int POSITION_NOTIFICATION_SETTING = 6;
+    private static final int POSITION_OTHERS = 7;
+    private static final int POSITION_RATE_THIS_APP = 8;
+    private static final int POSITION_CONTACT_US = 9;
+    private static final int POSITION_LOGOUT = 10;
     private MenuDrawer mMenuDrawer;
     private MenuAdapter mAdapter;
     private ListView mList;
@@ -60,17 +73,17 @@ public class ContentActivity extends AppCompatActivity {
         mMenuDrawer.setTouchMode(MenuDrawer.TOUCH_MODE_FULLSCREEN);
 
         List<Object> items = new ArrayList<Object>();
-        items.add(new Item("Home", R.drawable.ic_action_select_all_dark));
-        items.add(new Category("Features"));
-        items.add(new Item("Adding friend", R.drawable.ic_action_select_all_dark));
-        items.add(new Item("Removing friend", R.drawable.ic_action_select_all_dark));
-        items.add(new Category("Settings"));
-        items.add(new Item("Account settings", R.drawable.ic_action_refresh_dark));
-        items.add(new Item("Notification settings", R.drawable.ic_action_select_all_dark));
-        items.add(new Category("Others"));
-        items.add(new Item("Rate this app", R.drawable.ic_action_refresh_dark));
-        items.add(new Item("Contact us", R.drawable.ic_action_select_all_dark));
-        items.add(new Item("Logout", R.drawable.ic_action_select_all_dark));
+        items.add(new Item(getString(R.string.home), R.drawable.ic_action_select_all_dark));
+        items.add(new Category(getString(R.string.features)));
+        items.add(new Item(getString(R.string.add_friend), R.drawable.ic_action_select_all_dark));
+        items.add(new Item(getString(R.string.remove_friend), R.drawable.ic_action_select_all_dark));
+        items.add(new Category(getString(R.string.setting)));
+        items.add(new Item(getString(R.string.account_setting), R.drawable.ic_action_refresh_dark));
+        items.add(new Item(getString(R.string.notification_setting), R.drawable.ic_action_select_all_dark));
+        items.add(new Category(getString(R.string.others)));
+        items.add(new Item(getString(R.string.rate_this_app), R.drawable.ic_action_refresh_dark));
+        items.add(new Item(getString(R.string.contact_us), R.drawable.ic_action_select_all_dark));
+        items.add(new Item(getString(R.string.logout), R.drawable.ic_action_select_all_dark));
 
         mList = new ListView(this);
         mAdapter = new MenuAdapter(items);
@@ -80,7 +93,6 @@ public class ContentActivity extends AppCompatActivity {
         mMenuDrawer.setMenuView(mList);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            //getsupportactionbar
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);          //Uncommented
         }
 
@@ -99,7 +111,7 @@ public class ContentActivity extends AppCompatActivity {
         addStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(ContentActivity.this, ContainerActivity.class);
-                i.putExtra("Index", 2);
+                i.putExtra("Index", INDEX_ADD_STATEMENT);
                 startActivity(i);
             }
         });
@@ -108,7 +120,7 @@ public class ContentActivity extends AppCompatActivity {
         resolveStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(ContentActivity.this, ContainerActivity.class);
-                i.putExtra("Index", 3);
+                i.putExtra("Index", INDEX_RESOLVE_STATEMENT);
                 startActivity(i);
             }
         });
@@ -117,12 +129,12 @@ public class ContentActivity extends AppCompatActivity {
         viewStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent i = new Intent(ContentActivity.this, ContainerActivity.class);
-                i.putExtra("Index", 1);
+                i.putExtra("Index", INDEX_VIEW_STATEMENT);
                 startActivity(i);
             }
         });
 
-//Display Full Name
+        //Display Full Name
         TextView name = (TextView) findViewById(R.id.name);
         String nameString;
         if(isFacebookUser(user)){
@@ -146,7 +158,8 @@ public class ContentActivity extends AppCompatActivity {
             //Toast.makeText(getApplicationContext(),((TextView) view).getText(), Toast.LENGTH_SHORT).show();
 
             //Logout Function
-            if(((Item)mAdapter.getItem(position)).mTitle.equals("Logout")){
+            //if(((Item)mAdapter.getItem(position)).mTitle.equals("Logout")){
+            if(position==POSITION_LOGOUT){
                 ParseUser.logOutInBackground(new LogOutCallback() {
                     @Override
                     public void done(ParseException e) {
@@ -155,7 +168,7 @@ public class ContentActivity extends AppCompatActivity {
                             ContentActivity.this.finish();
                             startActivity(intent);
                         }else{
-                            Toast.makeText(getApplicationContext(),"Logout Failed",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(),getString(R.string.logout_failed),Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

@@ -6,7 +6,18 @@
     <string name="facebook_app_id">1006925246006126</string>
     <string name="twitter_consumer_key">XHhWNEDZIVVJJpeqJE5iPGWKx</string>
     <string name="twitter_consumer_secret">Se0RMB7HPhevHf3Jy5Y7RCnIJ4NYOefLV0MqxNLtlcQDICjFX1</string>
-
+    <string name="home">Home</string>
+    <string name="features">Features</string>
+    <string name="add_friend">Add Friend</string>
+    <string name="remove_friend">Remove Friend</string>
+    <string name="setting">Setting</string>
+    <string name="account_setting">Account Setting</string>
+    <string name="notification_setting">Notification Setting</string>
+    <string name="others">Others</string>
+    <string name="rate_this_app">Rate This App</string>
+    <string name="contact_us">Contact Us</string>
+    <string name="logout">Logout</string>
+    <string name="logout_failed">Logout Failed</string>
     <string-array name="name_array">
         <item>Issac</item>
         <item>Winnie</item>
