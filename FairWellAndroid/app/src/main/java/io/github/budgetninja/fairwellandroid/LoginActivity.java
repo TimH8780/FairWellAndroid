@@ -22,6 +22,7 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
+import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.RequestPasswordResetCallback;
 import com.parse.SaveCallback;
@@ -34,7 +35,7 @@ import java.util.Arrays;
 public class LoginActivity extends Activity {
 
     private View view;
-    private Button loginBut, registerBut, facebookLoginBut;
+    private Button loginBut, registerBut, facebookLoginBut, twitterLoginBut;
     private EditText username, password;
     private TextView forgetPass;
     @Override
@@ -64,6 +65,7 @@ public class LoginActivity extends Activity {
         loginBut = (Button) findViewById(R.id.loginButton);
         registerBut = (Button) findViewById(R.id.registerButton);
         facebookLoginBut = (Button) findViewById(R.id.facebookButton);
+        twitterLoginBut = (Button) findViewById(R.id.twitterButton);
         username = (EditText) findViewById(R.id.loginUsername);
         password = (EditText) findViewById(R.id.loginPassword);
         forgetPass = (TextView) findViewById(R.id.forgetPassword);
@@ -77,7 +79,7 @@ public class LoginActivity extends Activity {
                     public void done(ParseUser parseUser, ParseException e) {
                         if (e == null) {
                             goToLoggedInPage();
-                        }else{
+                        } else {
                             Toast.makeText(getApplicationContext(), "Failed to login: invalid information", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -124,7 +126,31 @@ public class LoginActivity extends Activity {
                 });
             }
         });
+        twitterLoginBut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ParseTwitterUtils.logIn(LoginActivity.this, new LogInCallback() {
+                    @Override
+                    public void done(ParseUser user, ParseException err) {
 
+                        if (user == null) {
+                            Log.d("Fairwell", "Uh oh. The user cancelled the Twitter login.");
+                            Toast.makeText(getApplicationContext(),getString(R.string.twitter_login_failed),Toast.LENGTH_SHORT).show();
+                        } else if (user.isNew()) {
+                            Log.d("Fairwell", "User signed up and logged in through Twitter!");
+                            setUpUsernameTwitter(user);
+                        } else {
+                            Log.d("Fairwell", "User logged in through Twitter!");
+                            setUpUsernameTwitter(user);
+                            ParseInstallation myInstallation = ParseInstallation.getCurrentInstallation();
+                            myInstallation.put("User", ParseUser.getCurrentUser());
+                            myInstallation.saveInBackground();
+                        }
+
+                    }
+                });
+            }
+        });
         //Function of forget password
         forgetPass.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -171,7 +197,21 @@ public class LoginActivity extends Activity {
         startActivity(intent);
     }
 
-
+    public void setUpUsernameTwitter(ParseUser user){
+        user.put("usernameTwitter",(ParseTwitterUtils.getTwitter().getScreenName()));
+        user.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    goToLoggedInPage();
+                } else {
+                    Log.d("User", e.getMessage());
+                    Toast.makeText(getApplicationContext(), "request failed, please re-try.", Toast.LENGTH_SHORT).show();
+                    ParseUser.logOutInBackground();
+                }
+            }
+        });
+    }
     public void setUpUsernameFacebook(final ParseUser user){
         GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(),
                 new GraphRequest.GraphJSONObjectCallback() {

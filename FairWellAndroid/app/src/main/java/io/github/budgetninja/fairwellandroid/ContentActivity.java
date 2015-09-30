@@ -38,8 +38,8 @@ public class ContentActivity extends AppCompatActivity {
     private static final int INDEX_RESOLVE_STATEMENT = 3;
     private static final int POSITION_HOME = 0;
     private static final int POSITION_FEATURES = 1;
-    private static final int POSITION_ADD_FRIEND = 2;
-    private static final int POSITION_REMOVE_FRIEND = 3;
+    private static final int POSITION_FRIENDS = 2;
+    private static final int POSITION_ADD_FRIEND = 3;
     private static final int POSITION_SETTING = 4;
     private static final int POSITION_ACCOUNT_SETTING = 5;
     private static final int POSITION_NOTIFICATION_SETTING = 6;
@@ -75,8 +75,8 @@ public class ContentActivity extends AppCompatActivity {
         List<Object> items = new ArrayList<Object>();
         items.add(new Item(getString(R.string.home), R.drawable.ic_action_select_all_dark));
         items.add(new Category(getString(R.string.features)));
+        items.add(new Item(getString(R.string.friends), R.drawable.ic_action_select_all_dark));
         items.add(new Item(getString(R.string.add_friend), R.drawable.ic_action_select_all_dark));
-        items.add(new Item(getString(R.string.remove_friend), R.drawable.ic_action_select_all_dark));
         items.add(new Category(getString(R.string.setting)));
         items.add(new Item(getString(R.string.account_setting), R.drawable.ic_action_refresh_dark));
         items.add(new Item(getString(R.string.notification_setting), R.drawable.ic_action_select_all_dark));
@@ -159,19 +159,28 @@ public class ContentActivity extends AppCompatActivity {
 
             //Logout Function
             //if(((Item)mAdapter.getItem(position)).mTitle.equals("Logout")){
-            if(position==POSITION_LOGOUT){
-                ParseUser.logOutInBackground(new LogOutCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        if (e == null) {
-                            Intent intent = new Intent(ContentActivity.this, MainActivity.class);
-                            ContentActivity.this.finish();
-                            startActivity(intent);
-                        }else{
-                            Toast.makeText(getApplicationContext(),getString(R.string.logout_failed),Toast.LENGTH_SHORT).show();
+            switch(position) {
+                case POSITION_LOGOUT:
+                    ParseUser.logOutInBackground(new LogOutCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                Intent intent = new Intent(ContentActivity.this, MainActivity.class);
+                                ContentActivity.this.finish();
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(getApplicationContext(), getString(R.string.logout_failed), Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
-                });
+                    });
+                    break;
+                case POSITION_FRIENDS:
+                    Intent intent = new Intent(ContentActivity.this,FriendsActivity.class);
+                    startActivity(intent);
+                    break;
+                default:
+                    break;
+
             }
         }
     };
