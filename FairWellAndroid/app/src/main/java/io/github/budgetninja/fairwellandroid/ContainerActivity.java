@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class ContainerActivity extends AppCompatActivity {
 
@@ -63,4 +64,18 @@ public class ContainerActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    //It will be better to change the image of the icon when clicked
+    public void iconClick(View view){
+        String clicked = "";
+        if(view == findViewById(R.id.icon_1)){ clicked = "Icon 1"; }            //need to change, don't know what some
+        else if(view == findViewById(R.id.icon_2)){ clicked = "Icon 2"; }      //icons are representing
+        else if(view == findViewById(R.id.icon_3)){ clicked = "Icon 3"; }
+        else if(view == findViewById(R.id.icon_4)){ clicked = "Icon 4"; }
+        else if(view == findViewById(R.id.icon_5)){ clicked = "Icon 5"; }
+        else if(view == findViewById(R.id.icon_6)){ clicked = "Icon 6"; }
+        else if(view == findViewById(R.id.icon_7)){ clicked = "Icon 7"; }
+        ((AddStatementFragment)getSupportFragmentManager().findFragmentByTag("Add")).setClickedText(clicked);
+    }
+
 }

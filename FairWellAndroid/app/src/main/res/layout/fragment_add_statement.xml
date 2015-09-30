@@ -13,6 +13,7 @@
         android:layout_marginTop="10dp"
         android:hint="Enter description"
         android:inputType="text"
+        android:maxLength="30"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"/>
@@ -23,59 +24,81 @@
         android:orientation="horizontal"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="5dp">
 
         <ImageView
+            android:id="@+id/icon_1"
             android:layout_gravity="center"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/icon_1"
             android:clickable="true"
+            android:onClick="iconClick"
             android:layout_weight="1"/>
         <ImageView
+            android:id="@+id/icon_2"
             android:layout_gravity="center"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/icon_2"
             android:clickable="true"
+            android:onClick="iconClick"
             android:layout_weight="1"/>
         <ImageView
+            android:id="@+id/icon_3"
             android:layout_gravity="center"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/icon_3"
             android:clickable="true"
+            android:onClick="iconClick"
             android:layout_weight="1"/>
         <ImageView
+            android:id="@+id/icon_4"
             android:layout_gravity="center"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/icon_4"
             android:clickable="true"
+            android:onClick="iconClick"
             android:layout_weight="1"/>
         <ImageView
+            android:id="@+id/icon_5"
             android:layout_gravity="center"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/icon_5"
             android:clickable="true"
+            android:onClick="iconClick"
             android:layout_weight="1"/>
         <ImageView
+            android:id="@+id/icon_6"
             android:layout_gravity="center"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/icon_6"
             android:clickable="true"
+            android:onClick="iconClick"
             android:layout_weight="1"/>
         <ImageView
+            android:id="@+id/icon_7"
             android:layout_gravity="center"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/icon_7"
             android:clickable="true"
+            android:onClick="iconClick"
             android:layout_weight="1"/>
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/clickText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="5dp"
+        android:gravity="center"
+        android:textSize="10sp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -105,6 +128,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+            android:inputType="numberDecimal"
             android:gravity="right"
             android:hint="0.00"/>
 
@@ -180,20 +204,23 @@
                 android:textSize="18sp"
                 android:layout_marginBottom="4dp"/>
 
-            <Button
-                android:id="@+id/dateButton"
+            <TextView
+                android:id="@+id/dateField"
                 android:background="@color/coolActionBar"
                 android:layout_gravity="center"
-                android:text="Pick a Date"
+                android:hint="Pick a Date"
+                android:gravity="center"
+                android:clickable="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
-                android:textSize="15sp"
+                android:textSize="17sp"
                 android:layout_marginBottom="4dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:minHeight="30dp"
                 android:minWidth="30dp" />
+
 
         </TableRow>
 
@@ -210,15 +237,16 @@
                 android:textSize="18sp"
                 android:layout_marginBottom="4dp"/>
 
-            <Button
-                android:id="@+id/deadlineButton"
+            <TextView
+                android:id="@+id/deadlineField"
                 android:background="@color/coolActionBar"
                 android:layout_gravity="center"
                 android:text="Pick a Date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 android:textStyle="bold"
-                android:textSize="15sp"
+                android:textSize="17sp"
                 android:layout_marginBottom="4dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
