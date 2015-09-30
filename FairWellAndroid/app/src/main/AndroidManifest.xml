@@ -54,6 +54,11 @@
             android:label="@string/title_activity_container"
             android:parentActivityName=".ContentActivity" >
         </activity>
+        <activity
+            android:name=".FriendsActivity"
+            android:label="@string/friends"
+            android:parentActivityName=".ContentActivity" >
+        </activity>
 
     </application>
 
