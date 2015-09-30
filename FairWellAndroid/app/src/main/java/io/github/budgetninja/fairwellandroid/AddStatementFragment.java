@@ -29,7 +29,6 @@ public class AddStatementFragment extends Fragment {
     private TextView deadlineField;
     private TextView dateField;
     private ArrayList<Integer> dateRecord;
-    private int editTextLength;
     private static final int DATE = 0;
     private static final int DEADLINE = 3;
     private static final int YEAR = 0;
@@ -50,9 +49,9 @@ public class AddStatementFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
 
-        ((ContainerActivity) getActivity()).setTitle("Add Statement");
-        editTextLength = 4;
+        getActivity().setTitle("Add Statement");;
 
+        // An array used to record the date set by user for DATE and DEADLINE
         dateRecord = new ArrayList<>(6);
         dateRecord.add(DATE + YEAR, 1899);
         dateRecord.add(DATE + MONTH, 1);
@@ -108,10 +107,9 @@ public class AddStatementFragment extends Fragment {
 
         moneyAmount.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }      //do nothing
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { /* do nothing */ }
             @Override
-            public void afterTextChanged(Editable s) { }        //do nothing
-
+            public void afterTextChanged(Editable s) { /* do nothing */ }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String temp = moneyAmount.getText().toString();
@@ -144,7 +142,8 @@ public class AddStatementFragment extends Fragment {
 
     public void showDatePickerDialog(View v, int args) {
         Bundle arg = new Bundle();
-        arg.putInt("View", args);
+        arg.putInt("ViewSel", args);
+        arg.putIntegerArrayList("DateList", dateRecord);
         DialogFragment newFragment = new Utility.DatePickerFragment();
         newFragment.setArguments(arg);
         newFragment.show(getFragmentManager(), "datePicker");
@@ -156,18 +155,18 @@ public class AddStatementFragment extends Fragment {
         }
     }
 
-    public void setDate(int year, int month, int day, int view) {
-        if(dateCheck(year, month, day, view)) {
-            dateRecord.set(view + YEAR, year);
-            dateRecord.set(view + MONTH, month);
-            dateRecord.set(view + DAY, day);
+    public void setDate(int year, int month, int day, int viewSel) {
+        if(dateCheck(year, month, day, viewSel)) {
+            dateRecord.set(viewSel + YEAR, year);
+            dateRecord.set(viewSel + MONTH, month);
+            dateRecord.set(viewSel + DAY, day);
 
             StringBuilder data = new StringBuilder("");
             data.append(month + 1).append("/").append(day).append("/").append(year);
 
-            if (view == DATE) {
+            if (viewSel == DATE) {
                 dateField.setText(data.toString());
-            } else if (view == DEADLINE) {
+            } else if (viewSel == DEADLINE) {
                 deadlineField.setText(data.toString());
             }
             return;

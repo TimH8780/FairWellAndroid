@@ -153,13 +153,18 @@ public class ContentActivity extends AppCompatActivity {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             mActivePosition = position;
             mMenuDrawer.setActiveView(view, position);
-            mContentTextView.setText(((TextView) view).getText());
+            mContentTextView.setText(((TextView) view).getText());             // Delete later
             mMenuDrawer.closeMenu();
             //Toast.makeText(getApplicationContext(),((TextView) view).getText(), Toast.LENGTH_SHORT).show();
 
-            //Logout Function
-            //if(((Item)mAdapter.getItem(position)).mTitle.equals("Logout")){
             switch(position) {
+                case POSITION_HOME:
+                    // Nothing really need to be done...
+                    break;
+                case POSITION_FRIENDS:
+                    Intent intent = new Intent(ContentActivity.this,FriendsActivity.class);
+                    startActivity(intent);
+                    break;
                 case POSITION_LOGOUT:
                     ParseUser.logOutInBackground(new LogOutCallback() {
                         @Override
@@ -174,13 +179,8 @@ public class ContentActivity extends AppCompatActivity {
                         }
                     });
                     break;
-                case POSITION_FRIENDS:
-                    Intent intent = new Intent(ContentActivity.this,FriendsActivity.class);
-                    startActivity(intent);
-                    break;
                 default:
                     break;
-
             }
         }
     };

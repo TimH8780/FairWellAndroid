@@ -58,9 +58,7 @@ public class LoginActivity extends Activity {
     @Override
     public void onCreate(Bundle bundle){
         super.onCreate(bundle);
-        //setHasOptionsMenu(true);        //force to recreate optionMenu
         setContentView(R.layout.activity_login);
-
 
         loginBut = (Button) findViewById(R.id.loginButton);
         registerBut = (Button) findViewById(R.id.registerButton);
@@ -126,13 +124,14 @@ public class LoginActivity extends Activity {
                 });
             }
         });
+
+        //Function of Twitter Login
         twitterLoginBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ParseTwitterUtils.logIn(LoginActivity.this, new LogInCallback() {
                     @Override
                     public void done(ParseUser user, ParseException err) {
-
                         if (user == null) {
                             Log.d("Fairwell", "Uh oh. The user cancelled the Twitter login.");
                             Toast.makeText(getApplicationContext(),getString(R.string.twitter_login_failed),Toast.LENGTH_SHORT).show();
@@ -146,11 +145,11 @@ public class LoginActivity extends Activity {
                             myInstallation.put("User", ParseUser.getCurrentUser());
                             myInstallation.saveInBackground();
                         }
-
                     }
                 });
             }
         });
+
         //Function of forget password
         forgetPass.setOnClickListener(new View.OnClickListener() {
             @Override
