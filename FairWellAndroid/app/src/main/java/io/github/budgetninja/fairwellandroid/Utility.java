@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.widget.DatePicker;
+import android.widget.Toast;
 
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -53,6 +54,7 @@ public class Utility {
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
+
             Bundle arg = getArguments();
             num = arg.getInt("View");
 
@@ -61,7 +63,7 @@ public class Utility {
         }
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
-            ((AddStatementFragment)getActivity().getSupportFragmentManager().findFragmentByTag("Add")).setDate(year, month, day, num);
+            ((AddStatementFragment) getActivity().getSupportFragmentManager().findFragmentByTag("Add")).setDate(year, month, day, num);
         }
     }
 
