@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+<<<<<<< HEAD
     <!-- From: file:/C:/Users/wardw/Documents/GitHub/FairWellAndroid/FairWellAndroid/library/build/intermediates/bundles/debug/res/values/values.xml -->
+=======
+    <!-- From: file:/C:/Users/TimH/Documents/GitHub/FairWellAndroid/FairWellAndroid/library/build/intermediates/bundles/debug/res/values/values.xml -->
+>>>>>>> 8092b6213396b6744156fa190c07b5fdabebf407
     <eat-comment/>
     <attr format="reference" name="menuDrawerStyle"/>
     <color name="md__defaultBackground">#FF555555</color>

@@ -54,6 +54,7 @@ public class Utility {
         return false;
     }
 
+<<<<<<< HEAD
     public static String getName(ParseUser user){
         String nameString;
         if(isFacebookUser(user)){
@@ -66,6 +67,8 @@ public class Utility {
         return nameString;
     }
 
+=======
+>>>>>>> 8092b6213396b6744156fa190c07b5fdabebf407
     public static class DatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
 

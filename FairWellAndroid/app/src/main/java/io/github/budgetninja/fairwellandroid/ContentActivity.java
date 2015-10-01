@@ -191,11 +191,15 @@ public class ContentActivity extends AppCompatActivity {
                 case POSITION_HOME:
                     // Nothing really need to be done...
                     break;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8092b6213396b6744156fa190c07b5fdabebf407
                 case POSITION_FRIENDS:
                     Intent intent = new Intent(ContentActivity.this,FriendsActivity.class);
                     startActivity(intent);
                     break;
+<<<<<<< HEAD
 
                 case POSITION_ADD_FRIEND:
                     addFriendDialog();
@@ -217,6 +221,8 @@ public class ContentActivity extends AppCompatActivity {
                     //do something
                     break;
 
+=======
+>>>>>>> 8092b6213396b6744156fa190c07b5fdabebf407
                 case POSITION_LOGOUT:
                     ParseUser.logOutInBackground(new LogOutCallback() {
                         @Override
@@ -231,6 +237,11 @@ public class ContentActivity extends AppCompatActivity {
                         }
                     });
                     break;
+<<<<<<< HEAD
+=======
+                default:
+                    break;
+>>>>>>> 8092b6213396b6744156fa190c07b5fdabebf407
             }
         }
     };
