@@ -59,11 +59,6 @@ public class AddStatementFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
         getActivity().setTitle("Add Statement");;
 
-<<<<<<< HEAD
-=======
-        getActivity().setTitle("Add Statement");;
-
->>>>>>> 8092b6213396b6744156fa190c07b5fdabebf407
         // An array used to record the date set by user for DATE and DEADLINE
         dateRecord = new ArrayList<>(6);
         dateRecord.add(DATE + YEAR, 1899);
@@ -122,15 +117,10 @@ public class AddStatementFragment extends Fragment {
         moneyAmount.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { /* do nothing */ }
-<<<<<<< HEAD
 
             @Override
             public void afterTextChanged(Editable s) { /* do nothing */ }
 
-=======
-            @Override
-            public void afterTextChanged(Editable s) { /* do nothing */ }
->>>>>>> 8092b6213396b6744156fa190c07b5fdabebf407
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String temp = moneyAmount.getText().toString();
