@@ -7,11 +7,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,33 +36,14 @@ import java.util.Arrays;
 
 public class LoginActivity extends Activity {
 
-    private View view;
     private Button loginBut, registerBut, facebookLoginBut, twitterLoginBut;
     private EditText username, password;
     private TextView forgetPass;
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        return super.onCreateOptionsMenu(menu);
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                // app icon in action bar clicked; goto parent activity.
-                this.finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
     @Override
     public void onCreate(Bundle bundle){
         super.onCreate(bundle);
-        //setHasOptionsMenu(true);        //force to recreate optionMenu
         setContentView(R.layout.activity_login);
-
 
         loginBut = (Button) findViewById(R.id.loginButton);
         registerBut = (Button) findViewById(R.id.registerButton);
@@ -126,13 +109,14 @@ public class LoginActivity extends Activity {
                 });
             }
         });
+
+        //Function of Twitter Login
         twitterLoginBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ParseTwitterUtils.logIn(LoginActivity.this, new LogInCallback() {
                     @Override
                     public void done(ParseUser user, ParseException err) {
-
                         if (user == null) {
                             Log.d("Fairwell", "Uh oh. The user cancelled the Twitter login.");
                             Toast.makeText(getApplicationContext(),getString(R.string.twitter_login_failed),Toast.LENGTH_SHORT).show();
@@ -146,24 +130,36 @@ public class LoginActivity extends Activity {
                             myInstallation.put("User", ParseUser.getCurrentUser());
                             myInstallation.saveInBackground();
                         }
-
                     }
                 });
             }
         });
+
         //Function of forget password
         forgetPass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-                final EditText input = new EditText(LoginActivity.this);
-                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-                builder.setTitle("Please Enter Your Email Address");
-                builder.setView(input);
+                final LinearLayout layout = new LinearLayout(LoginActivity.this);
+                final TextView message = new TextView(LoginActivity.this);
+                final EditText userInput = new EditText(LoginActivity.this);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+                para.setMargins(20, 20, 20, 0);
+                message.setText("Please enter your email address:");
+                message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+                message.setLayoutParams(para);
+                userInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+                userInput.setLayoutParams(para);
+                layout.addView(message);
+                layout.addView(userInput);
+                builder.setTitle("Reset Password");      //use e-mail for now, may need to change
+                builder.setView(layout);
                 builder.setPositiveButton("Send Reset Link", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        final String emailAddress = input.getText().toString();
+                        final String emailAddress = userInput.getText().toString();
                         ParseUser.requestPasswordResetInBackground(emailAddress, new RequestPasswordResetCallback() {
                             public void done(ParseException e) {
                                 if (e == null) {
@@ -190,7 +186,23 @@ public class LoginActivity extends Activity {
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // app icon in action bar clicked; goto parent activity.
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     public void goToLoggedInPage(){
         Intent intent = new Intent(LoginActivity.this, ContentActivity.class);
@@ -212,6 +224,7 @@ public class LoginActivity extends Activity {
             }
         });
     }
+
     public void setUpUsernameFacebook(final ParseUser user){
         GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(),
                 new GraphRequest.GraphJSONObjectCallback() {
@@ -221,14 +234,6 @@ public class LoginActivity extends Activity {
                             GraphResponse response) {
                         try {
                             user.fetchIfNeeded().put("usernameFacebook", object.getString("name"));
-                            /*
-                            if(object.getString("last_name")!=null) {
-                                user.fetchIfNeeded().put("Last_Name", object.getString("last_name"));
-                            }
-                            if(object.getString("first_name")!=null) {
-                                user.fetchIfNeeded().put("First_Name", object.getString("first_name"));
-                            }
-                            */
                             user.saveInBackground(new SaveCallback() {
                                 @Override
                                 public void done(ParseException e) {
@@ -253,11 +258,13 @@ public class LoginActivity extends Activity {
         request.setParameters(parameters);
         request.executeAsync();
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
     }
+
     public void goToRegisterPage() {
         Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
         startActivity(intent);

@@ -1,10 +1,14 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,9 +17,15 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.RequestPasswordResetCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +39,11 @@ public class AddStatementFragment extends Fragment {
     private TextView deadlineField;
     private TextView dateField;
     private ArrayList<Integer> dateRecord;
-    private int editTextLength;
     private static final int DATE = 0;
     private static final int DEADLINE = 3;
     private static final int YEAR = 0;
     private static final int MONTH = 1;
     private static final int DAY = 2;
-
 
     public AddStatementFragment() {
     }
@@ -49,10 +57,9 @@ public class AddStatementFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
+        getActivity().setTitle("Add Statement");;
 
-        ((ContainerActivity) getActivity()).setTitle("Add Statement");
-        editTextLength = 4;
-
+        // An array used to record the date set by user for DATE and DEADLINE
         dateRecord = new ArrayList<>(6);
         dateRecord.add(DATE + YEAR, 1899);
         dateRecord.add(DATE + MONTH, 1);
@@ -64,6 +71,7 @@ public class AddStatementFragment extends Fragment {
         Spinner spinner = (Spinner) rootView.findViewById(R.id.spinner);
         Spinner spinner2 = (Spinner) rootView.findViewById(R.id.spinner2);
         final EditText moneyAmount = (EditText) rootView.findViewById(R.id.moneyAmount);
+        Button addMemberButton = (Button) rootView.findViewById(R.id.addMemberButton);
         ClickedText = (TextView) rootView.findViewById(R.id.clickText);
         dateField = (TextView) rootView.findViewById(R.id.dateField);
         deadlineField = (TextView) rootView.findViewById(R.id.deadlineField);
@@ -108,14 +116,17 @@ public class AddStatementFragment extends Fragment {
 
         moneyAmount.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }      //do nothing
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { /* do nothing */ }
+
             @Override
-            public void afterTextChanged(Editable s) { }        //do nothing
+            public void afterTextChanged(Editable s) { /* do nothing */ }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String temp = moneyAmount.getText().toString();
-                if(temp.length() == 0){ return; }
+                if (temp.length() == 0) {
+                    return;
+                }
                 if (temp.contains(".")) {
                     int dotPos = temp.indexOf(".");
                     if (dotPos < temp.length() - 3) {
@@ -132,6 +143,32 @@ public class AddStatementFragment extends Fragment {
             }
         });
 
+        addMemberButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                final ScrollView input = new ScrollView(getActivity());
+                final ListView container = new ListView(getActivity());
+                input.addView(container);
+                builder.setTitle("Select Member(s)");
+                builder.setView(input);
+                builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Do something
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                final AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+
         return rootView;
     }
 
@@ -144,7 +181,8 @@ public class AddStatementFragment extends Fragment {
 
     public void showDatePickerDialog(View v, int args) {
         Bundle arg = new Bundle();
-        arg.putInt("View", args);
+        arg.putInt("ViewSel", args);
+        arg.putIntegerArrayList("DateList", dateRecord);
         DialogFragment newFragment = new Utility.DatePickerFragment();
         newFragment.setArguments(arg);
         newFragment.show(getFragmentManager(), "datePicker");
@@ -156,18 +194,18 @@ public class AddStatementFragment extends Fragment {
         }
     }
 
-    public void setDate(int year, int month, int day, int view) {
-        if(dateCheck(year, month, day, view)) {
-            dateRecord.set(view + YEAR, year);
-            dateRecord.set(view + MONTH, month);
-            dateRecord.set(view + DAY, day);
+    public void setDate(int year, int month, int day, int viewSel) {
+        if(dateCheck(year, month, day, viewSel)) {
+            dateRecord.set(viewSel + YEAR, year);
+            dateRecord.set(viewSel + MONTH, month);
+            dateRecord.set(viewSel + DAY, day);
 
             StringBuilder data = new StringBuilder("");
             data.append(month + 1).append("/").append(day).append("/").append(year);
 
-            if (view == DATE) {
+            if (viewSel == DATE) {
                 dateField.setText(data.toString());
-            } else if (view == DEADLINE) {
+            } else if (viewSel == DEADLINE) {
                 deadlineField.setText(data.toString());
             }
             return;
@@ -175,7 +213,6 @@ public class AddStatementFragment extends Fragment {
         Toast.makeText(getActivity().getApplicationContext(), "Invalid Input: 'Deadline' must be after 'Date'"
                 , Toast.LENGTH_SHORT).show();
     }
-
 
     public boolean dateCheck(int year, int month, int day, int view) {
         Boolean result = (view == DATE);

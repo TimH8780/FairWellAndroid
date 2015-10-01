@@ -11,11 +11,16 @@ import android.view.View;
 
 public class ContainerActivity extends AppCompatActivity {
 
+    private static final int INDEX_VIEW_STATEMENT = 1;
+    private static final int INDEX_ADD_STATEMENT = 2;
+    private static final int INDEX_RESOLVE_STATEMENT = 3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);                 //empty container
-        if(getSupportActionBar()!=null) {
+
+        if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
             getSupportActionBar().setElevation(0);
@@ -26,13 +31,13 @@ public class ContainerActivity extends AppCompatActivity {
         FragmentTransaction ft = fm.beginTransaction();
 
         switch (index) {                        //fill the container with different fragment based on the index
-            case 1:
+            case INDEX_VIEW_STATEMENT:
                 ft.replace(R.id.container, new ViewStatementsFragment(), "View");
                 break;
-            case 2:
+            case INDEX_ADD_STATEMENT:
                 ft.replace(R.id.container, new AddStatementFragment(), "Add");
                 break;
-            case 3:
+            case INDEX_RESOLVE_STATEMENT:
                 ft.replace(R.id.container, new ResolveStatementsFragment(), "Resolve");
                 break;
         }
@@ -45,7 +50,6 @@ public class ContainerActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_container, menu);
         return true;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

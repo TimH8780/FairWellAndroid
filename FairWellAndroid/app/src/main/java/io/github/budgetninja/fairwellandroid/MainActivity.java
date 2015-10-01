@@ -28,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
 
     private final static int SHOW_TUTORIAL = 0;     //don't know when to show tutorial
 
-    private SamplesAdapter mAdapter;
-    private int checkState;
+    //private SamplesAdapter mAdapter;
+    //private int checkState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
             goToLoggedInPage();
         } else {                            //Need to log in
             goToLoginPage();
-            //goToRegisterPage(false);
         }
     }
 
@@ -59,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         this.finish();
     }
+
     public void goToLoginPage(){
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
@@ -69,8 +69,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    // Do not modify the code below, it is part of the side panel code.
 
+
+    // Do not modify the code below, it is part of the side panel code.
     private static class SampleItem {
 
         String mTitle;

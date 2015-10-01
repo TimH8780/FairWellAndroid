@@ -1,27 +1,38 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.GetCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import net.simonvt.menudrawer.MenuDrawer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static io.github.budgetninja.fairwellandroid.Utility.isFacebookUser;
@@ -106,7 +117,7 @@ public class ContentActivity extends AppCompatActivity {
             }
         });
 
-//3 Button Functions
+        //3 Buttons Functions
         Button addStatementButton = (Button) findViewById(R.id.addStatementButton);
         addStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -136,54 +147,8 @@ public class ContentActivity extends AppCompatActivity {
 
         //Display Full Name
         TextView name = (TextView) findViewById(R.id.name);
-        String nameString;
-        if(isFacebookUser(user)){
-            nameString = user.getString("usernameFacebook");
-        }else if(isTwitterUser(user)){
-            nameString = user.getString("usernameTwitter");
-        }else {
-            nameString = user.getString("First_Name") + " " + user.getString("Last_Name");
-        }
-        name.setText(nameString);
-
+        name.setText(Utility.getName(user));
     }
-
-    private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            mActivePosition = position;
-            mMenuDrawer.setActiveView(view, position);
-            mContentTextView.setText(((TextView) view).getText());
-            mMenuDrawer.closeMenu();
-            //Toast.makeText(getApplicationContext(),((TextView) view).getText(), Toast.LENGTH_SHORT).show();
-
-            //Logout Function
-            //if(((Item)mAdapter.getItem(position)).mTitle.equals("Logout")){
-            switch(position) {
-                case POSITION_LOGOUT:
-                    ParseUser.logOutInBackground(new LogOutCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            if (e == null) {
-                                Intent intent = new Intent(ContentActivity.this, MainActivity.class);
-                                ContentActivity.this.finish();
-                                startActivity(intent);
-                            } else {
-                                Toast.makeText(getApplicationContext(), getString(R.string.logout_failed), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                    break;
-                case POSITION_FRIENDS:
-                    Intent intent = new Intent(ContentActivity.this,FriendsActivity.class);
-                    startActivity(intent);
-                    break;
-                default:
-                    break;
-
-            }
-        }
-    };
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -213,6 +178,153 @@ public class ContentActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            mActivePosition = position;
+            mMenuDrawer.setActiveView(view, position);
+            mContentTextView.setText(((TextView) view).getText());             // Delete later
+            mMenuDrawer.closeMenu();
+            //Toast.makeText(getApplicationContext(),((TextView) view).getText(), Toast.LENGTH_SHORT).show();
+
+            switch(position) {
+                case POSITION_HOME:
+                    // Nothing really need to be done...
+                    break;
+
+                case POSITION_FRIENDS:
+                    Intent intent = new Intent(ContentActivity.this,FriendsActivity.class);
+                    startActivity(intent);
+                    break;
+
+                case POSITION_ADD_FRIEND:
+                    addFriendDialog();
+                    break;
+
+                case POSITION_ACCOUNT_SETTING:
+                    //do something
+                    break;
+
+                case POSITION_NOTIFICATION_SETTING:
+                    //do something
+                    break;
+
+                case POSITION_RATE_THIS_APP:
+                    //do something
+                    break;
+
+                case POSITION_CONTACT_US:
+                    //do something
+                    break;
+
+                case POSITION_LOGOUT:
+                    ParseUser.logOutInBackground(new LogOutCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                Intent intent = new Intent(ContentActivity.this, MainActivity.class);
+                                ContentActivity.this.finish();
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(getApplicationContext(), getString(R.string.logout_failed), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    break;
+            }
+        }
+    };
+
+    private void addFriendDialog(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(ContentActivity.this);
+        final LinearLayout layout = new LinearLayout(ContentActivity.this);
+        final TextView message = new TextView(ContentActivity.this);
+        final EditText userInput = new EditText(ContentActivity.this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        para.setMargins(20, 20, 20, 0);
+        message.setText("Please enter the email address of your friend:");
+        message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        message.setLayoutParams(para);
+        userInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        userInput.setLayoutParams(para);
+        layout.addView(message);
+        layout.addView(userInput);
+        builder.setTitle("Add Friend");             //use e-mail for now, may need to change
+        builder.setView(layout);
+
+        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ParseQuery<ParseUser> query = ParseUser.getQuery();
+                query.whereEqualTo("email", userInput.getText().toString());
+                query.getFirstInBackground(new GetCallback<ParseUser>() {
+                    @Override
+                    public void done(ParseUser parseUser, ParseException e) {
+                        if (e == null) {
+                            addFriend(parseUser);
+                        } else {
+                            Log.d("AddFriend", e.getMessage());
+                            Toast.makeText(getApplicationContext(), "Failed to Find E-mail: " +
+                                    userInput.getText().toString(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void addFriend(ParseUser friend){
+        if(user.getObjectId() == friend.getObjectId()){
+            Toast.makeText(getApplicationContext(), "Invalid Email Address",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(isDuplicateFriend(user, friend)) {
+            ParseObject friendList = new ParseObject("FriendList");
+            friendList.put("userOne", user);
+            friendList.put("userTwo", friend);
+            //friendList.put("userOneEmail", user.getEmail());
+            friendList.put("userTwoEmail", friend.getEmail());
+            friendList.put("confirmed", false);
+            friendList.put("newEntryForOne", true);         //maybe needed in future
+            friendList.put("newEntryForTwo", true);
+            friendList.saveInBackground();
+            Toast.makeText(getApplicationContext(), "Sent a notification to <" +
+                    Utility.getName(friend) + ">", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Toast.makeText(getApplicationContext(), "<" + Utility.getName(friend) +
+                "> and you are already friend", Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean isDuplicateFriend(ParseUser userOne, ParseUser userTwo){
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("FriendList");
+        ParseUser[] list = {userOne, userTwo};
+        query.whereContainedIn("userOne", Arrays.asList(list));
+        query.whereContainedIn("userTwo", Arrays.asList(list));
+        try {
+            return (query.count() == 0);
+        }
+        catch (ParseException x) {
+            Log.d("checkDuplicate",x.getMessage());
+            return false;
+        }
+    }
+
+
+
+    //Related to Side-Menu
     private static class Item {
         String mTitle;
         int mIconRes;

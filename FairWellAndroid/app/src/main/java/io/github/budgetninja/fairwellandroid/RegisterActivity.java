@@ -26,26 +26,10 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView termCondition;
     private CheckBox agreement;
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        return super.onCreateOptionsMenu(menu);
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                // app icon in action bar clicked; goto parent activity.
-                this.finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
     @Override
     public void onCreate(Bundle bundle){
         super.onCreate(bundle);
+
         setContentView(R.layout.activity_register);
         cancelButton = (Button) findViewById(R.id.cancelRegistrationButton);
         confirmRegButton = (Button) findViewById(R.id.confirmRegistrationButton);
@@ -60,6 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
         agreement = (CheckBox) findViewById(R.id.agreeCheckBox);
 
         if(getSupportActionBar()!=null){
+            getSupportActionBar().setTitle("Register");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         //Function of Cancel Button
@@ -135,6 +120,22 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // app icon in action bar clicked; goto parent activity.
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
 }
