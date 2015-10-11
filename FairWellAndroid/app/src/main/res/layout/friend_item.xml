@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="15dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp">
+
+    <ImageView
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@drawable/profilepic"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp">
+
+        <TextView
+            android:id="@+id/friend_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="FRIEND NAME" />
+
+        <TextView
+            android:id="@+id/friend_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/friend_name"
+            android:layout_alignParentLeft="true"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:text="Friend Email"/>
+
+        <TextView
+            android:id="@+id/confirmText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/friend_email"
+            android:layout_alignParentLeft="true"
+            android:textSize="15sp"
+            android:text="Confirmed: " />
+
+        <TextView
+            android:id="@+id/confirmResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/confirmText"
+            android:layout_alignRight="@+id/confirmText"
+            android:layout_alignParentLeft="true"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#FF0000"
+            android:gravity="center"
+            android:text="NO"/>
+
+        <Button
+            android:id="@+id/button_friend_confirm"
+            android:layout_width="70dp"
+            android:layout_height="45dp"
+            android:layout_below="@+id/friend_email"
+            android:layout_toLeftOf="@+id/button_friend_delete"
+            android:textSize="12sp"
+            android:hint="Confirm" />
+
+        <Button
+            android:id="@+id/button_friend_delete"
+            android:layout_width="70dp"
+            android:layout_height="45dp"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/friend_email"
+            android:textSize="12sp"
+            android:hint="Delete"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

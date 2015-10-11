@@ -70,4 +70,5 @@
             style="@style/MenuDrawer.Widget.Title" />
 
     </LinearLayout>
+
 </ScrollView>

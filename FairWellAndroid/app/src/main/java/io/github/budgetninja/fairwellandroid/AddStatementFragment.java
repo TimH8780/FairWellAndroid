@@ -6,9 +6,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,12 +21,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.ParseException;
-import com.parse.ParseUser;
-import com.parse.RequestPasswordResetCallback;
-
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -57,7 +50,7 @@ public class AddStatementFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
-        getActivity().setTitle("Add Statement");;
+        getActivity().setTitle("Add Statement");
 
         // An array used to record the date set by user for DATE and DEADLINE
         dateRecord = new ArrayList<>(6);
@@ -103,14 +96,14 @@ public class AddStatementFragment extends Fragment {
         dateField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDatePickerDialog(v, DATE);
+                showDatePickerDialog(DATE);
             }
         });
 
         deadlineField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDatePickerDialog(v, DEADLINE);
+                showDatePickerDialog(DEADLINE);
             }
         });
 
@@ -179,7 +172,7 @@ public class AddStatementFragment extends Fragment {
         inflater.inflate(R.menu.menu_add_statement, menu);
     }
 
-    public void showDatePickerDialog(View v, int args) {
+    public void showDatePickerDialog(int args) {
         Bundle arg = new Bundle();
         arg.putInt("ViewSel", args);
         arg.putIntegerArrayList("DateList", dateRecord);
@@ -201,7 +194,8 @@ public class AddStatementFragment extends Fragment {
             dateRecord.set(viewSel + DAY, day);
 
             StringBuilder data = new StringBuilder("");
-            data.append(month + 1).append("/").append(day).append("/").append(year);
+            data.append(String.format("%02d",month + 1)).append("/").append(String.format("%02d", day)).append("/").append(year);
+
 
             if (viewSel == DATE) {
                 dateField.setText(data.toString());
@@ -222,7 +216,6 @@ public class AddStatementFragment extends Fragment {
         if (dateRecord.get(view + MONTH) > month) { return result; }
         if (dateRecord.get(view + MONTH) < month) { return !result; }
         if (dateRecord.get(view + DAY) > day) { return result; }
-        if((dateRecord.get(view + DAY) == day)) { return false; }       //special case
-        return !result;
+        return (dateRecord.get(view + DAY) != day) && (!result);
     }
 }

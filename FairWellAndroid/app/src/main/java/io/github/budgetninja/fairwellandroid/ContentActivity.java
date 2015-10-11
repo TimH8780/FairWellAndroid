@@ -35,8 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.github.budgetninja.fairwellandroid.Utility.isFacebookUser;
-import static io.github.budgetninja.fairwellandroid.Utility.isTwitterUser;
 
 //Do not modify this code - it is part of the side panel.
 
@@ -48,16 +46,17 @@ public class ContentActivity extends AppCompatActivity {
     private static final int INDEX_ADD_STATEMENT = 2;
     private static final int INDEX_RESOLVE_STATEMENT = 3;
     private static final int POSITION_HOME = 0;
-    private static final int POSITION_FEATURES = 1;
+    //private static final int POSITION_FEATURES = 1;
     private static final int POSITION_FRIENDS = 2;
     private static final int POSITION_ADD_FRIEND = 3;
-    private static final int POSITION_SETTING = 4;
+    //private static final int POSITION_SETTING = 4;
     private static final int POSITION_ACCOUNT_SETTING = 5;
     private static final int POSITION_NOTIFICATION_SETTING = 6;
-    private static final int POSITION_OTHERS = 7;
+    //private static final int POSITION_OTHERS = 7;
     private static final int POSITION_RATE_THIS_APP = 8;
     private static final int POSITION_CONTACT_US = 9;
     private static final int POSITION_LOGOUT = 10;
+
     private MenuDrawer mMenuDrawer;
     private MenuAdapter mAdapter;
     private ListView mList;
@@ -70,8 +69,11 @@ public class ContentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle inState) {
         super.onCreate(inState);
-        getSupportActionBar().setElevation(0);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.nav_icon);
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setElevation(0);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.nav_icon);
+        }
+
         user = ParseUser.getCurrentUser();
 
         if (inState != null) {
@@ -83,7 +85,7 @@ public class ContentActivity extends AppCompatActivity {
         mMenuDrawer.setContentView(R.layout.activity_content);
         mMenuDrawer.setTouchMode(MenuDrawer.TOUCH_MODE_FULLSCREEN);
 
-        List<Object> items = new ArrayList<Object>();
+        List<Object> items = new ArrayList<>();
         items.add(new Item(getString(R.string.home), R.drawable.ic_action_select_all_dark));
         items.add(new Category(getString(R.string.features)));
         items.add(new Item(getString(R.string.friends), R.drawable.ic_action_select_all_dark));
@@ -104,7 +106,7 @@ public class ContentActivity extends AppCompatActivity {
         mMenuDrawer.setMenuView(mList);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);          //Uncommented
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         mContentTextView = (TextView) findViewById(R.id.contentText);
@@ -121,6 +123,10 @@ public class ContentActivity extends AppCompatActivity {
         Button addStatementButton = (Button) findViewById(R.id.addStatementButton);
         addStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                if(Utility.checkNewEntry()){
+                    Utility.setChangedRecord();
+                    Utility.generateFriendList(user);
+                }
                 Intent i = new Intent(ContentActivity.this, ContainerActivity.class);
                 i.putExtra("Index", INDEX_ADD_STATEMENT);
                 startActivity(i);
@@ -130,6 +136,10 @@ public class ContentActivity extends AppCompatActivity {
         Button resolveStatementButton = (Button) findViewById(R.id.resolveStatementButton);
         resolveStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                if(Utility.checkNewEntry()){
+                    Utility.setChangedRecord();
+                    Utility.generateFriendList(user);
+                }
                 Intent i = new Intent(ContentActivity.this, ContainerActivity.class);
                 i.putExtra("Index", INDEX_RESOLVE_STATEMENT);
                 startActivity(i);
@@ -139,6 +149,10 @@ public class ContentActivity extends AppCompatActivity {
         Button viewStatementButton = (Button) findViewById(R.id.viewStatementButton);
         viewStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                if(Utility.checkNewEntry()){
+                    Utility.setChangedRecord();
+                    Utility.generateFriendList(user);
+                }
                 Intent i = new Intent(ContentActivity.this, ContainerActivity.class);
                 i.putExtra("Index", INDEX_VIEW_STATEMENT);
                 startActivity(i);
@@ -170,6 +184,10 @@ public class ContentActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        if(Utility.checkNewEntry()){
+            Utility.setChangedRecord();
+            Utility.generateFriendList(user);
+        }
         final int drawerState = mMenuDrawer.getDrawerState();
         if (drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING) {
             mMenuDrawer.closeMenu();
@@ -185,6 +203,10 @@ public class ContentActivity extends AppCompatActivity {
             mMenuDrawer.setActiveView(view, position);
             mContentTextView.setText(((TextView) view).getText());             // Delete later
             mMenuDrawer.closeMenu();
+            if(Utility.checkNewEntry()){
+                Utility.setChangedRecord();
+                Utility.generateFriendList(user);
+            }
             //Toast.makeText(getApplicationContext(),((TextView) view).getText(), Toast.LENGTH_SHORT).show();
 
             switch(position) {
@@ -195,6 +217,7 @@ public class ContentActivity extends AppCompatActivity {
                 case POSITION_FRIENDS:
                     Intent intent = new Intent(ContentActivity.this,FriendsActivity.class);
                     startActivity(intent);
+
                     break;
 
                 case POSITION_ADD_FRIEND:
@@ -224,6 +247,8 @@ public class ContentActivity extends AppCompatActivity {
                             if (e == null) {
                                 Intent intent = new Intent(ContentActivity.this, MainActivity.class);
                                 ContentActivity.this.finish();
+                                Utility.resetExistingFriendList();
+                                Utility.setChangedRecord();
                                 startActivity(intent);
                             } else {
                                 Toast.makeText(getApplicationContext(), getString(R.string.logout_failed), Toast.LENGTH_SHORT).show();
@@ -235,7 +260,7 @@ public class ContentActivity extends AppCompatActivity {
         }
     };
 
-    private void addFriendDialog(){
+    private void addFriendDialog(){         //show dialog and prompt user to enter email
         final AlertDialog.Builder builder = new AlertDialog.Builder(ContentActivity.this);
         final LinearLayout layout = new LinearLayout(ContentActivity.this);
         final TextView message = new TextView(ContentActivity.this);
@@ -257,7 +282,7 @@ public class ContentActivity extends AppCompatActivity {
         builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ParseQuery<ParseUser> query = ParseUser.getQuery();
+                ParseQuery<ParseUser> query = ParseUser.getQuery();                 //find other user by searching email
                 query.whereEqualTo("email", userInput.getText().toString());
                 query.getFirstInBackground(new GetCallback<ParseUser>() {
                     @Override
@@ -285,21 +310,24 @@ public class ContentActivity extends AppCompatActivity {
     }
 
     private void addFriend(ParseUser friend){
-        if(user.getObjectId() == friend.getObjectId()){
+        if(user.getObjectId().equals(friend.getObjectId())){                         // can't add yourself as friend
             Toast.makeText(getApplicationContext(), "Invalid Email Address",
                     Toast.LENGTH_SHORT).show();
             return;
         }
-        if(isDuplicateFriend(user, friend)) {
+        if (isDuplicateFriend(user, friend)) {
             ParseObject friendList = new ParseObject("FriendList");
             friendList.put("userOne", user);
             friendList.put("userTwo", friend);
-            //friendList.put("userOneEmail", user.getEmail());
-            friendList.put("userTwoEmail", friend.getEmail());
             friendList.put("confirmed", false);
-            friendList.put("newEntryForOne", true);         //maybe needed in future
-            friendList.put("newEntryForTwo", true);
             friendList.saveInBackground();
+
+            ParseObject temp = Utility.getListLocation();
+            temp.getList("list").add(friendList);
+            temp.pinInBackground();
+            Utility.addToExistingFriendList(friendList.getObjectId(), friend);
+            Utility.editNewEntry(friend, true);
+
             Toast.makeText(getApplicationContext(), "Sent a notification to <" +
                     Utility.getName(friend) + ">", Toast.LENGTH_SHORT).show();
             return;
@@ -308,7 +336,7 @@ public class ContentActivity extends AppCompatActivity {
                 "> and you are already friend", Toast.LENGTH_SHORT).show();
     }
 
-    private boolean isDuplicateFriend(ParseUser userOne, ParseUser userTwo){
+    private boolean isDuplicateFriend(ParseUser userOne, ParseUser userTwo){            // check if added before
         ParseQuery<ParseObject> query = ParseQuery.getQuery("FriendList");
         ParseUser[] list = {userOne, userTwo};
         query.whereContainedIn("userOne", Arrays.asList(list));

@@ -26,10 +26,6 @@ public class MainActivity extends AppCompatActivity {
     feel easier and more feasible.
      */
 
-    private final static int SHOW_TUTORIAL = 0;     //don't know when to show tutorial
-
-    //private SamplesAdapter mAdapter;
-    //private int checkState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,13 +61,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goToLoggedInPage(){
+        if(Utility.checkNewEntry()){
+            Utility.setChangedRecord();
+            Utility.generateFriendList(ParseUser.getCurrentUser());
+        }
         Intent intent = new Intent(MainActivity.this, ContentActivity.class);
         startActivity(intent);
     }
 
 
 
-    // Do not modify the code below, it is part of the side panel code.
+    // Never used, comment out for now  --- Tim
+
+/*
+    // Do not modify the code below, it is part of the side panel code
     private static class SampleItem {
 
         String mTitle;
@@ -85,9 +88,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+
     public class SamplesAdapter extends BaseAdapter {
 
-        private List<SampleItem> mSamples = new ArrayList<SampleItem>();
+        private List<SampleItem> mSamples = new ArrayList<>();
 
         public void addSample(String title, String summary, Class clazz) {
             mSamples.add(new SampleItem(title, summary, clazz));
@@ -123,4 +128,6 @@ public class MainActivity extends AppCompatActivity {
             return v;
         }
     }
+*/
+
 }

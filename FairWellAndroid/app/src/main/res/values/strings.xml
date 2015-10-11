@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources>
 
     <string name="parse_app_id">EbYqSTBrerVZ4b6B48oa52fqjHWKDS6tpO9SHghT</string>
@@ -6,6 +7,7 @@
     <string name="facebook_app_id">1006925246006126</string>
     <string name="twitter_consumer_key">XHhWNEDZIVVJJpeqJE5iPGWKx</string>
     <string name="twitter_consumer_secret">Se0RMB7HPhevHf3Jy5Y7RCnIJ4NYOefLV0MqxNLtlcQDICjFX1</string>
+
     <string name="home">Home</string>
     <string name="features">Features</string>
     <string name="friends">Friends</string>
@@ -20,6 +22,7 @@
     <string name="logout">Logout</string>
     <string name="logout_failed">Logout Failed</string>
     <string name="twitter_login_failed">Twitter login failed.</string>
+
     <string-array name="name_array">
         <item>Issac</item>
         <item>Winnie</item>
@@ -37,10 +40,7 @@
         <item>By Ratio</item>
     </string-array>
 
-    <string name="hello_world" > Hello world </string>
-
     <string name="action_settings" > Action Settings </string>
-
     <string name="app_name">Fairwell</string>
 
     <string name="sample_content">Sample of dragging the content.\nThe menu consists of a ListView, for which the
@@ -77,4 +77,5 @@
     <string name="title_activity_resolve_statements">ResolveStatementsActivity</string>
     <string name="title_activity_container">ContainerActivity</string>
     <string name="title_activity_login_fragment">LoginFragment</string>
+
 </resources>

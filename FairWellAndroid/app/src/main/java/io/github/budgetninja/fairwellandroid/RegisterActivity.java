@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
@@ -21,9 +22,7 @@ import com.parse.SignUpCallback;
  */
 public class RegisterActivity extends AppCompatActivity {
 
-    private Button cancelButton, confirmRegButton, uploadButton;
     private EditText firstN, lastN, userN, email, pass, ConfirmPass;
-    private TextView termCondition;
     private CheckBox agreement;
 
     @Override
@@ -31,16 +30,16 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(bundle);
 
         setContentView(R.layout.activity_register);
-        cancelButton = (Button) findViewById(R.id.cancelRegistrationButton);
-        confirmRegButton = (Button) findViewById(R.id.confirmRegistrationButton);
-        uploadButton = (Button) findViewById(R.id.uploadPic);
+        Button cancelButton = (Button) findViewById(R.id.cancelRegistrationButton);
+        Button confirmRegButton = (Button) findViewById(R.id.confirmRegistrationButton);
+        Button uploadButton = (Button) findViewById(R.id.uploadPic);
         firstN = (EditText) findViewById(R.id.firstName);
         lastN = (EditText) findViewById(R.id.lastName);
         userN = (EditText) findViewById(R.id.username);
         email = (EditText) findViewById(R.id.emailAddress);
         pass = (EditText) findViewById(R.id.password);
         ConfirmPass = (EditText) findViewById(R.id.confirmPassword);
-        termCondition = (TextView) findViewById(R.id.conditionTerm);
+        TextView termCondition = (TextView) findViewById(R.id.conditionTerm);
         agreement = (CheckBox) findViewById(R.id.agreeCheckBox);
 
         if(getSupportActionBar()!=null){
@@ -64,7 +63,7 @@ public class RegisterActivity extends AppCompatActivity {
                 if(pass.getText().toString().equals(ConfirmPass.getText().toString())
                         && firstN.getText().toString().length() > 0 && lastN.getText().toString().length() >0){
                     if(agreement.isChecked()) {
-                        ParseUser user = new ParseUser();
+                        final ParseUser user = new ParseUser();
                         user.setUsername(userN.getText().toString());
                         user.setPassword(pass.getText().toString());
                         user.setEmail(email.getText().toString());
@@ -75,9 +74,15 @@ public class RegisterActivity extends AppCompatActivity {
                             public void done(ParseException e) {
                                 if (e == null) {
                                     //Successful
+                                    ParseObject tempA = new ParseObject("Friend_update");
+                                    tempA.put("newEntry", false);
+                                    tempA.saveInBackground();
+                                    user.put("newEntry", tempA);
+                                    user.saveInBackground();
+
                                     Toast.makeText(getApplicationContext(), "Registration Success. A verification email was sent to"
                                             + email.getText().toString(), Toast.LENGTH_SHORT).show();
-
+                                    finish();
                                     return;
                                 }
                                 //Fail

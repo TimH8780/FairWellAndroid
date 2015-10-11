@@ -24,6 +24,7 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
+import com.parse.ParseObject;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.RequestPasswordResetCallback;
@@ -36,22 +37,20 @@ import java.util.Arrays;
 
 public class LoginActivity extends Activity {
 
-    private Button loginBut, registerBut, facebookLoginBut, twitterLoginBut;
     private EditText username, password;
-    private TextView forgetPass;
 
     @Override
     public void onCreate(Bundle bundle){
         super.onCreate(bundle);
         setContentView(R.layout.activity_login);
 
-        loginBut = (Button) findViewById(R.id.loginButton);
-        registerBut = (Button) findViewById(R.id.registerButton);
-        facebookLoginBut = (Button) findViewById(R.id.facebookButton);
-        twitterLoginBut = (Button) findViewById(R.id.twitterButton);
+        Button loginBut = (Button) findViewById(R.id.loginButton);
+        Button registerBut = (Button) findViewById(R.id.registerButton);
+        Button facebookLoginBut = (Button) findViewById(R.id.facebookButton);
+        Button twitterLoginBut = (Button) findViewById(R.id.twitterButton);
         username = (EditText) findViewById(R.id.loginUsername);
         password = (EditText) findViewById(R.id.loginPassword);
-        forgetPass = (TextView) findViewById(R.id.forgetPassword);
+        TextView forgetPass = (TextView) findViewById(R.id.forgetPassword);
 
         //Function of Login Button
         loginBut.setOnClickListener(new View.OnClickListener() {
@@ -205,12 +204,22 @@ public class LoginActivity extends Activity {
     }
 
     public void goToLoggedInPage(){
+        if(Utility.checkNewEntry()){
+            Utility.setChangedRecord();
+            Utility.generateFriendList(ParseUser.getCurrentUser());
+        }
         Intent intent = new Intent(LoginActivity.this, ContentActivity.class);
         startActivity(intent);
     }
 
     public void setUpUsernameTwitter(ParseUser user){
-        user.put("usernameTwitter",(ParseTwitterUtils.getTwitter().getScreenName()));
+        user.put("usernameTwitter", (ParseTwitterUtils.getTwitter().getScreenName()));
+        if(user.get("newEntry") == null){
+            ParseObject temp = new ParseObject("Friend_update");
+            temp.put("newEntry", false);
+            temp.saveInBackground();
+            user.put("newEntry", temp);
+        }
         user.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -234,6 +243,12 @@ public class LoginActivity extends Activity {
                             GraphResponse response) {
                         try {
                             user.fetchIfNeeded().put("usernameFacebook", object.getString("name"));
+                            if(user.get("newEntry") == null){
+                                ParseObject temp = new ParseObject("Friend_update");
+                                temp.put("newEntry", false);
+                                temp.saveInBackground();
+                                user.fetchIfNeeded().put("newEntry", temp);
+                            }
                             user.saveInBackground(new SaveCallback() {
                                 @Override
                                 public void done(ParseException e) {
@@ -249,8 +264,7 @@ public class LoginActivity extends Activity {
                                 }
                             });
                         }
-                        catch (JSONException e) { e.printStackTrace(); }
-                        catch (ParseException e) { e.printStackTrace();}
+                        catch (JSONException|ParseException e) { e.printStackTrace(); }
                     }
                 });
         Bundle parameters = new Bundle();
@@ -269,4 +283,5 @@ public class LoginActivity extends Activity {
         Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
         startActivity(intent);
     }
+
 }
