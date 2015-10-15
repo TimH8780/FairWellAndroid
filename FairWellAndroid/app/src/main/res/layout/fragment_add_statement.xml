@@ -301,6 +301,7 @@
                 android:layout_marginBottom="4dp"/>
 
             <Button
+                android:id="@+id/addSnapshotButton"
                 android:background="@color/coolActionBar"
                 android:layout_gravity="center"
                 android:text="Click to add"

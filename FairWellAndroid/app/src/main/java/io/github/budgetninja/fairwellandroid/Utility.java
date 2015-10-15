@@ -173,6 +173,10 @@ public class Utility {
         if(pFriendList == null || changedRecord) {                                                     //need to test the case if the list in userA change if
             boolean userOne;                                                                           //userB confirm the friendship (2 phones needed)
             List<Utility.Friend> friendList = new ArrayList<>();
+
+            if(rawList==null){
+                return new ArrayList<Utility.Friend>();
+            }
             for (int i = 0; i < rawList.size(); i++) {
                 ParseUser user = ParseUser.getCurrentUser();
                 try {

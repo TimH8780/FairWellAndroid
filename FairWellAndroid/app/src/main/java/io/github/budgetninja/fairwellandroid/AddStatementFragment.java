@@ -31,6 +31,10 @@ public class AddStatementFragment extends Fragment {
     private TextView ClickedText;
     private TextView deadlineField;
     private TextView dateField;
+
+    private Button addSnapshotButton;
+    private Button addMemberButton;
+    private Button closeButton;
     private ArrayList<Integer> dateRecord;
     private static final int DATE = 0;
     private static final int DEADLINE = 3;
@@ -64,7 +68,8 @@ public class AddStatementFragment extends Fragment {
         Spinner spinner = (Spinner) rootView.findViewById(R.id.spinner);
         Spinner spinner2 = (Spinner) rootView.findViewById(R.id.spinner2);
         final EditText moneyAmount = (EditText) rootView.findViewById(R.id.moneyAmount);
-        Button addMemberButton = (Button) rootView.findViewById(R.id.addMemberButton);
+        addMemberButton = (Button) rootView.findViewById(R.id.addMemberButton);
+        addSnapshotButton = (Button) rootView.findViewById(R.id.addSnapshotButton);
         ClickedText = (TextView) rootView.findViewById(R.id.clickText);
         dateField = (TextView) rootView.findViewById(R.id.dateField);
         deadlineField = (TextView) rootView.findViewById(R.id.deadlineField);
@@ -83,7 +88,7 @@ public class AddStatementFragment extends Fragment {
         spinner.setAdapter(adapter);
         spinner2.setAdapter(adapter2);
 
-        Button closeButton = (Button) rootView.findViewById(R.id.confirmButton);
+        closeButton = (Button) rootView.findViewById(R.id.confirmButton);
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -162,6 +167,16 @@ public class AddStatementFragment extends Fragment {
             }
         });
 
+
+        addSnapshotButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity().getApplicationContext(), "Unavailable now"
+                        , Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
         return rootView;
     }
 
@@ -204,7 +219,7 @@ public class AddStatementFragment extends Fragment {
             }
             return;
         }
-        Toast.makeText(getActivity().getApplicationContext(), "Invalid Input: 'Deadline' must be after 'Date'"
+        Toast.makeText(getActivity().getApplicationContext(), "Invalid Input:'Deadline' must be after 'Date'"
                 , Toast.LENGTH_SHORT).show();
     }
 

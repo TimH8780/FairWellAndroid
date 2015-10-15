@@ -3,8 +3,10 @@ package io.github.budgetninja.fairwellandroid;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
@@ -54,7 +56,7 @@ public class ContentActivity extends AppCompatActivity {
     private static final int POSITION_NOTIFICATION_SETTING = 6;
     //private static final int POSITION_OTHERS = 7;
     private static final int POSITION_RATE_THIS_APP = 8;
-    private static final int POSITION_CONTACT_US = 9;
+    private static final int POSITION_ABOUT_US = 9;
     private static final int POSITION_LOGOUT = 10;
 
     private MenuDrawer mMenuDrawer;
@@ -65,6 +67,8 @@ public class ContentActivity extends AppCompatActivity {
     private TextView mContentTextView;
 
     private ParseUser user;
+
+    boolean doubleBackToExitPressedOnce = false;
 
     @Override
     protected void onCreate(Bundle inState) {
@@ -91,11 +95,11 @@ public class ContentActivity extends AppCompatActivity {
         items.add(new Item(getString(R.string.friends), R.drawable.ic_action_select_all_dark));
         items.add(new Item(getString(R.string.add_friend), R.drawable.ic_action_select_all_dark));
         items.add(new Category(getString(R.string.setting)));
-        items.add(new Item(getString(R.string.account_setting), R.drawable.ic_action_refresh_dark));
+        items.add(new Item(getString(R.string.account_setting), R.drawable.ic_action_select_all_dark));
         items.add(new Item(getString(R.string.notification_setting), R.drawable.ic_action_select_all_dark));
         items.add(new Category(getString(R.string.others)));
-        items.add(new Item(getString(R.string.rate_this_app), R.drawable.ic_action_refresh_dark));
-        items.add(new Item(getString(R.string.contact_us), R.drawable.ic_action_select_all_dark));
+        items.add(new Item(getString(R.string.rate_this_app), R.drawable.ic_action_select_all_dark));
+        items.add(new Item(getString(R.string.about_us), R.drawable.ic_action_select_all_dark));
         items.add(new Item(getString(R.string.logout), R.drawable.ic_action_select_all_dark));
 
         mList = new ListView(this);
@@ -110,7 +114,7 @@ public class ContentActivity extends AppCompatActivity {
         }
 
         mContentTextView = (TextView) findViewById(R.id.contentText);
-        mContentTextView.setText(mContentText);
+        //mContentTextView.setText(mContentText);
 
         mMenuDrawer.setOnInterceptMoveEventListener(new MenuDrawer.OnInterceptMoveEventListener() {
             @Override
@@ -188,12 +192,34 @@ public class ContentActivity extends AppCompatActivity {
             Utility.setChangedRecord();
             Utility.generateFriendList(user);
         }
+
         final int drawerState = mMenuDrawer.getDrawerState();
+
         if (drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING) {
             mMenuDrawer.closeMenu();
             return;
         }
-        super.onBackPressed();
+
+        if (doubleBackToExitPressedOnce) {
+            // this is to close the app entirely, but it will still be in the stack
+
+            Intent a = new Intent(Intent.ACTION_MAIN);
+            a.addCategory(Intent.CATEGORY_HOME);
+            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(a);
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce = false;
+            }
+        }, 2000);
+
     }
 
     private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
@@ -201,7 +227,7 @@ public class ContentActivity extends AppCompatActivity {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             mActivePosition = position;
             mMenuDrawer.setActiveView(view, position);
-            mContentTextView.setText(((TextView) view).getText());             // Delete later
+            //mContentTextView.setText(((TextView) view).getText());             // Delete later
             mMenuDrawer.closeMenu();
             if(Utility.checkNewEntry()){
                 Utility.setChangedRecord();
@@ -217,7 +243,6 @@ public class ContentActivity extends AppCompatActivity {
                 case POSITION_FRIENDS:
                     Intent intent = new Intent(ContentActivity.this,FriendsActivity.class);
                     startActivity(intent);
-
                     break;
 
                 case POSITION_ADD_FRIEND:
@@ -225,18 +250,27 @@ public class ContentActivity extends AppCompatActivity {
                     break;
 
                 case POSITION_ACCOUNT_SETTING:
-                    //do something
+                    Toast.makeText(getApplicationContext(), "Coming soon!", Toast.LENGTH_SHORT).show();
                     break;
 
                 case POSITION_NOTIFICATION_SETTING:
+                    Toast.makeText(getApplicationContext(), "Coming soon!", Toast.LENGTH_SHORT).show();
                     //do something
                     break;
 
                 case POSITION_RATE_THIS_APP:
+                    Toast.makeText(getApplicationContext(), "Coming soon!", Toast.LENGTH_SHORT).show();
                     //do something
                     break;
 
-                case POSITION_CONTACT_US:
+                case POSITION_ABOUT_US:
+
+                    Intent i = new Intent();
+                    i.setAction(Intent.ACTION_VIEW);
+                    i.addCategory(Intent.CATEGORY_BROWSABLE);
+                    i.setData(Uri.parse("http://budgetninja.github.io"));
+                    startActivity(i);
+
                     //do something
                     break;
 

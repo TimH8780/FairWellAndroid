@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -50,6 +52,7 @@ public class LoginActivity extends Activity {
         Button twitterLoginBut = (Button) findViewById(R.id.twitterButton);
         username = (EditText) findViewById(R.id.loginUsername);
         password = (EditText) findViewById(R.id.loginPassword);
+
         TextView forgetPass = (TextView) findViewById(R.id.forgetPassword);
 
         //Function of Login Button
