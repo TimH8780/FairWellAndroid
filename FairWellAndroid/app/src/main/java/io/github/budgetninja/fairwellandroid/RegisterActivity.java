@@ -1,6 +1,9 @@
 package io.github.budgetninja.fairwellandroid;
 
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -24,12 +27,13 @@ public class RegisterActivity extends AppCompatActivity {
 
     private EditText firstN, lastN, userN, email, pass, ConfirmPass;
     private CheckBox agreement;
+    private ConnectivityManager connMgr;
 
     @Override
     public void onCreate(Bundle bundle){
         super.onCreate(bundle);
-
         setContentView(R.layout.activity_register);
+
         Button cancelButton = (Button) findViewById(R.id.cancelRegistrationButton);
         Button confirmRegButton = (Button) findViewById(R.id.confirmRegistrationButton);
         Button uploadButton = (Button) findViewById(R.id.uploadPic);
@@ -41,11 +45,13 @@ public class RegisterActivity extends AppCompatActivity {
         ConfirmPass = (EditText) findViewById(R.id.confirmPassword);
         TextView termCondition = (TextView) findViewById(R.id.conditionTerm);
         agreement = (CheckBox) findViewById(R.id.agreeCheckBox);
+        connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if(getSupportActionBar()!=null){
             getSupportActionBar().setTitle("Register");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
         //Function of Cancel Button
         cancelButton.setOnClickListener(new View.OnClickListener() {
 
@@ -60,6 +66,11 @@ public class RegisterActivity extends AppCompatActivity {
         confirmRegButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                if(networkInfo == null || !networkInfo.isConnected()){
+                    Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if(pass.getText().toString().equals(ConfirmPass.getText().toString())
                         && firstN.getText().toString().length() > 0 && lastN.getText().toString().length() >0){
                     if(agreement.isChecked()) {
@@ -79,8 +90,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     tempA.saveInBackground();
                                     user.put("newEntry", tempA);
                                     user.saveInBackground();
-
-                                    Toast.makeText(getApplicationContext(), "Registration Success. A verification email was sent to"
+                                    Toast.makeText(getApplicationContext(), "Registration Success. A verification email was sent to "
                                             + email.getText().toString(), Toast.LENGTH_SHORT).show();
                                     finish();
                                     return;

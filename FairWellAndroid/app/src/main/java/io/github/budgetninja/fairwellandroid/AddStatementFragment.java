@@ -1,7 +1,10 @@
 package io.github.budgetninja.fairwellandroid;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -41,6 +44,8 @@ public class AddStatementFragment extends Fragment {
     private static final int YEAR = 0;
     private static final int MONTH = 1;
     private static final int DAY = 2;
+
+    private ConnectivityManager connMgr;
 
     public AddStatementFragment() {
     }
@@ -88,10 +93,17 @@ public class AddStatementFragment extends Fragment {
         spinner.setAdapter(adapter);
         spinner2.setAdapter(adapter2);
 
+        connMgr = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+
         closeButton = (Button) rootView.findViewById(R.id.confirmButton);
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                if(networkInfo == null || !networkInfo.isConnected()){
+                    Toast.makeText(getActivity().getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Toast.makeText(getContext(), "Fairwell will send notification to the party members! "
                         , Toast.LENGTH_SHORT).show();
                 getActivity().finish();
@@ -203,7 +215,7 @@ public class AddStatementFragment extends Fragment {
     }
 
     public void setDate(int year, int month, int day, int viewSel) {
-        if(dateCheck(year, month, day, viewSel)) {
+        if(isValidDate(year, month, day, viewSel)) {
             dateRecord.set(viewSel + YEAR, year);
             dateRecord.set(viewSel + MONTH, month);
             dateRecord.set(viewSel + DAY, day);
@@ -223,7 +235,7 @@ public class AddStatementFragment extends Fragment {
                 , Toast.LENGTH_SHORT).show();
     }
 
-    public boolean dateCheck(int year, int month, int day, int view) {
+    public boolean isValidDate(int year, int month, int day, int view) {
         Boolean result = (view == DATE);
         view = (view == DATE) ? DEADLINE : DATE;
         if (dateRecord.get(view + YEAR) > year) { return result; }

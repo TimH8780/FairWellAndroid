@@ -3,16 +3,9 @@ package io.github.budgetninja.fairwellandroid;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -35,12 +28,16 @@ public class MainActivity extends AppCompatActivity {
         //show tutorial slide?
 
         ParseUser currentUser = ParseUser.getCurrentUser();
+        Intent intent;
 
         if(currentUser != null){            //Already logged in (current user exists)
-            goToLoggedInPage();
+            Utility.setChangedRecord();
+            Utility.generateRawFriendList(ParseUser.getCurrentUser());
+            intent = new Intent(MainActivity.this, ContentActivity.class);
         } else {                            //Need to log in
-            goToLoginPage();
+            intent = new Intent(MainActivity.this, LoginActivity.class);
         }
+        startActivity(intent);
     }
 
     @Override
@@ -55,19 +52,6 @@ public class MainActivity extends AppCompatActivity {
         this.finish();
     }
 
-    public void goToLoginPage(){
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        startActivity(intent);
-    }
-
-    public void goToLoggedInPage(){
-        if(Utility.checkNewEntry()){
-            Utility.setChangedRecord();
-            Utility.generateFriendList(ParseUser.getCurrentUser());
-        }
-        Intent intent = new Intent(MainActivity.this, ContentActivity.class);
-        startActivity(intent);
-    }
 
 
 

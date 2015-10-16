@@ -1,8 +1,11 @@
 package io.github.budgetninja.fairwellandroid;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,6 +33,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import net.simonvt.menudrawer.MenuDrawer;
 
@@ -64,8 +68,7 @@ public class ContentActivity extends AppCompatActivity {
     private ListView mList;
     private int mActivePosition = -1;
     private String mContentText;
-    private TextView mContentTextView;
-
+    private ConnectivityManager connMgr;
     private ParseUser user;
 
     boolean doubleBackToExitPressedOnce = false;
@@ -79,6 +82,8 @@ public class ContentActivity extends AppCompatActivity {
         }
 
         user = ParseUser.getCurrentUser();
+        connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        checkForUpdate();
 
         if (inState != null) {
             mActivePosition = inState.getInt(STATE_ACTIVE_POSITION);
@@ -113,9 +118,6 @@ public class ContentActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        mContentTextView = (TextView) findViewById(R.id.contentText);
-        //mContentTextView.setText(mContentText);
-
         mMenuDrawer.setOnInterceptMoveEventListener(new MenuDrawer.OnInterceptMoveEventListener() {
             @Override
             public boolean isViewDraggable(View v, int dx, int x, int y) {
@@ -127,10 +129,7 @@ public class ContentActivity extends AppCompatActivity {
         Button addStatementButton = (Button) findViewById(R.id.addStatementButton);
         addStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(Utility.checkNewEntry()){
-                    Utility.setChangedRecord();
-                    Utility.generateFriendList(user);
-                }
+                checkForUpdate();
                 Intent i = new Intent(ContentActivity.this, ContainerActivity.class);
                 i.putExtra("Index", INDEX_ADD_STATEMENT);
                 startActivity(i);
@@ -140,10 +139,7 @@ public class ContentActivity extends AppCompatActivity {
         Button resolveStatementButton = (Button) findViewById(R.id.resolveStatementButton);
         resolveStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(Utility.checkNewEntry()){
-                    Utility.setChangedRecord();
-                    Utility.generateFriendList(user);
-                }
+                checkForUpdate();
                 Intent i = new Intent(ContentActivity.this, ContainerActivity.class);
                 i.putExtra("Index", INDEX_RESOLVE_STATEMENT);
                 startActivity(i);
@@ -153,10 +149,7 @@ public class ContentActivity extends AppCompatActivity {
         Button viewStatementButton = (Button) findViewById(R.id.viewStatementButton);
         viewStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(Utility.checkNewEntry()){
-                    Utility.setChangedRecord();
-                    Utility.generateFriendList(user);
-                }
+                checkForUpdate();
                 Intent i = new Intent(ContentActivity.this, ContainerActivity.class);
                 i.putExtra("Index", INDEX_VIEW_STATEMENT);
                 startActivity(i);
@@ -165,7 +158,14 @@ public class ContentActivity extends AppCompatActivity {
 
         //Display Full Name
         TextView name = (TextView) findViewById(R.id.name);
-        name.setText(Utility.getName(user));
+        name.setText(Utility.getUserName(user));
+
+        //Prompt Facebook and Twitter User to setup email
+        if(isNetworkConnected()) {
+            if (user.getEmail() == null) {
+                setEmailFacebookTwitterUser();
+            }
+        }
     }
 
     @Override
@@ -188,38 +188,28 @@ public class ContentActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(Utility.checkNewEntry()){
-            Utility.setChangedRecord();
-            Utility.generateFriendList(user);
-        }
-
+        checkForUpdate();
         final int drawerState = mMenuDrawer.getDrawerState();
-
         if (drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING) {
             mMenuDrawer.closeMenu();
             return;
         }
-
         if (doubleBackToExitPressedOnce) {
             // this is to close the app entirely, but it will still be in the stack
-
             Intent a = new Intent(Intent.ACTION_MAIN);
             a.addCategory(Intent.CATEGORY_HOME);
             a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(a);
         }
-
         this.doubleBackToExitPressedOnce = true;
         Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
 
         new Handler().postDelayed(new Runnable() {
-
             @Override
             public void run() {
                 doubleBackToExitPressedOnce = false;
             }
         }, 2000);
-
     }
 
     private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
@@ -227,13 +217,8 @@ public class ContentActivity extends AppCompatActivity {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             mActivePosition = position;
             mMenuDrawer.setActiveView(view, position);
-            //mContentTextView.setText(((TextView) view).getText());             // Delete later
             mMenuDrawer.closeMenu();
-            if(Utility.checkNewEntry()){
-                Utility.setChangedRecord();
-                Utility.generateFriendList(user);
-            }
-            //Toast.makeText(getApplicationContext(),((TextView) view).getText(), Toast.LENGTH_SHORT).show();
+            checkForUpdate();
 
             switch(position) {
                 case POSITION_HOME:
@@ -246,11 +231,16 @@ public class ContentActivity extends AppCompatActivity {
                     break;
 
                 case POSITION_ADD_FRIEND:
-                    addFriendDialog();
+                    if(!isNetworkConnected()) {
+                        Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    displayAddFriendDialog();
                     break;
 
                 case POSITION_ACCOUNT_SETTING:
                     Toast.makeText(getApplicationContext(), "Coming soon!", Toast.LENGTH_SHORT).show();
+                    //do something
                     break;
 
                 case POSITION_NOTIFICATION_SETTING:
@@ -264,17 +254,22 @@ public class ContentActivity extends AppCompatActivity {
                     break;
 
                 case POSITION_ABOUT_US:
-
+                    if(!isNetworkConnected()) {
+                        Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
                     Intent i = new Intent();
                     i.setAction(Intent.ACTION_VIEW);
                     i.addCategory(Intent.CATEGORY_BROWSABLE);
                     i.setData(Uri.parse("http://budgetninja.github.io"));
                     startActivity(i);
-
-                    //do something
                     break;
 
                 case POSITION_LOGOUT:
+                    if(!isNetworkConnected()) {
+                        Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
                     ParseUser.logOutInBackground(new LogOutCallback() {
                         @Override
                         public void done(ParseException e) {
@@ -294,7 +289,7 @@ public class ContentActivity extends AppCompatActivity {
         }
     };
 
-    private void addFriendDialog(){         //show dialog and prompt user to enter email
+    private void displayAddFriendDialog(){         //show dialog and prompt user to enter email
         final AlertDialog.Builder builder = new AlertDialog.Builder(ContentActivity.this);
         final LinearLayout layout = new LinearLayout(ContentActivity.this);
         final TextView message = new TextView(ContentActivity.this);
@@ -302,7 +297,6 @@ public class ContentActivity extends AppCompatActivity {
         layout.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
-        para.setMargins(20, 20, 20, 0);
         message.setText("Please enter the email address of your friend:");
         message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
         message.setLayoutParams(para);
@@ -338,7 +332,6 @@ public class ContentActivity extends AppCompatActivity {
                 dialog.cancel();
             }
         });
-
         final AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -349,24 +342,26 @@ public class ContentActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             return;
         }
-        if (isDuplicateFriend(user, friend)) {
+        if (!isDuplicateFriend(user, friend)) {
             ParseObject friendList = new ParseObject("FriendList");
             friendList.put("userOne", user);
             friendList.put("userTwo", friend);
             friendList.put("confirmed", false);
+            friendList.put("owedByOne", 0);
+            friendList.put("owedByTwo", 0);
             friendList.saveInBackground();
 
-            ParseObject temp = Utility.getListLocation();
+            ParseObject temp = Utility.getRawListLocation();
             temp.getList("list").add(friendList);
             temp.pinInBackground();
             Utility.addToExistingFriendList(friendList.getObjectId(), friend);
-            Utility.editNewEntry(friend, true);
+            Utility.editNewEntryField(friend, true);
 
             Toast.makeText(getApplicationContext(), "Sent a notification to <" +
-                    Utility.getName(friend) + ">", Toast.LENGTH_SHORT).show();
+                    Utility.getUserName(friend) + ">", Toast.LENGTH_SHORT).show();
             return;
         }
-        Toast.makeText(getApplicationContext(), "<" + Utility.getName(friend) +
+        Toast.makeText(getApplicationContext(), "<" + Utility.getUserName(friend) +
                 "> and you are already friend", Toast.LENGTH_SHORT).show();
     }
 
@@ -376,12 +371,73 @@ public class ContentActivity extends AppCompatActivity {
         query.whereContainedIn("userOne", Arrays.asList(list));
         query.whereContainedIn("userTwo", Arrays.asList(list));
         try {
-            return (query.count() == 0);
+            return (query.count() != 0);
         }
         catch (ParseException x) {
             Log.d("checkDuplicate",x.getMessage());
-            return false;
+            return true;
         }
+    }
+
+    private void checkForUpdate(){
+        if(isNetworkConnected()){
+            if(Utility.checkNewEntryField()){
+                Utility.setChangedRecord();
+                Utility.generateRawFriendList(user);
+            }
+        }
+    }
+
+    private boolean isNetworkConnected(){
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
+    }
+
+    private void setEmailFacebookTwitterUser(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(ContentActivity.this);
+        final LinearLayout layout = new LinearLayout(ContentActivity.this);
+        final TextView message = new TextView(ContentActivity.this);
+        final EditText userInput = new EditText(ContentActivity.this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        para.setMargins(20, 20, 20, 0);
+        message.setText("An email address is required for some functionality. Please link your email address to the account.");
+        message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        message.setLayoutParams(para);
+        userInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        userInput.setLayoutParams(para);
+        layout.addView(message);
+        layout.addView(userInput);
+        builder.setTitle("Link your Email");             //use e-mail for now, may need to change
+        builder.setView(layout);
+
+        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final String email = userInput.getText().toString();
+                user.setEmail(email);
+                user.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if(e == null){
+                            Toast.makeText(getApplicationContext(), email + " is set as your email address",
+                                    Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Toast.makeText(getApplicationContext(), "Invalid Email Address", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+        builder.setNegativeButton("Do it Later", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
 

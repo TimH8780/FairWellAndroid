@@ -2,12 +2,13 @@ package io.github.budgetninja.fairwellandroid;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.text.InputType;
-import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -40,11 +41,13 @@ import java.util.Arrays;
 public class LoginActivity extends Activity {
 
     private EditText username, password;
+    private ConnectivityManager connMgr;
 
     @Override
     public void onCreate(Bundle bundle){
         super.onCreate(bundle);
         setContentView(R.layout.activity_login);
+        connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
         Button loginBut = (Button) findViewById(R.id.loginButton);
         Button registerBut = (Button) findViewById(R.id.registerButton);
@@ -52,13 +55,16 @@ public class LoginActivity extends Activity {
         Button twitterLoginBut = (Button) findViewById(R.id.twitterButton);
         username = (EditText) findViewById(R.id.loginUsername);
         password = (EditText) findViewById(R.id.loginPassword);
-
         TextView forgetPass = (TextView) findViewById(R.id.forgetPassword);
 
         //Function of Login Button
         loginBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!isNetworkConnected()) {
+                    Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 ParseUser.logInInBackground(username.getText().toString(), password.getText().toString(), new LogInCallback() {
                     @Override
                     public void done(ParseUser parseUser, ParseException e) {
@@ -84,6 +90,10 @@ public class LoginActivity extends Activity {
         facebookLoginBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!isNetworkConnected()) {
+                    Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, Arrays.asList("public_profile", "email"), new LogInCallback() {
                     @Override
                     public void done(final ParseUser user, ParseException e) {
@@ -116,6 +126,10 @@ public class LoginActivity extends Activity {
         twitterLoginBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!isNetworkConnected()) {
+                    Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 ParseTwitterUtils.logIn(LoginActivity.this, new LogInCallback() {
                     @Override
                     public void done(ParseUser user, ParseException err) {
@@ -161,6 +175,10 @@ public class LoginActivity extends Activity {
                 builder.setPositiveButton("Send Reset Link", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        if(!isNetworkConnected()) {
+                            Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         final String emailAddress = userInput.getText().toString();
                         ParseUser.requestPasswordResetInBackground(emailAddress, new RequestPasswordResetCallback() {
                             public void done(ParseException e) {
@@ -206,11 +224,15 @@ public class LoginActivity extends Activity {
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
+    }
+
     public void goToLoggedInPage(){
-        if(Utility.checkNewEntry()){
-            Utility.setChangedRecord();
-            Utility.generateFriendList(ParseUser.getCurrentUser());
-        }
+        Utility.setChangedRecord();
+        Utility.generateRawFriendList(ParseUser.getCurrentUser());
         Intent intent = new Intent(LoginActivity.this, ContentActivity.class);
         startActivity(intent);
     }
@@ -276,15 +298,14 @@ public class LoginActivity extends Activity {
         request.executeAsync();
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
-    }
-
     public void goToRegisterPage() {
         Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
         startActivity(intent);
+    }
+
+    private boolean isNetworkConnected(){
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
     }
 
 }

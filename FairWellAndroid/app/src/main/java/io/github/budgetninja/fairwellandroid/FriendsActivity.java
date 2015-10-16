@@ -1,9 +1,14 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
+import android.content.DialogInterface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +19,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.ParseObject;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-import java.io.UTFDataFormatException;
 import java.util.List;
 
 /**
@@ -26,10 +32,12 @@ import java.util.List;
 public class FriendsActivity extends AppCompatActivity{
 
     private FriendAdaptor adapter;
+    private ConnectivityManager connMgr;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend);
+        connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -37,9 +45,7 @@ public class FriendsActivity extends AppCompatActivity{
             getSupportActionBar().setElevation(0);
         }
 
-        List<ParseObject> list = Utility.getListLocation().getList("list");
-
-        List<Utility.Friend> friendList = Utility.convertToFriend(list);
+        List<Utility.Friend> friendList = Utility.generateFriendArray();
         ListView view = (ListView) findViewById(R.id.friendlistview);
         adapter = new FriendAdaptor(this, R.layout.friend_item, friendList);
         view.setAdapter(adapter);
@@ -48,7 +54,6 @@ public class FriendsActivity extends AppCompatActivity{
         TextView text = (TextView)layout.findViewById(R.id.EmptyListViewText);
         text.setText("No Friend");
         view.setEmptyView(layout);
-
     }
 
     @Override
@@ -75,7 +80,10 @@ public class FriendsActivity extends AppCompatActivity{
         this.finish();
     }
 
-
+    private boolean isNetworkConnected(){
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
+    }
 
 
     public class FriendAdaptor extends ArrayAdapter<Utility.Friend>{
@@ -116,18 +124,20 @@ public class FriendsActivity extends AppCompatActivity{
             confirm.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (!isNetworkConnected()) {
+                        Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     int position = (int) v.getTag();
                     Utility.Friend currentItem = mObject.get(position);
-                    if (textCollection[position].getText().equals("No")) {
-                        if (currentItem.userOne) {
-                            Toast.makeText(getApplicationContext(), "Waiting for confirmation from your friend",
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            textCollection[position].setText("Yes");
-                            currentItem.setConfirm();
-                            v.setEnabled(false);
-                            Toast.makeText(getApplicationContext(), "Confirmed", Toast.LENGTH_SHORT).show();
-                        }
+                    if (currentItem.isUserOne) {
+                        Toast.makeText(getApplicationContext(), "Waiting for confirmation from <" + currentItem.name
+                                + ">", Toast.LENGTH_SHORT).show();
+                    } else {
+                        textCollection[position].setText("Yes");
+                        currentItem.setConfirm();
+                        v.setEnabled(false);
+                        Toast.makeText(getApplicationContext(), "Confirmed", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -136,13 +146,36 @@ public class FriendsActivity extends AppCompatActivity{
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //A pop-up window here
+                    if (!isNetworkConnected()) {
+                        Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    int position = (int) v.getTag();
+                    final Utility.Friend currentItem = mObject.get(position);
 
-                    int position = (int)v.getTag();
-                    Utility.Friend currentItem = mObject.get(position);
-                    currentItem.deleteFriend();
-                    Utility.removeFromExistingFriendList(currentItem);
-                    adapter.remove(currentItem);
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(FriendsActivity.this);
+                    final TextView message = new TextView(FriendsActivity.this);
+                    message.setText("Are you sure you want to delete <" + currentItem.name + "> ?");
+                    message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+                    message.setPadding(20, 20, 20, 20);
+                    builder.setTitle("Delete Friend");
+                    builder.setView(message);
+                    builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            currentItem.deleteFriend();
+                            Utility.removeFromExistingFriendList(currentItem);
+                            adapter.remove(currentItem);
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    final AlertDialog dialog = builder.create();
+                    dialog.show();
                 }
             });
             return convertView;
