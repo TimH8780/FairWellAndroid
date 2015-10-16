@@ -297,6 +297,7 @@ public class ContentActivity extends AppCompatActivity {
         layout.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
+        para.setMargins(20, 20, 20, 0);
         message.setText("Please enter the email address of your friend:");
         message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
         message.setLayoutParams(para);
@@ -409,7 +410,7 @@ public class ContentActivity extends AppCompatActivity {
         userInput.setLayoutParams(para);
         layout.addView(message);
         layout.addView(userInput);
-        builder.setTitle("Link your Email");             //use e-mail for now, may need to change
+        builder.setTitle("Link your Email");
         builder.setView(layout);
 
         builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
@@ -421,7 +422,7 @@ public class ContentActivity extends AppCompatActivity {
                     @Override
                     public void done(ParseException e) {
                         if(e == null){
-                            Toast.makeText(getApplicationContext(), email + " is set as your email address",
+                            Toast.makeText(getApplicationContext(), "Success. A verification email was sent to" + email,
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }

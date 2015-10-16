@@ -154,8 +154,8 @@ public class FriendsActivity extends AppCompatActivity{
                     final Utility.Friend currentItem = mObject.get(position);
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(FriendsActivity.this);
-                    final TextView message = new TextView(FriendsActivity.this);
-                    message.setText("Are you sure you want to delete <" + currentItem.name + "> ?");
+                    TextView message = new TextView(FriendsActivity.this);
+                    message.setText("Are you sure you want to delete \n <" + currentItem.name + "> ?");
                     message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
                     message.setPadding(20, 20, 20, 20);
                     builder.setTitle("Delete Friend");
