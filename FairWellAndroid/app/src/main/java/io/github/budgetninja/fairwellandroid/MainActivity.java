@@ -1,6 +1,9 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -29,11 +32,17 @@ public class MainActivity extends AppCompatActivity {
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         Intent intent;
+        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if(currentUser != null){            //Already logged in (current user exists)
-            Utility.setChangedRecord();
-            Utility.generateRawFriendList(ParseUser.getCurrentUser());
             intent = new Intent(MainActivity.this, ContentActivity.class);
+            if(networkInfo != null && networkInfo.isConnected()) {
+                if(Utility.checkNewEntryField()){
+                    Utility.setChangedRecord();
+                    Utility.generateRawFriendList(ParseUser.getCurrentUser());
+                }
+            }
         } else {                            //Need to log in
             intent = new Intent(MainActivity.this, LoginActivity.class);
         }

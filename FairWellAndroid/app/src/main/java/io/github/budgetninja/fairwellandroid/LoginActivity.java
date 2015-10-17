@@ -36,6 +36,7 @@ import com.parse.SaveCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class LoginActivity extends Activity {
@@ -231,8 +232,10 @@ public class LoginActivity extends Activity {
     }
 
     public void goToLoggedInPage(){
-        Utility.setChangedRecord();
-        Utility.generateRawFriendList(ParseUser.getCurrentUser());
+        if(Utility.checkNewEntryField()){
+            Utility.setChangedRecord();
+            Utility.generateRawFriendList(ParseUser.getCurrentUser());
+        }
         Intent intent = new Intent(LoginActivity.this, ContentActivity.class);
         startActivity(intent);
     }
@@ -240,10 +243,14 @@ public class LoginActivity extends Activity {
     public void setUpUsernameTwitter(ParseUser user){
         user.put("usernameTwitter", (ParseTwitterUtils.getTwitter().getScreenName()));
         if(user.get("newEntry") == null){
-            ParseObject temp = new ParseObject("Friend_update");
-            temp.put("newEntry", false);
-            temp.saveInBackground();
-            user.put("newEntry", temp);
+            ParseObject tempA = new ParseObject("Friend_update");
+            tempA.put("newEntry", false);
+            tempA.saveInBackground();
+            user.put("newEntry", tempA);
+            ParseObject tempB = ParseUser.getCurrentUser().getParseObject("newEntry");
+            tempB.put("list", new ArrayList<ParseObject>());
+            tempB.put("offlineFriendList", new ArrayList<String>());
+            tempB.pinInBackground();
         }
         user.saveInBackground(new SaveCallback() {
             @Override
@@ -269,10 +276,14 @@ public class LoginActivity extends Activity {
                         try {
                             user.fetchIfNeeded().put("usernameFacebook", object.getString("name"));
                             if(user.get("newEntry") == null){
-                                ParseObject temp = new ParseObject("Friend_update");
-                                temp.put("newEntry", false);
-                                temp.saveInBackground();
-                                user.fetchIfNeeded().put("newEntry", temp);
+                                ParseObject tempA = new ParseObject("Friend_update");
+                                tempA.put("newEntry", false);
+                                tempA.saveInBackground();
+                                user.fetchIfNeeded().put("newEntry", tempA);
+                                ParseObject tempB = ParseUser.getCurrentUser().getParseObject("newEntry");
+                                tempB.put("list", new ArrayList<ParseObject>());
+                                tempB.put("offlineFriendList", new ArrayList<String>());
+                                tempB.pinInBackground();
                             }
                             user.saveInBackground(new SaveCallback() {
                                 @Override

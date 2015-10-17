@@ -1,51 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="wrap_content"
+    android:padding = "5dp">
 
     <ImageView
+        android:id="@+id/pic_resolve"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:src="@drawable/profilepic"/>
+        android:src="@drawable/profilepic"
+        android:layout_marginTop="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true" />
 
-    <LinearLayout
+    <Button
+        android:id="@+id/button_resolve"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:text="Resolve"
+        android:textStyle="bold"
+        android:background="#BDBDBD"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_toRightOf="@+id/pic_resolve"
+        android:layout_below="@+id/netBalanceText_resolve" />
+
+    <TextView
+        android:id="@+id/name_resolve"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:text="Name"
         android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingBottom="10dp">
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/pic_resolve" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:text="ISSAC CHERN"
-            android:padding="2dp"/>
+    <TextView
+        android:id="@+id/youOweText_resolve"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="You Owed:"
+        android:paddingLeft="10dp"
+        android:layout_below="@+id/name_resolve"
+        android:layout_toRightOf="@+id/pic_resolve"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="You Owed: $400.23" />
+    <TextView
+        android:id="@+id/heOweText_resolve"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="He/She owed:"
+        android:paddingLeft="10dp"
+        android:layout_below="@+id/youOweText_resolve"
+        android:layout_toRightOf="@+id/pic_resolve"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="He/She owed: $120.53" />
+    <TextView
+        android:id="@+id/netBalanceText_resolve"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="Net Balance:"
+        android:paddingLeft="10dp"
+        android:layout_below="@+id/heOweText_resolve"
+        android:layout_toRightOf="@+id/pic_resolve"/>
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
+    <TextView
+        android:id="@+id/youOweAmount_resolve"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="0.00"
+        android:layout_below="@+id/name_resolve"
+        android:layout_alignParentRight="true" />
 
-            android:text="Resolved?"
-            android:textStyle="bold"
-            android:background="#BDBDBD"/>
+    <TextView
+        android:id="@+id/heOweAmount_resolve"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="0.00"
+        android:layout_below="@+id/youOweAmount_resolve"
+        android:layout_alignParentRight="true" />
 
-    </LinearLayout>
+    <TextView
+        android:id="@+id/netBalanceAmount_resolve"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="0.00"
+        android:layout_below="@+id/heOweAmount_resolve"
+        android:layout_alignParentRight="true" />
 
-</LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="$ "
+        android:layout_above="@+id/heOweAmount_resolve"
+        android:layout_toLeftOf="@+id/youOweAmount_resolve" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="$ "
+        android:layout_above="@+id/netBalanceText_resolve"
+        android:layout_toLeftOf="@+id/heOweAmount_resolve" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="$ "
+        android:layout_above="@+id/button_resolve"
+        android:layout_toLeftOf="@+id/netBalanceAmount_resolve" />
+
+</RelativeLayout>

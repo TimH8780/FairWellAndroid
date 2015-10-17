@@ -8,10 +8,26 @@
     tools:context="io.github.budgetninja.fairwellandroid.ResolveStatementsFragment">
 
     <ListView
+        android:id="@+id/ResolveStatementsListView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/viewStatementsListView">
-
+        android:layout_height="wrap_content">
     </ListView>
+
+    <LinearLayout
+        android:id="@+id/EmptyListView_resolve"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/EmptyListViewText_resolve"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:paddingTop="50dp"
+            android:textStyle="bold"
+            android:textSize="30sp" />
+
+    </LinearLayout>
 
 </RelativeLayout>

@@ -3,6 +3,7 @@ package io.github.budgetninja.fairwellandroid;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.widget.DatePicker;
@@ -66,7 +67,7 @@ public class Utility {
         private static final int MONTH = 1;
         private static final int DAY = 2;
 
-        @Override
+        @NonNull
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             viewSel = getArguments().getInt("ViewSel");
             ArrayList<Integer> dateList = getArguments().getIntegerArrayList("DateList");
@@ -100,13 +101,18 @@ public class Utility {
         String email;
         boolean confirm;
         boolean isUserOne;
+        double currentUserOwed;
+        double friendOwed;
 
-        Friend(String parseObjectID, ParseUser friend, String name, String email, boolean confirm, boolean isUserOne){
+        Friend(String parseObjectID, ParseUser friend, String name, String email, double currentUserOwed,
+               double friendOwed, boolean confirm, boolean isUserOne){
             this.parseObjectID = parseObjectID;
             this.friend = friend;
             this.name = name;
             this.email = email;
             this.confirm = confirm;
+            this.currentUserOwed = currentUserOwed;
+            this.friendOwed = friendOwed;
             this.isUserOne = isUserOne;
         }
 
@@ -140,6 +146,18 @@ public class Utility {
                 }
             });
         }
+
+        public String toString(){
+            StringBuilder builder = new StringBuilder();
+            builder.append(name).append(" | ");
+            builder.append(email).append(" | ");
+            builder.append(confirm).append(" | ");
+            builder.append(isUserOne).append(" | ");
+            builder.append(currentUserOwed).append(" | ");
+            builder.append(friendOwed).append(" | ");
+            builder.append(currentUserOwed - friendOwed).append(" | ");
+            return builder.toString();
+        }
     }
 
     public static void generateRawFriendList(ParseUser user){
@@ -170,39 +188,91 @@ public class Utility {
         if(pFriendList == null || changedRecord) {                                                     //need to test the case if the list in userA change if
             boolean isUserOne;                                                                           //userB confirm the friendship (2 phones needed)
             List<Utility.Friend> friendList = new ArrayList<>();
+            List<String> offlineList = new ArrayList<>();
             List<ParseObject> rawList = getRawListLocation().getList("list");
 
             for (int i = 0; i < rawList.size(); i++) {
                 ParseUser user = ParseUser.getCurrentUser();
+                Double userowed, friendowed;
                 try {
                     ParseObject object = rawList.get(i).fetch();
                     if (user.getObjectId().equals(object.getParseUser("userOne").getObjectId())) {
                         user = object.getParseUser("userTwo");
+                        userowed = object.getDouble("owedByOne");
+                        friendowed = object.getDouble("owedByTwo");
                         isUserOne = true;
                     } else {
                         user = object.getParseUser("userOne");
+                        userowed = object.getDouble("owedByTwo");
+                        friendowed = object.getDouble("owedByOne");
                         isUserOne = false;
                     }
-                    friendList.add(new Utility.Friend(object.getObjectId(), user, Utility.getUserName(user),
-                            user.getString("email"), object.getBoolean("confirmed"), isUserOne));
+                    Friend friendItem = new Utility.Friend(object.getObjectId(), user, Utility.getUserName(user),
+                            user.getString("email"), userowed, friendowed, object.getBoolean("confirmed"), isUserOne);
+                    offlineList.add(friendItem.toString());
+                    friendList.add(friendItem);
                 } catch (ParseException e) {
                     Log.d("Fetch", e.getMessage());
                 }
             }
+            ParseObject temp = ParseUser.getCurrentUser().getParseObject("newEntry");
+            temp.put("offlineFriendList", offlineList);
+            temp.pinInBackground();
             pFriendList = new ArrayList<>(friendList);
             changedRecord = false;
         }
         return pFriendList;
     }
 
+    public static List<Friend> generateFriendArrayOffline(){
+        if(pFriendList == null){
+            List<Utility.Friend> offlineFriendList = new ArrayList<>();
+            List<String> offlineList = getRawListLocation().getList("offlineFriendList");
+            int indexA, indexB;
+            String name, email;
+            boolean confirm, isUserOne;
+            double userOwed, friendOwed;
+            for(int i = 0; i < offlineList.size(); i++){
+                String item = offlineList.get(i);
+                indexA = item.indexOf(" | ", 0);
+                name = item.substring(0, indexA);
+                indexB = item.indexOf(" | ", indexA + 3);
+                email = item.substring(indexA + 3, indexB);
+                indexA = item.indexOf(" | ", indexB + 3);
+                confirm = Boolean.parseBoolean(item.substring(indexB + 3, indexA));
+                indexB = item.indexOf(" | ", indexA + 3);
+                isUserOne = Boolean.parseBoolean(item.substring(indexA + 3, indexB));
+                indexA = item.indexOf(" | ", indexB + 3);
+                userOwed = Double.parseDouble(item.substring(indexB + 3, indexA));
+                indexB = item.indexOf(" | ", indexA + 3);
+                friendOwed = Double.parseDouble(item.substring(indexA + 3, indexB));
+                offlineFriendList.add(new Friend(null, null, name, email, userOwed, friendOwed, confirm, isUserOne));
+            }
+            pFriendList = new ArrayList<>(offlineFriendList);
+            setChangedRecord();
+        }
+        return pFriendList;
+    }
+
     public static void addToExistingFriendList(String pParseObjectID, ParseUser pFriend){
         if(pFriendList != null){
-            pFriendList.add(new Friend(pParseObjectID, pFriend, getUserName(pFriend), pFriend.getEmail(), false, true));
+            Friend newItem = new Friend(pParseObjectID, pFriend, getUserName(pFriend), pFriend.getEmail(), 0, 0, false, true);
+            ParseObject object = getRawListLocation();
+            List<String> offlist = object.getList("offlineFriendList");
+            offlist.add(newItem.toString());
+            object.put("offlineFriendList", offlist);
+            object.pinInBackground();
+            pFriendList.add(newItem);
         }
     }
 
     public static void removeFromExistingFriendList(Friend item){
         if(pFriendList != null){
+            ParseObject object = getRawListLocation();
+            List<String> offlist = object.getList("offlineFriendList");
+            offlist.remove(item.toString());
+            object.put("offlineFriendList", offlist);
+            object.pinInBackground();
             pFriendList.remove(item);
         }
     }

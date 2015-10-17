@@ -45,7 +45,16 @@ public class FriendsActivity extends AppCompatActivity{
             getSupportActionBar().setElevation(0);
         }
 
-        List<Utility.Friend> friendList = Utility.generateFriendArray();
+        List<Utility.Friend> friendList;
+        if(isNetworkConnected()) {
+            friendList = Utility.generateFriendArray();
+        }
+        else {
+            friendList = Utility.generateFriendArrayOffline();
+            TextView subtitle = (TextView) findViewById(R.id.subtitle);
+            subtitle.setText("OFFLINE MODE");
+        }
+
         ListView view = (ListView) findViewById(R.id.friendlistview);
         adapter = new FriendAdaptor(this, R.layout.friend_item, friendList);
         view.setAdapter(adapter);

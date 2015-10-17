@@ -20,6 +20,8 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
+import java.util.ArrayList;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -90,6 +92,10 @@ public class RegisterActivity extends AppCompatActivity {
                                     tempA.saveInBackground();
                                     user.put("newEntry", tempA);
                                     user.saveInBackground();
+                                    ParseObject tempB = ParseUser.getCurrentUser().getParseObject("newEntry");
+                                    tempB.put("list", new ArrayList<ParseObject>());
+                                    tempB.put("offlineFriendList", new ArrayList<String>());
+                                    tempB.pinInBackground();
                                     Toast.makeText(getApplicationContext(), "Registration Success. A verification email was sent to "
                                             + email.getText().toString(), Toast.LENGTH_SHORT).show();
                                     finish();

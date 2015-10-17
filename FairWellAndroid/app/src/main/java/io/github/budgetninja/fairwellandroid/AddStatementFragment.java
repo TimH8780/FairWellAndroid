@@ -208,9 +208,9 @@ public class AddStatementFragment extends Fragment {
         newFragment.show(getFragmentManager(), "datePicker");
     }
 
-    public void setClickedText(String string) {
+    public void setClickedIconText(String string) {
         if (!string.equals("")) {
-            ClickedText.setText(string + " is selected");
+            ClickedText.setText("Category: " + string);
         }
     }
 

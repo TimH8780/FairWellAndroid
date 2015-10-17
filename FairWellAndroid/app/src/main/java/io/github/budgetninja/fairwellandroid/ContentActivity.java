@@ -422,7 +422,7 @@ public class ContentActivity extends AppCompatActivity {
                     @Override
                     public void done(ParseException e) {
                         if(e == null){
-                            Toast.makeText(getApplicationContext(), "Success. A verification email was sent to" + email,
+                            Toast.makeText(getApplicationContext(), "Success. A verification email was sent to " + email,
                                     Toast.LENGTH_SHORT).show();
                             return;
                         }
