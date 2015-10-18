@@ -51,8 +51,6 @@ public class FriendsActivity extends AppCompatActivity{
         }
         else {
             friendList = Utility.generateFriendArrayOffline();
-            TextView subtitle = (TextView) findViewById(R.id.subtitle);
-            subtitle.setText("OFFLINE MODE");
         }
 
         ListView view = (ListView) findViewById(R.id.friendlistview);
@@ -134,19 +132,19 @@ public class FriendsActivity extends AppCompatActivity{
                 @Override
                 public void onClick(View v) {
                     if (!isNetworkConnected()) {
-                        Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "Check Internet Connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     int position = (int) v.getTag();
                     Utility.Friend currentItem = mObject.get(position);
                     if (currentItem.isUserOne) {
-                        Toast.makeText(getApplicationContext(), "Waiting for confirmation from <" + currentItem.name
+                        Toast.makeText(mContext, "Waiting for confirmation from <" + currentItem.name
                                 + ">", Toast.LENGTH_SHORT).show();
                     } else {
                         textCollection[position].setText("Yes");
                         currentItem.setConfirm();
                         v.setEnabled(false);
-                        Toast.makeText(getApplicationContext(), "Confirmed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "Confirmed", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -156,14 +154,14 @@ public class FriendsActivity extends AppCompatActivity{
                 @Override
                 public void onClick(View v) {
                     if (!isNetworkConnected()) {
-                        Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "Check Internet Connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     int position = (int) v.getTag();
                     final Utility.Friend currentItem = mObject.get(position);
 
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(FriendsActivity.this);
-                    TextView message = new TextView(FriendsActivity.this);
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    TextView message = new TextView(mContext);
                     message.setText("Are you sure you want to delete \n <" + currentItem.name + "> ?");
                     message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
                     message.setPadding(20, 20, 20, 20);

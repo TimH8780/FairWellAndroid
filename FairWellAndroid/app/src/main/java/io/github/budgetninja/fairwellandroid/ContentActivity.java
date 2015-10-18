@@ -356,7 +356,6 @@ public class ContentActivity extends AppCompatActivity {
             temp.getList("list").add(friendList);
             temp.pinInBackground();
             Utility.addToExistingFriendList(friendList.getObjectId(), friend);
-            Utility.editNewEntryField(friend, true);
 
             Toast.makeText(getApplicationContext(), "Sent a notification to <" +
                     Utility.getUserName(friend) + ">", Toast.LENGTH_SHORT).show();
@@ -424,6 +423,7 @@ public class ContentActivity extends AppCompatActivity {
                         if(e == null){
                             Toast.makeText(getApplicationContext(), "Success. A verification email was sent to " + email,
                                     Toast.LENGTH_SHORT).show();
+                            Utility.setNewEntryFieldForAllFriend();
                             return;
                         }
                         Toast.makeText(getApplicationContext(), "Invalid Email Address", Toast.LENGTH_SHORT).show();

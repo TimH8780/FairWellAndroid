@@ -147,6 +147,8 @@ public class Utility {
             });
         }
 
+        public void notifyChange(){ editNewEntryField(friend, true); }
+
         public String toString(){
             StringBuilder builder = new StringBuilder();
             builder.append(name).append(" | ");
@@ -257,6 +259,7 @@ public class Utility {
     public static void addToExistingFriendList(String pParseObjectID, ParseUser pFriend){
         if(pFriendList != null){
             Friend newItem = new Friend(pParseObjectID, pFriend, getUserName(pFriend), pFriend.getEmail(), 0, 0, false, true);
+            newItem.notifyChange();
             ParseObject object = getRawListLocation();
             List<String> offlist = object.getList("offlineFriendList");
             offlist.add(newItem.toString());
@@ -289,7 +292,7 @@ public class Utility {
         return true;
     }
 
-    public static void editNewEntryField(ParseUser user, final boolean newResult){
+    private static void editNewEntryField(ParseUser user, final boolean newResult){
         user.getParseObject("newEntry").fetchIfNeededInBackground(new GetCallback<ParseObject>() {
             @Override
             public void done(ParseObject parseObject, ParseException e) {
@@ -308,6 +311,13 @@ public class Utility {
             Log.d("checkNewEntryField", e.getMessage());
         }
         return new ParseObject("Friend_update");
+    }
+
+    public static void setNewEntryFieldForAllFriend(){
+        List<Friend> allFriend = generateFriendArray();
+        for(int i = 0; i < allFriend.size(); i++){
+            allFriend.get(i).notifyChange();
+        }
     }
 
 }
