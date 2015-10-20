@@ -1,6 +1,9 @@
 package io.github.budgetninja.fairwellandroid;
 
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -15,10 +18,13 @@ public class ContainerActivity extends AppCompatActivity {
     private static final int INDEX_ADD_STATEMENT = 2;
     private static final int INDEX_RESOLVE_STATEMENT = 3;
 
+    private ConnectivityManager connMgr;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);                 //empty container
+        connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -82,4 +88,8 @@ public class ContainerActivity extends AppCompatActivity {
         ((AddStatementFragment)getSupportFragmentManager().findFragmentByTag("Add")).setClickedIconText(clicked);
     }
 
+    protected boolean isNetworkConnected(){
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnected());
+    }
 }

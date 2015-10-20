@@ -147,9 +147,38 @@ public class Utility {
             });
         }
 
+        public void addNewStatementMoney(final double userOwe, final double friendOwe){
+            currentUserOwed += userOwe;
+            friendOwed += friendOwe;
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("FriendList");
+            query.getInBackground(parseObjectID, new GetCallback<ParseObject>() {
+                @Override
+                public void done(ParseObject parseObject, ParseException e) {
+                    if (e == null) {
+                        double owedByOne = parseObject.getDouble("owedByOne");
+                        double owedByTwo = parseObject.getDouble("owedByTwo");
+                        if(isUserOne){
+                            parseObject.put("owedByOne", owedByOne + userOwe);
+                            parseObject.put("owedByTwo", owedByTwo + friendOwe);
+                        }
+                        else{
+                            parseObject.put("owedByOne", owedByOne + friendOwe);
+                            parseObject.put("owedByTwo", owedByTwo + userOwe);
+                        }
+                        editNewEntryField(friend, true);
+                        generateRawFriendList(ParseUser.getCurrentUser());
+                    }
+                }
+            });
+        }
+
         public void notifyChange(){ editNewEntryField(friend, true); }
 
-        public String toString(){
+        public String toString(){       //For arrayAdapter
+            return name;
+        }
+
+        public String toStringAllData(){
             StringBuilder builder = new StringBuilder();
             builder.append(name).append(" | ");
             builder.append(email).append(" | ");
@@ -211,7 +240,7 @@ public class Utility {
                     }
                     Friend friendItem = new Utility.Friend(object.getObjectId(), user, Utility.getUserName(user),
                             user.getString("email"), userowed, friendowed, object.getBoolean("confirmed"), isUserOne);
-                    offlineList.add(friendItem.toString());
+                    offlineList.add(friendItem.toStringAllData());
                     friendList.add(friendItem);
                 } catch (ParseException e) {
                     Log.d("Fetch", e.getMessage());
@@ -262,7 +291,7 @@ public class Utility {
             newItem.notifyChange();
             ParseObject object = getRawListLocation();
             List<String> offlist = object.getList("offlineFriendList");
-            offlist.add(newItem.toString());
+            offlist.add(newItem.toStringAllData());
             object.put("offlineFriendList", offlist);
             object.pinInBackground();
             pFriendList.add(newItem);
@@ -273,7 +302,7 @@ public class Utility {
         if(pFriendList != null){
             ParseObject object = getRawListLocation();
             List<String> offlist = object.getList("offlineFriendList");
-            offlist.remove(item.toString());
+            offlist.remove(item.toStringAllData());
             object.put("offlineFriendList", offlist);
             object.pinInBackground();
             pFriendList.remove(item);

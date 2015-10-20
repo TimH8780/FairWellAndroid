@@ -127,7 +127,7 @@ public class RegisterActivity extends AppCompatActivity {
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //do something
+                Toast.makeText(getApplicationContext(), "Unavailable now", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -135,7 +135,7 @@ public class RegisterActivity extends AppCompatActivity {
         termCondition.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //display something
+                Toast.makeText(getApplicationContext(), "Unavailable now", Toast.LENGTH_SHORT).show();
             }
         });
 

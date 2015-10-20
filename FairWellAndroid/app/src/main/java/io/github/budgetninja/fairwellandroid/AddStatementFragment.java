@@ -15,16 +15,21 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParseUser;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -34,18 +39,20 @@ public class AddStatementFragment extends Fragment {
     private TextView ClickedText;
     private TextView deadlineField;
     private TextView dateField;
-
     private Button addSnapshotButton;
     private Button addMemberButton;
     private Button closeButton;
     private ArrayList<Integer> dateRecord;
+
+    private ParseUser user;
+    private int paidByPosition;
+    private List<Utility.Friend> friendList;
+
     private static final int DATE = 0;
     private static final int DEADLINE = 3;
     private static final int YEAR = 0;
     private static final int MONTH = 1;
     private static final int DAY = 2;
-
-    private ConnectivityManager connMgr;
 
     public AddStatementFragment() {
     }
@@ -60,6 +67,8 @@ public class AddStatementFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
         getActivity().setTitle("Add Statement");
+        user = ParseUser.getCurrentUser();
+        paidByPosition = 0;
 
         // An array used to record the date set by user for DATE and DEADLINE
         dateRecord = new ArrayList<>(6);
@@ -79,9 +88,17 @@ public class AddStatementFragment extends Fragment {
         dateField = (TextView) rootView.findViewById(R.id.dateField);
         deadlineField = (TextView) rootView.findViewById(R.id.deadlineField);
 
+        if(((ContainerActivity)getActivity()).isNetworkConnected()) {
+            friendList = new ArrayList<>(Utility.generateFriendArray());
+        }
+        else {
+            friendList = new ArrayList<>(Utility.generateFriendArrayOffline());
+        }
+        friendList.add(0, new Utility.Friend(null, user, "Self", null, -1, -1, true, true)); //user her/himself
+
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.name_array, android.R.layout.simple_spinner_item);
+        ArrayAdapter<Utility.Friend> adapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item, friendList);
         ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(getContext(),
                 R.array.mode_array, android.R.layout.simple_spinner_item);
 
@@ -93,14 +110,21 @@ public class AddStatementFragment extends Fragment {
         spinner.setAdapter(adapter);
         spinner2.setAdapter(adapter2);
 
-        connMgr = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                paidByPosition = position;
+                //Then reset "Member"
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { /* do nothing */ }
+        });
 
         closeButton = (Button) rootView.findViewById(R.id.confirmButton);
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-                if(networkInfo == null || !networkInfo.isConnected()){
+                if(!((ContainerActivity)getActivity()).isNetworkConnected()){
                     Toast.makeText(getActivity().getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -157,15 +181,21 @@ public class AddStatementFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                final ScrollView input = new ScrollView(getActivity());
-                final ListView container = new ListView(getActivity());
-                input.addView(container);
+                ListView container = new ListView(getActivity());
+                MemberSelectionAdaptor memberAdaptor;
+                if(paidByPosition == 0) {
+                    memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.addmember_item, friendList);
+                }
+                else {
+                    memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.addmember_item, friendList.subList(0, 1));
+                }
+                container.setAdapter(memberAdaptor);
                 builder.setTitle("Select Member(s)");
-                builder.setView(input);
+                builder.setView(container);
                 builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // Do something
+                        // do something
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -178,7 +208,6 @@ public class AddStatementFragment extends Fragment {
                 dialog.show();
             }
         });
-
 
         addSnapshotButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -245,4 +274,31 @@ public class AddStatementFragment extends Fragment {
         if (dateRecord.get(view + DAY) > day) { return result; }
         return (dateRecord.get(view + DAY) != day) && (!result);
     }
+
+    private class MemberSelectionAdaptor extends ArrayAdapter<Utility.Friend>{
+
+        Context mContext;
+        int mResource;
+        List<Utility.Friend> mObject;
+
+        public MemberSelectionAdaptor(Context context, int resource, List<Utility.Friend> objects){
+            super(context, resource, objects);
+            mContext = context;
+            mResource = resource;
+            mObject = objects;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent){
+            Utility.Friend currentItem = mObject.get(position);
+            if(convertView == null){
+                convertView = getActivity().getLayoutInflater().inflate(mResource, parent, false);
+            }
+            TextView memberName = (TextView) convertView.findViewById(R.id.memberName);
+            memberName.setText(currentItem.name);
+            //Listener
+            return convertView;
+        }
+    }
+
 }
