@@ -23,11 +23,13 @@ import android.widget.Toast;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.RequestPasswordResetCallback;
@@ -38,6 +40,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class LoginActivity extends Activity {
 
@@ -66,16 +69,7 @@ public class LoginActivity extends Activity {
                     Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                ParseUser.logInInBackground(username.getText().toString(), password.getText().toString(), new LogInCallback() {
-                    @Override
-                    public void done(ParseUser parseUser, ParseException e) {
-                        if (e == null) {
-                            goToLoggedInPage();
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Failed to login: invalid information", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                signin(username.getText().toString(), password.getText().toString());
             }
         });
 
@@ -206,7 +200,47 @@ public class LoginActivity extends Activity {
             }
         });
     }
-
+    public void signin(String email_username, final String password){
+        //Username are restricted to contain "@" when signing up,
+        //So if there are "@" in email_username, then it is a email, otherwise it is a username
+        if(email_username.contains("@")){
+            ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
+            queryUser.whereEqualTo("email",email_username);
+            queryUser.findInBackground(new FindCallback<ParseUser>() {
+                public void done(List<ParseUser> users, ParseException e) {
+                    if (e == null) {
+                        if (users.size() == 0) {
+                            Toast toast = Toast.makeText(getApplicationContext(), "Signin Failed, email not registered", Toast.LENGTH_SHORT);
+                            toast.show();
+                        } else if (users.size() > 1) {
+                            Toast toast = Toast.makeText(getApplicationContext(), "Signin Failed, Error in database, email is registered with more than 1 user", Toast.LENGTH_SHORT);
+                            toast.show();
+                        } else {
+                            String username = users.get(0).getUsername();
+                            signin(username, password);
+                        }
+                    } else {
+                        Log.d("User", e.getMessage());
+                        Toast.makeText(getApplicationContext(), "Failed to login: invalid information", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }else {
+            ParseUser.logInInBackground(email_username, password, new LogInCallback() {
+                public void done(ParseUser user, ParseException e) {
+                    if (user != null) {
+                        ParseInstallation myInstallation = ParseInstallation.getCurrentInstallation();
+                        myInstallation.put("User", ParseUser.getCurrentUser());
+                        myInstallation.saveInBackground();
+                        goToLoggedInPage();
+                    } else {
+                        Log.d("User", e.getMessage());
+                        Toast.makeText(getApplicationContext(), "Failed to login: invalid information", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
