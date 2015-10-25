@@ -92,8 +92,8 @@
     <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="Parse-1.10.0" level="project" />
-    <orderEntry type="library" exported="" name="commons-io-2.4" level="project" />
     <orderEntry type="library" exported="" name="ParseFacebookUtilsV4-1.10.0" level="project" />
+    <orderEntry type="library" exported="" name="commons-io-2.4" level="project" />
     <orderEntry type="library" exported="" name="ParseTwitterUtils-1.10.0" level="project" />
     <orderEntry type="library" exported="" name="facebook-android-sdk-4.1.0" level="project" />
     <orderEntry type="library" exported="" name="ParseCrashReporting-1.10.0" level="project" />

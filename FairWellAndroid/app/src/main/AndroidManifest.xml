@@ -70,6 +70,23 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <activity
+            android:name=".AccountSettingActivity"
+            android:label="@string/title_activity_account_setting"
+            android:parentActivityName=".ContentActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.github.budgetninja.fairwellandroid.ContentActivity" />
+        </activity>
+        <activity
+            android:name=".NotificationSettingActivity"
+            android:label="@string/title_activity_notification_setting"
+            android:parentActivityName=".ContentActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="io.github.budgetninja.fairwellandroid.ContentActivity" />
+        </activity>
+
     </application>
 
 </manifest>

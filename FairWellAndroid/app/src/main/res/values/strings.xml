@@ -10,9 +10,10 @@
 
     <string name="home">Home</string>
     <string name="features">Features</string>
-    <string name="friends">Friends</string>
+    <string name="friends">Friend List</string>
     <string name="add_friend">Add Friend</string>
     <string name="remove_friend">Remove Friend</string>
+    <string name="smart_solve">Smart Solve!</string>
     <string name="setting">Setting</string>
     <string name="account_setting">Account Setting</string>
     <string name="notification_setting">Notification Setting</string>
@@ -77,5 +78,34 @@
     <string name="title_activity_resolve_statements">ResolveStatementsActivity</string>
     <string name="title_activity_container">ContainerActivity</string>
     <string name="title_activity_login_fragment">LoginFragment</string>
+
+    <string name="title_activity_account_setting">AccountSettingActivity</string>
+    <string name="title_activity_notification_setting">NotificationSettingActivity</string>
+
+    <string-array name="listArray">
+        <item>Headings</item>
+        <item>Headings and Details</item>
+        <item>All Data</item>
+    </string-array>
+    <string-array name="listValues">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="dueFrequency">
+        <item>Once per hour</item>
+        <item>Once per day</item>
+        <item>Once per week</item>
+        <item>Once per month</item>
+        <item>Once per year</item>
+    </string-array>
+    <string-array name="dueFrequencyValue">
+        <item>1</item>
+        <item>24</item>
+        <item>168</item>
+        <item>5040</item>
+        <item>60480</item>
+    </string-array>
 
 </resources>

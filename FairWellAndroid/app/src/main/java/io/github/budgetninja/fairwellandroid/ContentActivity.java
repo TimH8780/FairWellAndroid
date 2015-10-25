@@ -80,7 +80,7 @@ public class ContentActivity extends AppCompatActivity {
     private static final int POSITION_HOME = 0;
     //private static final int POSITION_FEATURES = 1;
     private static final int POSITION_FRIENDS = 2;
-    private static final int POSITION_ADD_FRIEND = 3;
+    private static final int POSITION_SMART_SOLVE = 3;
     //private static final int POSITION_SETTING = 4;
     private static final int POSITION_ACCOUNT_SETTING = 5;
     private static final int POSITION_NOTIFICATION_SETTING = 6;
@@ -158,7 +158,7 @@ public class ContentActivity extends AppCompatActivity {
         items.add(new Item(getString(R.string.home), R.drawable.ic_action_select_all_dark));
         items.add(new Category(getString(R.string.features)));
         items.add(new Item(getString(R.string.friends), R.drawable.ic_action_select_all_dark));
-        items.add(new Item(getString(R.string.add_friend), R.drawable.ic_action_select_all_dark));
+        items.add(new Item(getString(R.string.smart_solve), R.drawable.ic_action_select_all_dark));
         items.add(new Category(getString(R.string.setting)));
         items.add(new Item(getString(R.string.account_setting), R.drawable.ic_action_select_all_dark));
         items.add(new Item(getString(R.string.notification_setting), R.drawable.ic_action_select_all_dark));
@@ -303,22 +303,18 @@ public class ContentActivity extends AppCompatActivity {
                     startActivity(intent);
                     break;
 
-                case POSITION_ADD_FRIEND:
-                    if(!isNetworkConnected()) {
-                        Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
-                        break;
-                    }
-                    displayAddFriendDialog();
+                case POSITION_SMART_SOLVE:
+                    Toast.makeText(getApplicationContext(), "Smart solve! ", Toast.LENGTH_SHORT).show();
                     break;
 
                 case POSITION_ACCOUNT_SETTING:
-                    Toast.makeText(getApplicationContext(), "Coming soon!", Toast.LENGTH_SHORT).show();
-                    //do something
+                    Intent intent2 = new Intent(ContentActivity.this,AccountSettingActivity.class);
+                    startActivity(intent2);
                     break;
 
                 case POSITION_NOTIFICATION_SETTING:
-                    Toast.makeText(getApplicationContext(), "Coming soon!", Toast.LENGTH_SHORT).show();
-                    //do something
+                    Intent intent3 = new Intent(ContentActivity.this,NotificationSettingActivity.class);
+                    startActivity(intent3);
                     break;
 
                 case POSITION_RATE_THIS_APP:
@@ -362,95 +358,9 @@ public class ContentActivity extends AppCompatActivity {
         }
     };
 
-    private void displayAddFriendDialog(){         //show dialog and prompt user to enter email
-        final AlertDialog.Builder builder = new AlertDialog.Builder(ContentActivity.this);
-        final LinearLayout layout = new LinearLayout(ContentActivity.this);
-        final TextView message = new TextView(ContentActivity.this);
-        final EditText userInput = new EditText(ContentActivity.this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        para.setMargins(20, 20, 20, 0);
-        message.setText("Please enter the email address of your friend:");
-        message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-        message.setLayoutParams(para);
-        userInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        userInput.setLayoutParams(para);
-        layout.addView(message);
-        layout.addView(userInput);
-        builder.setTitle("Add Friend");             //use e-mail for now, may need to change
-        builder.setView(layout);
 
-        builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                ParseQuery<ParseUser> query = ParseUser.getQuery();                 //find other user by searching email
-                query.whereEqualTo("email", userInput.getText().toString());
-                query.getFirstInBackground(new GetCallback<ParseUser>() {
-                    @Override
-                    public void done(ParseUser parseUser, ParseException e) {
-                        if (e == null) {
-                            addFriend(parseUser);
-                        } else {
-                            Log.d("AddFriend", e.getMessage());
-                            Toast.makeText(getApplicationContext(), "Failed to Find E-mail: " +
-                                    userInput.getText().toString(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        final AlertDialog dialog = builder.create();
-        dialog.show();
-    }
 
-    private void addFriend(ParseUser friend){
-        if(user.getObjectId().equals(friend.getObjectId())){                         // can't add yourself as friend
-            Toast.makeText(getApplicationContext(), "Invalid Email Address",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (!isDuplicateFriend(user, friend)) {
-            ParseObject friendList = new ParseObject("FriendList");
-            friendList.put("userOne", user);
-            friendList.put("userTwo", friend);
-            friendList.put("confirmed", false);
-            friendList.put("owedByOne", 0);
-            friendList.put("owedByTwo", 0);
-            friendList.saveInBackground();
 
-            ParseObject temp = Utility.getRawListLocation();
-            temp.getList("list").add(friendList);
-            temp.pinInBackground();
-            Utility.addToExistingFriendList(friendList.getObjectId(), friend);
-
-            Toast.makeText(getApplicationContext(), "Sent a notification to <" +
-                    Utility.getUserName(friend) + ">", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Toast.makeText(getApplicationContext(), "<" + Utility.getUserName(friend) +
-                "> and you are already friend", Toast.LENGTH_SHORT).show();
-    }
-
-    private boolean isDuplicateFriend(ParseUser userOne, ParseUser userTwo){            // check if added before
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("FriendList");
-        ParseUser[] list = {userOne, userTwo};
-        query.whereContainedIn("userOne", Arrays.asList(list));
-        query.whereContainedIn("userTwo", Arrays.asList(list));
-        try {
-            return (query.count() != 0);
-        }
-        catch (ParseException x) {
-            Log.d("checkDuplicate",x.getMessage());
-            return true;
-        }
-    }
 
     private void checkForUpdate(){
         if(isNetworkConnected()){

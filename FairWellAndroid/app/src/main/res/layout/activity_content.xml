@@ -21,7 +21,7 @@
         android:layout_height="200dp"
         android:src="@drawable/profilepic"
         android:layout_marginBottom="10dp"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"/>
 
     <TextView
         android:textStyle="bold"
@@ -44,7 +44,7 @@
         android:layout_gravity="center"
         android:layout_width="240dp"
         android:layout_height="wrap_content"
-        android:background="@color/buttonDark"
+        android:background="@drawable/button_custom_1"
         android:textColor="@color/textLight"
         android:text="View Statements"
         android:layout_marginBottom="4dp"
@@ -54,7 +54,7 @@
         android:layout_gravity="center"
         android:layout_width="240dp"
         android:layout_height="wrap_content"
-        android:background="@color/buttonMedium"
+        android:background="@drawable/button_custom_2"
         android:textColor="@color/textLight"
         android:text="Add Statement"
         android:id="@+id/addStatementButton"
@@ -64,7 +64,7 @@
         android:layout_gravity="center"
         android:layout_width="240dp"
         android:layout_height="wrap_content"
-        android:background="@color/buttonDark"
+        android:background="@drawable/button_custom_3"
         android:textColor="@color/textLight"
         android:text="Resolve Statements"
         android:id="@+id/resolveStatementButton"
