@@ -286,9 +286,8 @@ public class Utility {
         return pFriendList;
     }
 
-    public static void addToExistingFriendList(String pParseObjectID, ParseUser pFriend){
+    public static void addToExistingFriendList(Friend newItem){
         if(pFriendList != null){
-            Friend newItem = new Friend(pParseObjectID, pFriend, getUserName(pFriend), pFriend.getEmail(), 0, 0, false, true);
             newItem.notifyChange();
             ParseObject object = getRawListLocation();
             List<String> offlist = object.getList("offlineFriendList");

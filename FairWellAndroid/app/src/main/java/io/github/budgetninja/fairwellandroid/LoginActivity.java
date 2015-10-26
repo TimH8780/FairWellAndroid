@@ -24,6 +24,7 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
@@ -153,18 +154,24 @@ public class LoginActivity extends Activity {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
                 final LinearLayout layout = new LinearLayout(LoginActivity.this);
                 final TextView message = new TextView(LoginActivity.this);
-                final EditText userInput = new EditText(LoginActivity.this);
+                final EditText userEmail = new EditText(LoginActivity.this);
+                final EditText userName = new EditText(LoginActivity.this);
                 layout.setOrientation(LinearLayout.VERTICAL);
                 LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.MATCH_PARENT);
                 para.setMargins(20, 20, 20, 0);
-                message.setText("Please enter your email address:");
+                message.setText("Please enter your username and email address:");
                 message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
                 message.setLayoutParams(para);
-                userInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-                userInput.setLayoutParams(para);
+                userEmail.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+                userEmail.setLayoutParams(para);
+                userEmail.setHint("Email");
+                userName.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+                userName.setLayoutParams(para);
+                userName.setHint("Username");
                 layout.addView(message);
-                layout.addView(userInput);
+                layout.addView(userName);
+                layout.addView(userEmail);
                 builder.setTitle("Reset Password");      //use e-mail for now, may need to change
                 builder.setView(layout);
                 builder.setPositiveButton("Send Reset Link", new DialogInterface.OnClickListener() {
@@ -174,17 +181,28 @@ public class LoginActivity extends Activity {
                             Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        final String emailAddress = userInput.getText().toString();
-                        ParseUser.requestPasswordResetInBackground(emailAddress, new RequestPasswordResetCallback() {
-                            public void done(ParseException e) {
+                        final String emailAddress = userEmail.getText().toString();
+                        final String userNameText = userName.getText().toString();
+                        ParseQuery<ParseUser> query = ParseUser.getQuery();
+                        query.whereEqualTo("username", userNameText);
+                        query.whereEqualTo("email", emailAddress);
+                        query.getFirstInBackground(new GetCallback<ParseUser>() {
+                            @Override
+                            public void done(ParseUser parseUser, ParseException e) {
                                 if (e == null) {
-                                    Toast.makeText(getApplicationContext(), "An email has been sent to "
-                                            + emailAddress, Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Log.d("ResetPW", e.getMessage());
-                                    Toast.makeText(getApplicationContext(), "Failed to reset password: "
-                                            + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    ParseUser.requestPasswordResetInBackground(emailAddress, new RequestPasswordResetCallback() {
+                                        public void done(ParseException e) {
+                                            if (e == null) {
+                                                Toast.makeText(getApplicationContext(), "An email has been sent to "
+                                                        + emailAddress, Toast.LENGTH_SHORT).show();
+                                                return;
+                                            }
+                                            Toast.makeText(getApplicationContext(), "Failed: Invalid information", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                    return;
                                 }
+                                Toast.makeText(getApplicationContext(), "Failed: Invalid information", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -200,6 +218,7 @@ public class LoginActivity extends Activity {
             }
         });
     }
+
     public void signin(String email_username, final String password){
         //Username are restricted to contain "@" when signing up,
         //So if there are "@" in email_username, then it is a email, otherwise it is a username

@@ -203,7 +203,10 @@ public class FriendsActivity extends AppCompatActivity{
             ParseObject temp = Utility.getRawListLocation();
             temp.getList("list").add(friendList);
             temp.pinInBackground();
-            Utility.addToExistingFriendList(friendList.getObjectId(), friend);
+            Utility.Friend newItem = new Utility.Friend(friendList.getObjectId(), friend,
+                    Utility.getUserName(friend), friend.getEmail(), 0, 0, false, true);
+            Utility.addToExistingFriendList(newItem);
+            adapter.add(newItem);
 
             Toast.makeText(getApplicationContext(), "Sent a notification to <" +
                     Utility.getUserName(friend) + ">", Toast.LENGTH_SHORT).show();
@@ -233,14 +236,15 @@ public class FriendsActivity extends AppCompatActivity{
         Context mContext;
         int mResource;
         List<Utility.Friend> mObject;
-        private TextView[] textCollection;
+        private TextView[] textCollectionOne, textCollectionTwo;
 
         public FriendAdaptor(Context context, int resource, List<Utility.Friend> objects){
             super(context, resource, objects);
             mContext = context;
             mResource = resource;
             mObject = objects;
-            textCollection = new TextView[objects.size() + 1];
+            textCollectionOne = new TextView[objects.size() + 1];
+            textCollectionTwo = new TextView[objects.size() + 1];
         }
 
         @Override
@@ -253,54 +257,67 @@ public class FriendsActivity extends AppCompatActivity{
             name.setText(currentItem.name);
             TextView email = (TextView) convertView.findViewById(R.id.friend_email);
             email.setText(currentItem.email);
+            TextView confirmText = (TextView) convertView.findViewById(R.id.confirmText);
             TextView status = (TextView) convertView.findViewById(R.id.confirmResult);
-            Button confirm = (Button) convertView.findViewById(R.id.button_friend_confirm);
-            if(currentItem.confirm){
-                status.setText("Yes");
-                confirm.setEnabled(false);
-            }
-            else{ status.setText("No"); }
-            textCollection[position] = status;
+            textCollectionOne[position] = status;
+            textCollectionTwo[position] = confirmText;
 
-            confirm.setTag(position);
-            confirm.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!isNetworkConnected()) {
-                        Toast.makeText(mContext, "Check Internet Connection", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    int position = (int) v.getTag();
-                    Utility.Friend currentItem = mObject.get(position);
-                    if (currentItem.isUserOne) {
-                        Toast.makeText(mContext, "Waiting for confirmation from <" + currentItem.name
-                                + ">", Toast.LENGTH_SHORT).show();
-                    } else {
-                        textCollection[position].setText("Yes");
+            Button confirm = (Button) convertView.findViewById(R.id.button_friend_confirm);
+            if(!currentItem.isUserOne && !currentItem.confirm) {
+                confirm.setTag(position);
+                confirm.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View button) {
+                        if (!isNetworkConnected()) {
+                            Toast.makeText(mContext, "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        int position = (int) button.getTag();
+                        Utility.Friend currentItem = mObject.get(position);
+                        ViewGroup confirmButtonParent = (ViewGroup)button.getParent();
+                        confirmButtonParent.removeView(button);
+                        confirmButtonParent.removeView(textCollectionOne[position]);
+                        confirmButtonParent.removeView(textCollectionTwo[position]);
                         currentItem.setConfirm();
-                        v.setEnabled(false);
                         Toast.makeText(mContext, "Confirmed", Toast.LENGTH_SHORT).show();
                     }
-                }
-            });
+                });
+            }
+            else if(currentItem.isUserOne){
+                ViewGroup confirmButtonParent = (ViewGroup)confirm.getParent();
+                confirmButtonParent.removeView(confirm);
+            }
+            else{           //confirmed
+                ViewGroup confirmButtonParent = (ViewGroup)confirm.getParent();
+                confirmButtonParent.removeView(confirm);
+                confirmButtonParent.removeView(confirmText);
+                confirmButtonParent.removeView(status);
+            }
+
             Button delete = (Button) convertView.findViewById(R.id.button_friend_delete);
             delete.setTag(position);
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
+                public void onClick(View button) {
                     if (!isNetworkConnected()) {
                         Toast.makeText(mContext, "Check Internet Connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    int position = (int) v.getTag();
+                    int position = (int) button.getTag();
                     final Utility.Friend currentItem = mObject.get(position);
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                     TextView message = new TextView(mContext);
-                    message.setText("Are you sure you want to delete \n <" + currentItem.name + "> ?");
+                    if (currentItem.confirm) {
+                        message.setText("Are you sure you want to delete \n <" + currentItem.name + "> ?");
+                        builder.setTitle("Delete Friend");
+                    }
+                    else {
+                        message.setText("Are you sure you want to cancel the friend request to <" + currentItem.name + "> ?");
+                        builder.setTitle("Cancel Friend Request");
+                    }
                     message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
                     message.setPadding(20, 20, 20, 20);
-                    builder.setTitle("Delete Friend");
                     builder.setView(message);
                     builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
