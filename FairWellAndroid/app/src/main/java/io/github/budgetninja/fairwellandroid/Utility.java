@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.widget.DatePicker;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -18,6 +19,8 @@ import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -94,7 +97,7 @@ public class Utility {
         }
     }
 
-    public static class Friend {
+    public static class Friend implements Comparable<Friend>{
 
         private String parseObjectID;
         private ParseUser friend;
@@ -115,6 +118,11 @@ public class Utility {
             this.currentUserOwed = currentUserOwed;
             this.friendOwed = friendOwed;
             this.isUserOne = isUserOne;
+        }
+
+        @Override
+        public int compareTo(Friend another){
+            return name.compareToIgnoreCase(another.name);
         }
 
         public void setConfirm(){
@@ -213,7 +221,7 @@ public class Utility {
         });
     }
 
-    private static List<Friend> pFriendList = null;
+    private static List<Friend> pFriendList = null;   // change back to private later
     private static boolean changedRecord = true;
 
     public static List<Friend> generateFriendArray(){
@@ -251,6 +259,7 @@ public class Utility {
             temp.put("offlineFriendList", offlineList);
             temp.pinInBackground();
             pFriendList = new ArrayList<>(friendList);
+            Collections.sort(pFriendList);
             changedRecord = false;
         }
         return pFriendList;
@@ -281,6 +290,7 @@ public class Utility {
                 offlineFriendList.add(new Friend(null, null, name, email, userOwed, friendOwed, confirm, isUserOne));
             }
             pFriendList = new ArrayList<>(offlineFriendList);
+            Collections.sort(pFriendList);
             setChangedRecord();
         }
         return pFriendList;
@@ -294,8 +304,20 @@ public class Utility {
             offlist.add(newItem.toStringAllData());
             object.put("offlineFriendList", offlist);
             object.pinInBackground();
-            pFriendList.add(newItem);
+            int pos = searchPosition(0, pFriendList.size(), newItem);
+            pFriendList.add(pos, newItem);
         }
+    }
+
+    private static int searchPosition(int start, int end, Friend item){
+        int pos = (start + end)/2;
+        if(pos == start){
+            return item.compareTo(pFriendList.get(start)) < 0 ? start : end;
+        }
+        if(item.compareTo(pFriendList.get(pos)) < 0){
+            return searchPosition(start, pos, item);
+        }
+        return searchPosition(pos, end, item);
     }
 
     public static void removeFromExistingFriendList(Friend item){

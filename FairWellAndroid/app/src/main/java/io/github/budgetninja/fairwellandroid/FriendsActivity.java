@@ -31,7 +31,9 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,6 +43,7 @@ import java.util.List;
 public class FriendsActivity extends AppCompatActivity{
     private ParseUser user;
     private FriendAdaptor adapter;
+    private ListView view;
     private ConnectivityManager connMgr;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +67,7 @@ public class FriendsActivity extends AppCompatActivity{
             friendList = Utility.generateFriendArrayOffline();
         }
 
-        ListView view = (ListView) findViewById(R.id.friendlistview);
+        view = (ListView) findViewById(R.id.friendlistview);
         adapter = new FriendAdaptor(this, R.layout.friend_item, friendList);
         view.setAdapter(adapter);
 
@@ -185,31 +188,35 @@ public class FriendsActivity extends AppCompatActivity{
         dialog.show();
     }
 
-    private void addFriend(ParseUser friend){
+    private void addFriend(final ParseUser friend){
         if(user.getObjectId().equals(friend.getObjectId())){                         // can't add yourself as friend
             Toast.makeText(getApplicationContext(), "Invalid Email Address",
                     Toast.LENGTH_SHORT).show();
             return;
         }
         if (!isDuplicateFriend(user, friend)) {
-            ParseObject friendList = new ParseObject("FriendList");
+            final ParseObject friendList = new ParseObject("FriendList");
             friendList.put("userOne", user);
             friendList.put("userTwo", friend);
             friendList.put("confirmed", false);
             friendList.put("owedByOne", 0);
             friendList.put("owedByTwo", 0);
-            friendList.saveInBackground();
+            friendList.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    ParseObject temp = Utility.getRawListLocation();
+                    temp.getList("list").add(friendList);
+                    temp.pinInBackground();
+                    Utility.Friend newItem = new Utility.Friend(friendList.getObjectId(), friend,
+                            Utility.getUserName(friend), friend.getEmail(), 0, 0, false, true);
+                    Utility.addToExistingFriendList(newItem);
+                    adapter = new FriendAdaptor(FriendsActivity.this, R.layout.friend_item, Utility.generateFriendArray());
+                    view.setAdapter(adapter);
 
-            ParseObject temp = Utility.getRawListLocation();
-            temp.getList("list").add(friendList);
-            temp.pinInBackground();
-            Utility.Friend newItem = new Utility.Friend(friendList.getObjectId(), friend,
-                    Utility.getUserName(friend), friend.getEmail(), 0, 0, false, true);
-            Utility.addToExistingFriendList(newItem);
-            adapter.add(newItem);
-
-            Toast.makeText(getApplicationContext(), "Sent a notification to <" +
-                    Utility.getUserName(friend) + ">", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Sent a notification to <" +
+                            Utility.getUserName(friend) + ">", Toast.LENGTH_SHORT).show();
+                }
+            });
             return;
         }
         Toast.makeText(getApplicationContext(), "<" + Utility.getUserName(friend) +
@@ -236,15 +243,15 @@ public class FriendsActivity extends AppCompatActivity{
         Context mContext;
         int mResource;
         List<Utility.Friend> mObject;
-        private TextView[] textCollectionOne, textCollectionTwo;
+        private ArrayList<TextView> textCollectionOne, textCollectionTwo;
 
         public FriendAdaptor(Context context, int resource, List<Utility.Friend> objects){
             super(context, resource, objects);
             mContext = context;
             mResource = resource;
             mObject = objects;
-            textCollectionOne = new TextView[objects.size() + 1];
-            textCollectionTwo = new TextView[objects.size() + 1];
+            textCollectionOne = new ArrayList<>();
+            textCollectionTwo = new ArrayList<>();
         }
 
         @Override
@@ -259,10 +266,11 @@ public class FriendsActivity extends AppCompatActivity{
             email.setText(currentItem.email);
             TextView confirmText = (TextView) convertView.findViewById(R.id.confirmText);
             TextView status = (TextView) convertView.findViewById(R.id.confirmResult);
-            textCollectionOne[position] = status;
-            textCollectionTwo[position] = confirmText;
+            textCollectionOne.add(position, status);
+            textCollectionTwo.add(position, confirmText);
 
             Button confirm = (Button) convertView.findViewById(R.id.button_friend_confirm);
+            ViewGroup parentView = (ViewGroup)name.getParent();
             if(!currentItem.isUserOne && !currentItem.confirm) {
                 confirm.setTag(position);
                 confirm.setOnClickListener(new View.OnClickListener() {
@@ -276,22 +284,20 @@ public class FriendsActivity extends AppCompatActivity{
                         Utility.Friend currentItem = mObject.get(position);
                         ViewGroup confirmButtonParent = (ViewGroup)button.getParent();
                         confirmButtonParent.removeView(button);
-                        confirmButtonParent.removeView(textCollectionOne[position]);
-                        confirmButtonParent.removeView(textCollectionTwo[position]);
+                        confirmButtonParent.removeView(textCollectionOne.get(position));
+                        confirmButtonParent.removeView(textCollectionTwo.get(position));
                         currentItem.setConfirm();
                         Toast.makeText(mContext, "Confirmed", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
             else if(currentItem.isUserOne && !currentItem.confirm){
-                ViewGroup confirmButtonParent = (ViewGroup)confirm.getParent();
-                confirmButtonParent.removeView(confirm);
+                parentView.removeView(confirm);
             }
             else{           //confirmed
-                ViewGroup confirmButtonParent = (ViewGroup)confirm.getParent();
-                confirmButtonParent.removeView(confirm);
-                confirmButtonParent.removeView(confirmText);
-                confirmButtonParent.removeView(status);
+                parentView.removeView(confirm);
+                parentView.removeView(confirmText);
+                parentView.removeView(status);
             }
 
             Button delete = (Button) convertView.findViewById(R.id.button_friend_delete);
@@ -306,7 +312,7 @@ public class FriendsActivity extends AppCompatActivity{
                     int position = (int) button.getTag();
                     final Utility.Friend currentItem = mObject.get(position);
 
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                     TextView message = new TextView(mContext);
                     if (currentItem.confirm) {
                         message.setText("Are you sure you want to delete \n <" + currentItem.name + "> ?");

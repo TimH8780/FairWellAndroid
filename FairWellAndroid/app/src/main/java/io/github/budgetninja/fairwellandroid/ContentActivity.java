@@ -108,6 +108,7 @@ public class ContentActivity extends AppCompatActivity {
     public static final String DISK_CACHE_SUBDIR = "images";
     private static final String TAG = "ImageCache";
     private static final int DISK_CACHE_INDEX = 0;
+
     @Override
     protected void onCreate(Bundle inState) {
         super.onCreate(inState);
@@ -215,6 +216,7 @@ public class ContentActivity extends AppCompatActivity {
         //Display Full Name
         TextView name = (TextView) findViewById(R.id.name);
         name.setText(Utility.getUserName(user));
+        //Picture
         userPhotoView = (ImageView) findViewById(R.id.user_photo);
         userPhotoView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,8 +233,10 @@ public class ContentActivity extends AppCompatActivity {
         }
         //Prompt Facebook and Twitter User to setup email
         if(isNetworkConnected()) {
-            if (user.getEmail() == null) {
-                setEmailFacebookTwitterUser();
+            if (user != null) {
+                if (user.getEmail() == null) {
+                    setEmailFacebookTwitterUser();
+                }
             }
         }
     }
