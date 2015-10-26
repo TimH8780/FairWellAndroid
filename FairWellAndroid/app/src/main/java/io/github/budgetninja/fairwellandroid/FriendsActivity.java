@@ -283,7 +283,7 @@ public class FriendsActivity extends AppCompatActivity{
                     }
                 });
             }
-            else if(currentItem.isUserOne){
+            else if(currentItem.isUserOne && !currentItem.confirm){
                 ViewGroup confirmButtonParent = (ViewGroup)confirm.getParent();
                 confirmButtonParent.removeView(confirm);
             }
