@@ -3,6 +3,8 @@ package io.github.budgetninja.fairwellandroid;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -12,7 +14,9 @@ import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
+import com.parse.GetDataCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -107,6 +111,7 @@ public class Utility {
         boolean isUserOne;
         double currentUserOwed;
         double friendOwed;
+        byte[] photo;
 
         Friend(String parseObjectID, ParseUser friend, String name, String email, double currentUserOwed,
                double friendOwed, boolean confirm, boolean isUserOne){
@@ -118,11 +123,36 @@ public class Utility {
             this.currentUserOwed = currentUserOwed;
             this.friendOwed = friendOwed;
             this.isUserOne = isUserOne;
+            obtainPhoto();
         }
 
         @Override
         public int compareTo(Friend another){
             return name.compareToIgnoreCase(another.name);
+        }
+
+        private void obtainPhoto(){
+            if(connMgr != null) {
+                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                boolean hasNetwork = (networkInfo != null && networkInfo.isConnected());
+                if (friend != null && hasNetwork) {
+                    ParseFile data = friend.getParseFile("photo");
+                    if (data != null) {
+                        data.getDataInBackground(new GetDataCallback() {
+                            @Override
+                            public void done(byte[] bytes, ParseException e) {
+                                if (e == null) {
+                                    Friend.this.photo = bytes;
+                                } else {
+                                    Friend.this.photo = null;
+                                }
+                            }
+                        });
+                        return;
+                    }
+                }
+            }
+            photo = null;
         }
 
         public void setConfirm(){
@@ -373,5 +403,12 @@ public class Utility {
 
     public static int getDPI(Context ctx) {
         return (int)(ctx.getResources().getDisplayMetrics().density*160f);
+    }
+
+    private static ConnectivityManager connMgr;
+    public static void addReferenceConnectivityManager(ConnectivityManager manager){
+        if(connMgr == null){
+            connMgr = manager;
+        }
     }
 }

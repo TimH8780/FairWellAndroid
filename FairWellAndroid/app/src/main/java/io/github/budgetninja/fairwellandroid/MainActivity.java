@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent;
         ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        Utility.addReferenceConnectivityManager(connMgr);
 
         if(currentUser != null){            //Already logged in (current user exists)
             intent = new Intent(MainActivity.this, ContentActivity.class);

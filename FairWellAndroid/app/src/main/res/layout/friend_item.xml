@@ -8,6 +8,7 @@
     android:paddingRight="15dp">
 
     <ImageView
+        android:id="@+id/friend_photo"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:src="@drawable/profilepic"/>
@@ -37,26 +38,16 @@
             android:text="Friend Email"/>
 
         <TextView
-            android:id="@+id/confirmText"
+            android:id="@+id/confirmResult"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/friend_email"
             android:layout_alignParentLeft="true"
-            android:textSize="15sp"
-            android:text="Confirmed: " />
-
-        <TextView
-            android:id="@+id/confirmResult"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/confirmText"
-            android:layout_alignRight="@+id/confirmText"
-            android:layout_alignParentLeft="true"
+            android:paddingTop="5dp"
             android:textSize="12sp"
             android:textStyle="bold"
             android:textColor="#FF0000"
-            android:gravity="center"
-            android:text="NO"/>
+            android:text="Awaiting for confirmation"/>
 
         <Button
             android:id="@+id/button_friend_confirm"

@@ -3,6 +3,8 @@ package io.github.budgetninja.fairwellandroid;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.InputType;
 import android.util.Log;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,9 +23,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,9 +38,12 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 /**
  *Created by HuMengpei on 9/30/2015.
@@ -86,6 +94,26 @@ public class FriendsActivity extends AppCompatActivity{
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         // Configure the search info and add any event listeners
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                adapter.getFilter().filter(query.toLowerCase());
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText.toLowerCase());
+                return false;
+            }
+        });
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                adapter.getFilter().filter("");
+                return false;
+            }
+        });
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -210,8 +238,7 @@ public class FriendsActivity extends AppCompatActivity{
                     Utility.Friend newItem = new Utility.Friend(friendList.getObjectId(), friend,
                             Utility.getUserName(friend), friend.getEmail(), 0, 0, false, true);
                     Utility.addToExistingFriendList(newItem);
-                    adapter = new FriendAdaptor(FriendsActivity.this, R.layout.friend_item, Utility.generateFriendArray());
-                    view.setAdapter(adapter);
+                    adapter.updateData(Utility.generateFriendArray());
 
                     Toast.makeText(getApplicationContext(), "Sent a notification to <" +
                             Utility.getUserName(friend) + ">", Toast.LENGTH_SHORT).show();
@@ -220,7 +247,7 @@ public class FriendsActivity extends AppCompatActivity{
             return;
         }
         Toast.makeText(getApplicationContext(), "<" + Utility.getUserName(friend) +
-                "> and you are already friend", Toast.LENGTH_SHORT).show();
+                "> are already in your friend list", Toast.LENGTH_SHORT).show();
     }
 
     private boolean isDuplicateFriend(ParseUser userOne, ParseUser userTwo){            // check if added before
@@ -242,67 +269,107 @@ public class FriendsActivity extends AppCompatActivity{
 
         Context mContext;
         int mResource;
-        List<Utility.Friend> mObject;
-        private ArrayList<TextView> textCollectionOne, textCollectionTwo;
+        List<Utility.Friend> mData;
+        private List<Utility.Friend> backupData;
 
         public FriendAdaptor(Context context, int resource, List<Utility.Friend> objects){
             super(context, resource, objects);
             mContext = context;
             mResource = resource;
-            mObject = objects;
-            textCollectionOne = new ArrayList<>();
-            textCollectionTwo = new ArrayList<>();
+            mData = objects;
+            backupData = objects;
+        }
+
+        public void updateData(List<Utility.Friend> data){
+            mData = data;
+            backupData = data;
+            FriendAdaptor.this.notifyDataSetChanged();
+        }
+
+        private class ViewHolder{
+            TextView nameText, emailText, statusText;
+            Button confirmButton, deleteButton;
+            ImageView photoImage;
+        }
+
+        @Override
+        public int getCount(){
+            return mData.size();
+        }
+
+        @Override
+        public void remove(Utility.Friend item){
+            mData.remove(item);
+            backupData.remove(item);
+            FriendAdaptor.this.notifyDataSetChanged();
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent){
-            Utility.Friend currentItem = mObject.get(position);
+            Utility.Friend currentItem = mData.get(position);
+            ViewHolder holder;
             if(convertView == null){
                 convertView = getLayoutInflater().inflate(mResource, parent, false);
+                holder = new ViewHolder();
+                holder.nameText = (TextView) convertView.findViewById(R.id.friend_name);
+                holder.emailText = (TextView) convertView.findViewById(R.id.friend_email);
+                holder.statusText = (TextView) convertView.findViewById(R.id.confirmResult);
+                holder.confirmButton = (Button) convertView.findViewById(R.id.button_friend_confirm);
+                holder.deleteButton = (Button) convertView.findViewById(R.id.button_friend_delete);
+                holder.photoImage = (ImageView) convertView.findViewById(R.id.friend_photo);
+                convertView.setTag(holder);
             }
-            TextView name = (TextView) convertView.findViewById(R.id.friend_name);
-            name.setText(currentItem.name);
-            TextView email = (TextView) convertView.findViewById(R.id.friend_email);
-            email.setText(currentItem.email);
-            TextView confirmText = (TextView) convertView.findViewById(R.id.confirmText);
-            TextView status = (TextView) convertView.findViewById(R.id.confirmResult);
-            textCollectionOne.add(position, status);
-            textCollectionTwo.add(position, confirmText);
+            else{
+                holder = (ViewHolder) convertView.getTag();
+            }
+            holder.nameText.setText(currentItem.name);
+            holder.emailText.setText(currentItem.email);
+            if(currentItem.photo != null){
+                int DPI = getDPI(mContext);
+                int pixel = 70 * (DPI / 160);
+                Bitmap bmp = ContentActivity.decodeSampledBitmapFromByteArray(currentItem.photo, pixel, pixel);
+                holder.photoImage.setImageBitmap(bmp);
+            }
+            else{
+                holder.photoImage.setImageResource(R.drawable.profilepic);
+            }
 
-            Button confirm = (Button) convertView.findViewById(R.id.button_friend_confirm);
-            ViewGroup parentView = (ViewGroup)name.getParent();
+
             if(!currentItem.isUserOne && !currentItem.confirm) {
-                confirm.setTag(position);
-                confirm.setOnClickListener(new View.OnClickListener() {
+                holder.confirmButton.setVisibility(View.VISIBLE);
+                holder.statusText.setVisibility(View.VISIBLE);
+                holder.statusText.setText("Awaiting for your\nresponse");
+                Pair<Integer, TextView> data = new Pair<>(position, holder.statusText);
+                holder.confirmButton.setTag(data);
+                holder.confirmButton.setOnClickListener(new View.OnClickListener() {
+                    @SuppressWarnings("unchecked")
                     @Override
                     public void onClick(View button) {
                         if (!isNetworkConnected()) {
                             Toast.makeText(mContext, "Check Internet Connection", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        int position = (int) button.getTag();
-                        Utility.Friend currentItem = mObject.get(position);
-                        ViewGroup confirmButtonParent = (ViewGroup)button.getParent();
-                        confirmButtonParent.removeView(button);
-                        confirmButtonParent.removeView(textCollectionOne.get(position));
-                        confirmButtonParent.removeView(textCollectionTwo.get(position));
+                        Pair<Integer, TextView> data = (Pair<Integer, TextView>) button.getTag();
+                        Utility.Friend currentItem = mData.get(data.first);
                         currentItem.setConfirm();
+                        button.setVisibility(View.INVISIBLE);
+                        data.second.setVisibility(View.INVISIBLE);
                         Toast.makeText(mContext, "Confirmed", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
             else if(currentItem.isUserOne && !currentItem.confirm){
-                parentView.removeView(confirm);
+                holder.confirmButton.setVisibility(View.INVISIBLE);
+                holder.statusText.setVisibility(View.VISIBLE);
+                holder.statusText.setText("Awaiting for confirmation");
             }
             else{           //confirmed
-                parentView.removeView(confirm);
-                parentView.removeView(confirmText);
-                parentView.removeView(status);
+                holder.confirmButton.setVisibility(View.INVISIBLE);
+                holder.statusText.setVisibility(View.INVISIBLE);
             }
 
-            Button delete = (Button) convertView.findViewById(R.id.button_friend_delete);
-            delete.setTag(position);
-            delete.setOnClickListener(new View.OnClickListener() {
+            holder.deleteButton.setTag(position);
+            holder.deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View button) {
                     if (!isNetworkConnected()) {
@@ -310,17 +377,19 @@ public class FriendsActivity extends AppCompatActivity{
                         return;
                     }
                     int position = (int) button.getTag();
-                    final Utility.Friend currentItem = mObject.get(position);
+                    final Utility.Friend currentItem = mData.get(position);
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                     TextView message = new TextView(mContext);
                     if (currentItem.confirm) {
                         message.setText("Are you sure you want to delete \n <" + currentItem.name + "> ?");
                         builder.setTitle("Delete Friend");
-                    }
-                    else {
+                    } else if (currentItem.isUserOne) {
                         message.setText("Are you sure you want to cancel the friend request to <" + currentItem.name + "> ?");
                         builder.setTitle("Cancel Friend Request");
+                    } else {
+                        message.setText("Are you sure you want to deny the friend request from <" + currentItem.name + "> ?");
+                        builder.setTitle("Deny Friend Request");
                     }
                     message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
                     message.setPadding(20, 20, 20, 20);
@@ -344,6 +413,36 @@ public class FriendsActivity extends AppCompatActivity{
                 }
             });
             return convertView;
+        }
+
+        @Override
+        public Filter getFilter(){
+            return new Filter() {
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    FilterResults results = new FilterResults();
+                    if(constraint.equals("")){
+                        results.values = backupData;
+                    }
+                    else{
+                        List<Utility.Friend> data = new ArrayList<>();
+                        for(int i = 0; i < backupData.size(); i++){
+                            if(backupData.get(i).name.toLowerCase().contains(constraint)){
+                                data.add(backupData.get(i));
+                            }
+                        }
+                        results.values = data;
+                    }
+                    return results;
+                }
+
+                @SuppressWarnings("unchecked")
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    mData = (List< Utility.Friend>) results.values;
+                    FriendAdaptor.this.notifyDataSetChanged();
+                }
+            };
         }
     }
 }
