@@ -146,10 +146,9 @@ public class HomepageFragment extends Fragment {
         userPhotoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                parent.fragTrans.addToBackStack("Home");
-                startActivityForResult(Intent.createChooser(
-                        new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT), "Select picture"), REQUEST_PICTURE);
-                parent.fragMgr.popBackStack("Home", 0);
+                //startActivityForResult(Intent.createChooser(new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT), "Select picture"), REQUEST_PICTURE);
+                Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, REQUEST_PICTURE);
             }
         });
         if(user != null){
