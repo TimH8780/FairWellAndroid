@@ -1,37 +1,26 @@
 package io.github.budgetninja.fairwellandroid;
 
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.view.LayoutInflater;
+import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
-/**
- * A placeholder fragment containing a simple view.
- */
-public class ViewStatementsFragment extends Fragment {
+public class NotificationSettingFragment extends PreferenceFragmentCompat {
 
     private ContentActivity parent;
 
     @Override
-    public void onCreate(Bundle bundle){
-        super.onCreate(bundle);
+    public void onCreatePreferences(Bundle bundle, String s) {
+        addPreferencesFromResource(R.xml.activity_notification_setting);
         setHasOptionsMenu(true);
-        parent = (ContentActivity)getActivity();
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_view_statements, container, false);
+        parent = (ContentActivity)getActivity();
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
             actionBar.setHomeAsUpIndicator(null);
         }
-        parent.setTitle("View Statement");
+        parent.setTitle("Notification Setting");
 
-        return view;
     }
 
     @Override

@@ -6,7 +6,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -54,17 +53,15 @@ public class RegisterActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        //Function of Cancel Button
+        //Cancel Button
         cancelButton.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Cancelled", Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
 
-        //Function of Confirm Registration Buttton
+        //Confirm Registration Button
         confirmRegButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,19 +108,17 @@ public class RegisterActivity extends AppCompatActivity {
                         return;
                     }
                     //No check on agreement
-                    Toast.makeText(getApplicationContext(), "Please read and agree " +
-                            "the 'Term and Condition'", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Please read and agree the 'Term and Condition'", Toast.LENGTH_SHORT).show();
                     ConfirmPass.setText("");
                     return;
                 }
                 //Missing info or Not match password
-                Toast.makeText(getApplicationContext(), "Please double check " +
-                        "all information", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Please double check all information", Toast.LENGTH_SHORT).show();
                 ConfirmPass.setText("");
             }
         });
 
-        //Function of uploading an image
+        //Upload Photo
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -131,7 +126,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        //The "Term and Condition"
+        //Term and Condition
         termCondition.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,16 +137,9 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                // app icon in action bar clicked; goto parent activity.
                 this.finish();
                 return true;
             default:

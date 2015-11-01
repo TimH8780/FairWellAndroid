@@ -22,28 +22,32 @@ public class MainActivity extends AppCompatActivity {
     feel easier and more feasible.
      */
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_container);
 
         //show tutorial slide?
 
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        Intent intent;
-        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        ParseUser user = ParseUser.getCurrentUser();
+        final ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         Utility.addReferenceConnectivityManager(connMgr);
+        Intent intent;
 
-        if(currentUser != null){            //Already logged in (current user exists)
-            intent = new Intent(MainActivity.this, ContentActivity.class);
-            if(networkInfo != null && networkInfo.isConnected()) {
-                if(Utility.checkNewEntryField()){
-                    Utility.setChangedRecord();
-                    Utility.generateRawFriendList(ParseUser.getCurrentUser());
+        if(user != null){               //Already logged in (current user exists)
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                    if(networkInfo != null && networkInfo.isConnected()) {
+                        if(Utility.checkNewEntryField()){
+                            Utility.setChangedRecord();
+                            Utility.generateRawFriendList(ParseUser.getCurrentUser());
+                        }
+                    }
                 }
-            }
+            }).start();
+            intent = new Intent(MainActivity.this, ContentActivity.class);
         } else {                            //Need to log in
             intent = new Intent(MainActivity.this, LoginActivity.class);
         }
@@ -57,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause(){           //Kill this activity after login
+    protected void onPause(){
         super.onPause();
         this.finish();
     }

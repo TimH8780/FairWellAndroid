@@ -1,34 +1,42 @@
 package io.github.budgetninja.fairwellandroid;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -36,16 +44,21 @@ import java.util.List;
  */
 public class AddStatementFragment extends Fragment {
 
-    private TextView ClickedText;
+    private TextView clickedText;
     private TextView deadlineField;
     private TextView dateField;
     private Button addSnapshotButton;
     private Button addMemberButton;
-    private Button closeButton;
-    private ArrayList<Integer> dateRecord;
+    private Button confirmButton;
+    private TableLayout tableLayout;
+    private static ArrayList<Integer> dateRecord;
+    private static int viewSel;
 
     private ParseUser user;
+    private ContentActivity parent;
     private int paidByPosition;
+    private int modePosition;
+    private Boolean[] friendSelected;
     private List<Utility.Friend> friendList;
 
     private static final int DATE = 0;
@@ -53,22 +66,29 @@ public class AddStatementFragment extends Fragment {
     private static final int YEAR = 0;
     private static final int MONTH = 1;
     private static final int DAY = 2;
+    private static final int SELF = 0;
+    private static final int SPLIT_EQUALLY = 0;
+    private static final int BY_PERCENTAGE = 1;
+    private static final int BY_RATIO = 2;
 
-    public AddStatementFragment() {
-    }
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setHasOptionsMenu(true);        //force to recreate optionMenu
-    }
+        setHasOptionsMenu(true);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
-        getActivity().setTitle("Add Statement");
+        parent = (ContentActivity)getActivity();
         user = ParseUser.getCurrentUser();
-        paidByPosition = 0;
+        paidByPosition = SELF;
+        modePosition = SPLIT_EQUALLY;
+        if(parent.isNetworkConnected()) {
+            friendList = new ArrayList<>(Utility.generateFriendArray());
+        }
+        else {
+            friendList = new ArrayList<>(Utility.generateFriendArrayOffline());
+        }
+        friendList.add(0, new Utility.Friend(null, user, "Self", null, -1, -1, true, true)); //user her/himself
+        friendSelected = new Boolean[friendList.size()];
 
         // An array used to record the date set by user for DATE and DEADLINE
         dateRecord = new ArrayList<>(6);
@@ -78,23 +98,26 @@ public class AddStatementFragment extends Fragment {
         dateRecord.add(DEADLINE + YEAR, 2101);
         dateRecord.add(DEADLINE + MONTH, 12);
         dateRecord.add(DEADLINE + DAY, 31);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
+        ActionBar actionBar = parent.getSupportActionBar();
+        if(actionBar != null) {
+            actionBar.setHomeAsUpIndicator(null);
+        }
+        parent.setTitle("Add Statement");
 
         Spinner spinner = (Spinner) rootView.findViewById(R.id.spinner);
         Spinner spinner2 = (Spinner) rootView.findViewById(R.id.spinner2);
         final EditText moneyAmount = (EditText) rootView.findViewById(R.id.moneyAmount);
         addMemberButton = (Button) rootView.findViewById(R.id.addMemberButton);
         addSnapshotButton = (Button) rootView.findViewById(R.id.addSnapshotButton);
-        ClickedText = (TextView) rootView.findViewById(R.id.clickText);
+        clickedText = (TextView) rootView.findViewById(R.id.clickText);
         dateField = (TextView) rootView.findViewById(R.id.dateField);
         deadlineField = (TextView) rootView.findViewById(R.id.deadlineField);
-
-        if(((ContainerActivity)getActivity()).isNetworkConnected()) {
-            friendList = new ArrayList<>(Utility.generateFriendArray());
-        }
-        else {
-            friendList = new ArrayList<>(Utility.generateFriendArrayOffline());
-        }
-        friendList.add(0, new Utility.Friend(null, user, "Self", null, -1, -1, true, true)); //user her/himself
+        tableLayout = (TableLayout) rootView.findViewById(R.id.tableLayout);
 
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<Utility.Friend> adapter = new ArrayAdapter<>(getContext(),
@@ -114,23 +137,30 @@ public class AddStatementFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 paidByPosition = position;
-                //Then reset "Member"
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { /* do nothing */ }
+        });
+        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                modePosition = position;
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) { /* do nothing */ }
         });
 
-        closeButton = (Button) rootView.findViewById(R.id.confirmButton);
-        closeButton.setOnClickListener(new View.OnClickListener() {
+        confirmButton = (Button) rootView.findViewById(R.id.confirmButton);
+        confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!((ContainerActivity)getActivity()).isNetworkConnected()){
-                    Toast.makeText(getActivity().getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                if (!parent.isNetworkConnected()) {
+                    Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Toast.makeText(getContext(), "Fairwell will send notification to the party members! "
                         , Toast.LENGTH_SHORT).show();
-                getActivity().finish();
+                parent.fragMgr.popBackStack();
             }
         });
 
@@ -140,18 +170,15 @@ public class AddStatementFragment extends Fragment {
                 showDatePickerDialog(DATE);
             }
         });
-
         deadlineField.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                showDatePickerDialog(DEADLINE);
+            public void onClick(View v) {showDatePickerDialog(DEADLINE);
             }
         });
 
         moneyAmount.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { /* do nothing */ }
-
             @Override
             public void afterTextChanged(Editable s) { /* do nothing */ }
 
@@ -180,70 +207,142 @@ public class AddStatementFragment extends Fragment {
         addMemberButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                ListView container = new ListView(getActivity());
-                MemberSelectionAdaptor memberAdaptor;
-                if(paidByPosition == 0) {
-                    memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.addmember_item, friendList);
+                if(modePosition == SPLIT_EQUALLY){
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+                    LinearLayout linearLayout = new LinearLayout(parent);
+                    linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                    linearLayout.setPadding(20, 20, 20, 20);
+                    TextView textView = new TextView(parent);
+                    textView.setText("Number of People Involved:  ");
+                    textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+                    final EditText editText = new EditText(parent);
+                    editText.setHint("Input");
+                    editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+                    editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(2)});
+                    linearLayout.addView(textView);
+                    linearLayout.addView(editText);
+                    builder.setTitle("Select Member(s)");
+                    builder.setView(linearLayout);
+                    builder.setPositiveButton("Next", null);
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    final AlertDialog dialog = builder.create();
+
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @Override
+                        public void onShow(DialogInterface dialogInterface) {
+                            Button button = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                            button.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String text = editText.getText().toString();
+                                    if (text.equals("")) {
+                                        Toast.makeText(parent, "Please enter number greater than 1", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        int num = Integer.valueOf(text);
+                                        if (num <= 1) {
+                                            editText.setText("");
+                                            Toast.makeText(parent, "Please enter number greater than 1", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            dialog.dismiss();
+                                            showMemberSelectionList(num);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    dialog.show();
+                } else if(modePosition == BY_PERCENTAGE){
+                    showMemberSelectionList(-1);
+                } else {
+                    showMemberSelectionList(-1);
                 }
-                else {
-                    memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.addmember_item, friendList.subList(0, 1));
-                }
-                container.setAdapter(memberAdaptor);
-                builder.setTitle("Select Member(s)");
-                builder.setView(container);
-                builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do something
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                final AlertDialog dialog = builder.create();
-                dialog.show();
             }
         });
 
         addSnapshotButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity().getApplicationContext(), "Unavailable now"
-                        , Toast.LENGTH_SHORT).show();
+                Toast.makeText(parent, "Unavailable now", Toast.LENGTH_SHORT).show();
             }
         });
-
 
         return rootView;
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_add_statement, menu);
-    }
-
-    public void showDatePickerDialog(int args) {
-        Bundle arg = new Bundle();
-        arg.putInt("ViewSel", args);
-        arg.putIntegerArrayList("DateList", dateRecord);
-        DialogFragment newFragment = new Utility.DatePickerFragment();
-        newFragment.setArguments(arg);
-        newFragment.show(getFragmentManager(), "datePicker");
-    }
-
-    public void setClickedIconText(String string) {
-        if (!string.equals("")) {
-            ClickedText.setText("Category: " + string);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                parent.mMenuDrawer.closeMenu(false);
+                parent.fragMgr.popBackStack();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
-    public void setDate(int year, int month, int day, int viewSel) {
+    protected void setClickedIconText(String string) {
+        if (!string.equals("")) {
+            clickedText.setText("Category: " + string);
+        }
+    }
+
+    private void showMemberSelectionList(final int capacity){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+        ListView container = new ListView(parent);
+        TextView capacityText = new TextView(parent);
+        if(capacity > 1){
+            TextView textView = new TextView(parent);
+            textView.setText("Maximum Capacity: ");
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+            capacityText.setText(Integer.toString(capacity));
+            capacityText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+            LinearLayout linearLayout = new LinearLayout(parent);
+            linearLayout.setHorizontalGravity(Gravity.CENTER_HORIZONTAL);
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            linearLayout.addView(textView);
+            linearLayout.addView(capacityText);
+            linearLayout.setPadding(10, 10, 10, 10);
+            LinearLayout layout = new LinearLayout(parent);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.addView(linearLayout);
+            layout.addView(container);
+            builder.setView(layout);
+        } else {
+            builder.setView(container);
+        }
+        MemberSelectionAdaptor memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.item_add_member, friendList, capacity, capacityText);
+        container.setAdapter(memberAdaptor);
+        builder.setTitle("Select Member(s)");
+        builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // do something
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {dialog.cancel();
+            }
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void showDatePickerDialog(int args) {
+        viewSel = args;
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getFragmentManager(), "datePicker");
+    }
+
+    private void setDate(int year, int month, int day, int viewSel) {
         if(isValidDate(year, month, day, viewSel)) {
             dateRecord.set(viewSel + YEAR, year);
             dateRecord.set(viewSel + MONTH, month);
@@ -252,19 +351,17 @@ public class AddStatementFragment extends Fragment {
             StringBuilder data = new StringBuilder("");
             data.append(String.format("%02d",month + 1)).append("/").append(String.format("%02d", day)).append("/").append(year);
 
-
             if (viewSel == DATE) {
                 dateField.setText(data.toString());
-            } else if (viewSel == DEADLINE) {
+            } else {
                 deadlineField.setText(data.toString());
             }
             return;
         }
-        Toast.makeText(getActivity().getApplicationContext(), "Invalid Input:'Deadline' must be after 'Date'"
-                , Toast.LENGTH_SHORT).show();
+        Toast.makeText(parent, "Invalid Date Selection", Toast.LENGTH_SHORT).show();
     }
 
-    public boolean isValidDate(int year, int month, int day, int view) {
+    private boolean isValidDate(int year, int month, int day, int view) {
         Boolean result = (view == DATE);
         view = (view == DATE) ? DEADLINE : DATE;
         if (dateRecord.get(view + YEAR) > year) { return result; }
@@ -279,25 +376,91 @@ public class AddStatementFragment extends Fragment {
 
         Context mContext;
         int mResource;
+        int capacity;
+        TextView capacityText;
         List<Utility.Friend> mObject;
 
-        public MemberSelectionAdaptor(Context context, int resource, List<Utility.Friend> objects){
+        public MemberSelectionAdaptor(Context context, int resource, List<Utility.Friend> objects, int capacity, TextView numberText){
             super(context, resource, objects);
             mContext = context;
             mResource = resource;
             mObject = objects;
+            this.capacity = capacity;
+            this.capacityText = numberText;
+        }
+
+        private class ViewHolder{
+            TextView nameText;
+            CheckBox box;
+            int position;
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent){
+        public View getView(int position, View convertView, ViewGroup parentGroup){
             Utility.Friend currentItem = mObject.get(position);
+            final ViewHolder viewHolder;
             if(convertView == null){
-                convertView = getActivity().getLayoutInflater().inflate(mResource, parent, false);
+                convertView = parent.getLayoutInflater().inflate(mResource, parentGroup, false);
+                viewHolder = new ViewHolder();
+                viewHolder.nameText = (TextView) convertView.findViewById(R.id.memberName);
+                viewHolder.box = (CheckBox) convertView.findViewById(R.id.memberCheckBox);
+                convertView.setTag(viewHolder);
+            } else {
+               viewHolder = (ViewHolder) convertView.getTag();
             }
-            TextView memberName = (TextView) convertView.findViewById(R.id.memberName);
-            memberName.setText(currentItem.name);
-            //Listener
+            viewHolder.position = position;
+            viewHolder.nameText.setText(currentItem.name);
+            viewHolder.box.setChecked(false);
+
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ViewHolder holder = (ViewHolder) v.getTag();
+                    if(holder.box.isChecked()){
+                        friendSelected[holder.position] = false;
+                        holder.box.setChecked(false);
+                        if(capacity >= 0){
+                            capacityText.setText(Integer.toString(++capacity));
+                        }
+                    } else if(capacity != 0) {
+                        friendSelected[holder.position] = true;
+                        holder.box.setChecked(true);
+                        if(capacity > 0){
+                            capacityText.setText(Integer.toString(--capacity));
+                        }
+                    }
+                }
+            });
+
             return convertView;
+        }
+    }
+
+    public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
+
+        private int viewIndex;
+
+        @NonNull
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            viewIndex = viewSel;
+            int year, month, day;
+            if (dateRecord.get(viewSel + YEAR) >= 1900 && dateRecord.get(viewSel + YEAR) <= 2100) {
+                // Use selected date as the default date in the picker
+                year = dateRecord.get(viewSel + YEAR);
+                month = dateRecord.get(viewSel + MONTH);
+                day = dateRecord.get(viewSel + DAY);
+            } else {
+                // Use the current date as the default date in the picker
+                final Calendar c = Calendar.getInstance();
+                year = c.get(Calendar.YEAR);
+                month = c.get(Calendar.MONTH);
+                day = c.get(Calendar.DAY_OF_MONTH);
+            }
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            ((AddStatementFragment)getActivity().getSupportFragmentManager().findFragmentByTag("Add")).setDate(year, month, day, viewIndex);
         }
     }
 

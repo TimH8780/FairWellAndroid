@@ -3,18 +3,18 @@ package io.github.budgetninja.fairwellandroid;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.graphics.Bitmap;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
@@ -23,39 +23,38 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
+
 /**
  * A placeholder fragment containing a simple view.
  */
 public class ResolveStatementsFragment extends Fragment {
 
-    private ConnectivityManager connMgr;
-
-    public ResolveStatementsFragment() {
-    }
+    private static final int IMAGE_WIDTH_HEIGHT = 90;
+    private ContentActivity parent;
 
     @Override
     public void onCreate(Bundle bundle){
         super.onCreate(bundle);
         setHasOptionsMenu(true);
+        parent = (ContentActivity)getActivity();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_resolve_statements, container, false);
-        getActivity().setTitle("Resolve Statement");
-        connMgr = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        ActionBar actionBar = parent.getSupportActionBar();
+        if(actionBar != null) {
+            actionBar.setHomeAsUpIndicator(null);
+        }
+        parent.setTitle("Resolve Statement");
 
         List<Utility.Friend> friendList;
-        if(isNetworkConnected()) {
-            friendList = Utility.generateFriendArray();
-        }
-        else {
-            friendList = Utility.generateFriendArrayOffline();
-        }
+        if(parent.isNetworkConnected()) { friendList = Utility.generateFriendArray(); }
+        else { friendList = Utility.generateFriendArrayOffline(); }
 
         ListView view = (ListView) rootView.findViewById(R.id.ResolveStatementsListView);
-        ResolveStatementAdaptor adapter = new ResolveStatementAdaptor(getActivity(), R.layout.resolvestatements_item, friendList);
+        ResolveStatementAdaptor adapter = new ResolveStatementAdaptor(getActivity(), R.layout.item_resolve_statements, friendList);
         view.setAdapter(adapter);
 
         LinearLayout layout = (LinearLayout)rootView.findViewById(R.id.EmptyListView_resolve);
@@ -63,21 +62,20 @@ public class ResolveStatementsFragment extends Fragment {
         text.setText("No Resolvable Statement");
         view.setEmptyView(layout);
 
-
         return rootView;
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.menu_resolve_statements, menu);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                parent.mMenuDrawer.closeMenu(false);
+                parent.fragMgr.popBackStack();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
-
-    private boolean isNetworkConnected(){
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
-    }
-
 
     public class ResolveStatementAdaptor extends ArrayAdapter<Utility.Friend> {
 
@@ -92,27 +90,47 @@ public class ResolveStatementsFragment extends Fragment {
             mObject = objects;
         }
 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent){
-            Utility.Friend currentItem = mObject.get(position);
-            if(convertView == null){
-                convertView = getActivity().getLayoutInflater().inflate(mResource, parent, false);
-            }
-            TextView name = (TextView) convertView.findViewById(R.id.name_resolve);
-            name.setText(currentItem.name);
-            TextView youOwedAmount = (TextView) convertView.findViewById(R.id.youOweAmount_resolve);
-            youOwedAmount.setText(String.format("%.2f",currentItem.currentUserOwed));
-            TextView friendOwedAmount = (TextView) convertView.findViewById(R.id.heOweAmount_resolve);
-            friendOwedAmount.setText(String.format("%.2f",currentItem.friendOwed));
-            TextView netBalance = (TextView) convertView.findViewById(R.id.netBalanceAmount_resolve);
-            netBalance.setText(String.format("%.2f", currentItem.currentUserOwed - currentItem.friendOwed));
-            Button resolveButton = (Button) convertView.findViewById(R.id.button_resolve);
-            resolveButton.setTag(position);
+        private class ViewHolder{
+            TextView nameText, youOwedAmount, friendOwedAmount, netBalance;
+            Button resolveButton;
+            ImageView photoImage;
+        }
 
-            resolveButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public View getView(int position, View convertView, ViewGroup parentGroup){
+            Utility.Friend currentItem = mObject.get(position);
+            ViewHolder viewHolder;
+            if(convertView == null){
+                viewHolder = new ViewHolder();
+                convertView = getActivity().getLayoutInflater().inflate(mResource, parentGroup, false);
+                viewHolder.nameText = (TextView) convertView.findViewById(R.id.name_resolve);
+                viewHolder.youOwedAmount = (TextView) convertView.findViewById(R.id.youOweAmount_resolve);
+                viewHolder.friendOwedAmount = (TextView) convertView.findViewById(R.id.heOweAmount_resolve);
+                viewHolder.netBalance = (TextView) convertView.findViewById(R.id.netBalanceAmount_resolve);
+                viewHolder.resolveButton = (Button) convertView.findViewById(R.id.button_resolve);
+                viewHolder.photoImage = (ImageView) convertView.findViewById(R.id.pic_resolve);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+
+            viewHolder.nameText.setText(currentItem.name);
+            viewHolder.youOwedAmount.setText(String.format("%.2f",currentItem.currentUserOwed));
+            viewHolder.friendOwedAmount.setText(String.format("%.2f",currentItem.friendOwed));
+            viewHolder.netBalance.setText(String.format("%.2f", currentItem.currentUserOwed - currentItem.friendOwed));
+            if(currentItem.hasPhoto()){
+                int DPI = getDPI(mContext);
+                int pixel = IMAGE_WIDTH_HEIGHT * (DPI / 160);
+                Bitmap bmp = HomepageFragment.decodeSampledBitmapFromByteArray(currentItem.photo, pixel, pixel);
+                viewHolder.photoImage.setImageBitmap(bmp);
+            }
+            else{ viewHolder.photoImage.setImageResource(R.drawable.profilepic); }
+
+            viewHolder.resolveButton.setTag(position);
+            viewHolder.resolveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!isNetworkConnected()) {
+                    if (!parent.isNetworkConnected()) {
                         Toast.makeText(getActivity().getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -128,10 +146,10 @@ public class ResolveStatementsFragment extends Fragment {
                         public void onClick(DialogInterface dialog, int which) {
                             final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                             TextView message = new TextView(getActivity());
-                            message.setText("Are you sure you want to resolve all statement?");
+                            message.setText("Are you sure you want to resolve all statements?");
                             message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
                             message.setPadding(20, 20, 20, 20);
-                            builder.setTitle("Resolve All Statement");
+                            builder.setTitle("Resolve All Statements");
                             builder.setView(message);
                             builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                                 @Override
@@ -165,6 +183,7 @@ public class ResolveStatementsFragment extends Fragment {
                     dialog.show();
                 }
             });
+
             return convertView;
         }
     }

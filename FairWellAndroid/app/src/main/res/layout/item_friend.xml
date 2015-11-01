@@ -3,14 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingTop="15dp"
+    android:paddingTop="13dp"
     android:paddingLeft="15dp"
     android:paddingRight="15dp">
 
     <ImageView
         android:id="@+id/friend_photo"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:scaleType="centerCrop"
         android:src="@drawable/profilepic"/>
 
     <RelativeLayout
@@ -23,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:text="FRIEND NAME" />
 
@@ -51,17 +52,17 @@
 
         <Button
             android:id="@+id/button_friend_confirm"
-            android:layout_width="70dp"
-            android:layout_height="45dp"
+            android:layout_width="105dp"
+            android:layout_height="50dp"
             android:layout_below="@+id/friend_email"
             android:layout_toLeftOf="@+id/button_friend_delete"
             android:textSize="12sp"
-            android:hint="Confirm" />
+            android:hint="Confirm Friend Request" />
 
         <Button
             android:id="@+id/button_friend_delete"
             android:layout_width="70dp"
-            android:layout_height="45dp"
+            android:layout_height="50dp"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/friend_email"
             android:textSize="12sp"
