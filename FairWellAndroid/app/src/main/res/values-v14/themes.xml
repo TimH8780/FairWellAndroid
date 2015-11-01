@@ -2,6 +2,8 @@
 
     <style name="SampleBase" parent="@style/Theme.AppCompat.Light">
 
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+
         <item name="colorPrimaryDark">#004D40</item>
         <item name="colorPrimary">#4DB6AC</item>
         <item name="colorAccent">#004D40</item>
@@ -12,7 +14,6 @@
 
         <item name="android:actionBarStyle">@style/MyActionBar</item>
     </style>
-
 
     <style name="MyActionBar"
         parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
@@ -28,5 +29,6 @@
         <item name="android:textSize">20sp</item>
         <item name="android:textColor">#FAFAFA</item>
     </style>
+
 
 </resources>

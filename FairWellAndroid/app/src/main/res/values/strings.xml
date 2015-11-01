@@ -107,5 +107,8 @@
         <item>5040</item>
         <item>60480</item>
     </string-array>
+    <string name="title_activity_smart_solve_fragment">SmartSolveFragment</string>
+
+    <string name="hello_world">Hello world!</string>
 
 </resources>

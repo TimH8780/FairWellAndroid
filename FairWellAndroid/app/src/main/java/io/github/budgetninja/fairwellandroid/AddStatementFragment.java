@@ -1,27 +1,27 @@
 package io.github.budgetninja.fairwellandroid;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -41,10 +42,12 @@ public class AddStatementFragment extends Fragment {
     private TextView dateField;
     private Button addSnapshotButton;
     private Button addMemberButton;
-    private Button closeButton;
-    private ArrayList<Integer> dateRecord;
+    private Button confirmButton;
+    private static ArrayList<Integer> dateRecord;
+    private static int viewSel;
 
     private ParseUser user;
+    private ContentActivity parent;
     private int paidByPosition;
     private List<Utility.Friend> friendList;
 
@@ -54,19 +57,12 @@ public class AddStatementFragment extends Fragment {
     private static final int MONTH = 1;
     private static final int DAY = 2;
 
-    public AddStatementFragment() {
-    }
-
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setHasOptionsMenu(true);        //force to recreate optionMenu
-    }
+        setHasOptionsMenu(true);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
-        getActivity().setTitle("Add Statement");
+        parent = (ContentActivity)getActivity();
         user = ParseUser.getCurrentUser();
         paidByPosition = 0;
 
@@ -78,6 +74,16 @@ public class AddStatementFragment extends Fragment {
         dateRecord.add(DEADLINE + YEAR, 2101);
         dateRecord.add(DEADLINE + MONTH, 12);
         dateRecord.add(DEADLINE + DAY, 31);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
+        ActionBar actionBar = parent.getSupportActionBar();
+        if(actionBar != null) {
+            actionBar.setHomeAsUpIndicator(null);
+        }
+        getActivity().setTitle("Add Statement");
 
         Spinner spinner = (Spinner) rootView.findViewById(R.id.spinner);
         Spinner spinner2 = (Spinner) rootView.findViewById(R.id.spinner2);
@@ -88,7 +94,7 @@ public class AddStatementFragment extends Fragment {
         dateField = (TextView) rootView.findViewById(R.id.dateField);
         deadlineField = (TextView) rootView.findViewById(R.id.deadlineField);
 
-        if(((ContainerActivity)getActivity()).isNetworkConnected()) {
+        if(parent.isNetworkConnected()) {
             friendList = new ArrayList<>(Utility.generateFriendArray());
         }
         else {
@@ -120,17 +126,17 @@ public class AddStatementFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) { /* do nothing */ }
         });
 
-        closeButton = (Button) rootView.findViewById(R.id.confirmButton);
-        closeButton.setOnClickListener(new View.OnClickListener() {
+        confirmButton = (Button) rootView.findViewById(R.id.confirmButton);
+        confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!((ContainerActivity)getActivity()).isNetworkConnected()){
+                if (!((ContentActivity) getActivity()).isNetworkConnected()) {
                     Toast.makeText(getActivity().getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Toast.makeText(getContext(), "Fairwell will send notification to the party members! "
                         , Toast.LENGTH_SHORT).show();
-                getActivity().finish();
+                parent.fragMgr.popBackStack();
             }
         });
 
@@ -140,18 +146,15 @@ public class AddStatementFragment extends Fragment {
                 showDatePickerDialog(DATE);
             }
         });
-
         deadlineField.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                showDatePickerDialog(DEADLINE);
+            public void onClick(View v) {showDatePickerDialog(DEADLINE);
             }
         });
 
         moneyAmount.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { /* do nothing */ }
-
             @Override
             public void afterTextChanged(Editable s) { /* do nothing */ }
 
@@ -184,10 +187,10 @@ public class AddStatementFragment extends Fragment {
                 ListView container = new ListView(getActivity());
                 MemberSelectionAdaptor memberAdaptor;
                 if(paidByPosition == 0) {
-                    memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.addmember_item, friendList);
+                    memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.item_add_member, friendList);
                 }
                 else {
-                    memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.addmember_item, friendList.subList(0, 1));
+                    memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.item_add_member, friendList.subList(0, 1));
                 }
                 container.setAdapter(memberAdaptor);
                 builder.setTitle("Select Member(s)");
@@ -217,33 +220,34 @@ public class AddStatementFragment extends Fragment {
             }
         });
 
-
         return rootView;
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_add_statement, menu);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                parent.mMenuDrawer.closeMenu(false);
+                parent.fragMgr.popBackStack();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
-    public void showDatePickerDialog(int args) {
-        Bundle arg = new Bundle();
-        arg.putInt("ViewSel", args);
-        arg.putIntegerArrayList("DateList", dateRecord);
-        DialogFragment newFragment = new Utility.DatePickerFragment();
-        newFragment.setArguments(arg);
-        newFragment.show(getFragmentManager(), "datePicker");
-    }
-
-    public void setClickedIconText(String string) {
+    protected void setClickedIconText(String string) {
         if (!string.equals("")) {
             ClickedText.setText("Category: " + string);
         }
     }
 
-    public void setDate(int year, int month, int day, int viewSel) {
+    private void showDatePickerDialog(int args) {
+        viewSel = args;
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getFragmentManager(), "datePicker");
+    }
+
+    private void setDate(int year, int month, int day, int viewSel) {
         if(isValidDate(year, month, day, viewSel)) {
             dateRecord.set(viewSel + YEAR, year);
             dateRecord.set(viewSel + MONTH, month);
@@ -252,10 +256,9 @@ public class AddStatementFragment extends Fragment {
             StringBuilder data = new StringBuilder("");
             data.append(String.format("%02d",month + 1)).append("/").append(String.format("%02d", day)).append("/").append(year);
 
-
             if (viewSel == DATE) {
                 dateField.setText(data.toString());
-            } else if (viewSel == DEADLINE) {
+            } else {
                 deadlineField.setText(data.toString());
             }
             return;
@@ -264,7 +267,7 @@ public class AddStatementFragment extends Fragment {
                 , Toast.LENGTH_SHORT).show();
     }
 
-    public boolean isValidDate(int year, int month, int day, int view) {
+    private boolean isValidDate(int year, int month, int day, int view) {
         Boolean result = (view == DATE);
         view = (view == DATE) ? DEADLINE : DATE;
         if (dateRecord.get(view + YEAR) > year) { return result; }
@@ -298,6 +301,34 @@ public class AddStatementFragment extends Fragment {
             memberName.setText(currentItem.name);
             //Listener
             return convertView;
+        }
+    }
+
+    public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
+
+        private int viewIndex;
+
+        @NonNull
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            viewIndex = viewSel;
+            int year, month, day;
+            if (dateRecord.get(viewSel + YEAR) >= 1900 && dateRecord.get(viewSel + YEAR) <= 2100) {
+                // Use selected date as the default date in the picker
+                year = dateRecord.get(viewSel + YEAR);
+                month = dateRecord.get(viewSel + MONTH);
+                day = dateRecord.get(viewSel + DAY);
+            } else {
+                // Use the current date as the default date in the picker
+                final Calendar c = Calendar.getInstance();
+                year = c.get(Calendar.YEAR);
+                month = c.get(Calendar.MONTH);
+                day = c.get(Calendar.DAY_OF_MONTH);
+            }
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            ((AddStatementFragment)getActivity().getSupportFragmentManager().findFragmentByTag("Add")).setDate(year, month, day, viewIndex);
         }
     }
 

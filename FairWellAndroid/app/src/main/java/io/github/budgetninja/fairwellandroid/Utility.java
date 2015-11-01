@@ -26,6 +26,9 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  *Created by Issac on 9/23/2015.
@@ -68,39 +71,6 @@ public class Utility {
         return (user.getString("First_Name") + " " + user.getString("Last_Name"));
     }
 
-    public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
-
-        private int viewSel;
-        private static final int YEAR = 0;
-        private static final int MONTH = 1;
-        private static final int DAY = 2;
-
-        @NonNull
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            viewSel = getArguments().getInt("ViewSel");
-            ArrayList<Integer> dateList = getArguments().getIntegerArrayList("DateList");
-
-            int year, month, day;
-            if (dateList.get(viewSel + YEAR) < 1900 || dateList.get(viewSel + YEAR) > 2100) {
-                // Use the current date as the default date in the picker
-                final Calendar c = Calendar.getInstance();
-                year = c.get(Calendar.YEAR);
-                month = c.get(Calendar.MONTH);
-                day = c.get(Calendar.DAY_OF_MONTH);
-            }
-            else{
-                year = dateList.get(viewSel + YEAR);
-                month = dateList.get(viewSel + MONTH);
-                day = dateList.get(viewSel + DAY);
-            }
-            return new DatePickerDialog(getActivity(), this, year, month, day);
-        }
-
-        public void onDateSet(DatePicker view, int year, int month, int day) {
-            ((AddStatementFragment)getActivity().getSupportFragmentManager().findFragmentByTag("Add")).setDate(year, month, day, viewSel);
-        }
-    }
-
     public static class Friend implements Comparable<Friend>{
 
         private String parseObjectID;
@@ -131,29 +101,31 @@ public class Utility {
             return name.compareToIgnoreCase(another.name);
         }
 
-        private void obtainPhoto(){
-            if(connMgr != null) {
-                NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-                boolean hasNetwork = (networkInfo != null && networkInfo.isConnected());
-                if (friend != null && hasNetwork) {
-                    ParseFile data = friend.getParseFile("photo");
-                    if (data != null) {
-                        data.getDataInBackground(new GetDataCallback() {
-                            @Override
-                            public void done(byte[] bytes, ParseException e) {
-                                if (e == null) {
-                                    Friend.this.photo = bytes;
-                                } else {
-                                    Friend.this.photo = null;
-                                }
-                            }
-                        });
-                        return;
-                    }
+        private void obtainPhoto(){         //Run by other thread
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if(connMgr != null) {
+                        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                        boolean hasNetwork = (networkInfo != null && networkInfo.isConnected());
+                        if (friend != null && hasNetwork) {
+                            ParseFile data = friend.getParseFile("photo");
+                            if (data != null) {
+                                data.getDataInBackground(new GetDataCallback() {
+                                    @Override
+                                    public void done(byte[] bytes, ParseException e) {
+                                        if (e == null) { Friend.this.photo = bytes; }
+                                        else { Friend.this.photo = null; }
+                                    }
+                                });
+                            } else photo = null;
+                        } else photo = null;
+                    } else photo = null;
                 }
-            }
-            photo = null;
+            }).start();
         }
+
+        public boolean hasPhoto(){ return (photo != null); }
 
         public void setConfirm(){
             ParseQuery<ParseObject> query = ParseQuery.getQuery("FriendList");

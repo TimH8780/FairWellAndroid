@@ -22,21 +22,20 @@ public class MainActivity extends AppCompatActivity {
     feel easier and more feasible.
      */
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_container);
 
         //show tutorial slide?
 
-        ParseUser currentUser = ParseUser.getCurrentUser();
+        ParseUser user = ParseUser.getCurrentUser();
         Intent intent;
         ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         Utility.addReferenceConnectivityManager(connMgr);
 
-        if(currentUser != null){            //Already logged in (current user exists)
+        if(user != null){            //Already logged in (current user exists)
             intent = new Intent(MainActivity.this, ContentActivity.class);
             if(networkInfo != null && networkInfo.isConnected()) {
                 if(Utility.checkNewEntryField()){
@@ -57,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause(){           //Kill this activity after login
+    protected void onPause(){
         super.onPause();
         this.finish();
     }

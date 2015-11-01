@@ -70,7 +70,7 @@ public class LoginActivity extends Activity {
                     Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                signin(username.getText().toString(), password.getText().toString());
+                signIn(username.getText().toString(), password.getText().toString());
             }
         });
 
@@ -90,7 +90,8 @@ public class LoginActivity extends Activity {
                     Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, Arrays.asList("public_profile", "email"), new LogInCallback() {
+                ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this,
+                        Arrays.asList("public_profile", "email"), new LogInCallback() {
                     @Override
                     public void done(final ParseUser user, ParseException e) {
                         if (e == null) {
@@ -155,51 +156,49 @@ public class LoginActivity extends Activity {
                 final LinearLayout layout = new LinearLayout(LoginActivity.this);
                 final TextView message = new TextView(LoginActivity.this);
                 final EditText userEmail = new EditText(LoginActivity.this);
-                final EditText userName = new EditText(LoginActivity.this);
                 layout.setOrientation(LinearLayout.VERTICAL);
                 LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.MATCH_PARENT);
                 para.setMargins(20, 20, 20, 0);
-                message.setText("Please enter your username and email address:");
+                message.setText("Please enter email address:");
                 message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
                 message.setLayoutParams(para);
                 userEmail.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
                 userEmail.setLayoutParams(para);
                 userEmail.setHint("Email");
-                userName.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-                userName.setLayoutParams(para);
-                userName.setHint("Username");
                 layout.addView(message);
-                layout.addView(userName);
                 layout.addView(userEmail);
-                builder.setTitle("Reset Password");      //use e-mail for now, may need to change
+                builder.setTitle("Reset Password");
                 builder.setView(layout);
                 builder.setPositiveButton("Send Reset Link", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if(!isNetworkConnected()) {
+                        if (!isNetworkConnected()) {
                             Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                             return;
                         }
                         final String emailAddress = userEmail.getText().toString();
-                        final String userNameText = userName.getText().toString();
                         ParseQuery<ParseUser> query = ParseUser.getQuery();
-                        query.whereEqualTo("username", userNameText);
                         query.whereEqualTo("email", emailAddress);
                         query.getFirstInBackground(new GetCallback<ParseUser>() {
                             @Override
                             public void done(ParseUser parseUser, ParseException e) {
                                 if (e == null) {
-                                    ParseUser.requestPasswordResetInBackground(emailAddress, new RequestPasswordResetCallback() {
-                                        public void done(ParseException e) {
-                                            if (e == null) {
-                                                Toast.makeText(getApplicationContext(), "An email has been sent to "
-                                                        + emailAddress, Toast.LENGTH_SHORT).show();
-                                                return;
+                                    if (Utility.isNormalUser(parseUser)) {
+                                        ParseUser.requestPasswordResetInBackground(emailAddress, new RequestPasswordResetCallback() {
+                                            public void done(ParseException e) {
+                                                if (e == null) {
+                                                    Toast.makeText(getApplicationContext(), "An email has been sent to "
+                                                            + emailAddress, Toast.LENGTH_SHORT).show();
+                                                    return;
+                                                }
+                                                Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
                                             }
-                                            Toast.makeText(getApplicationContext(), "Failed: Invalid information", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                                        });
+                                        return;
+                                    }
+                                    Toast.makeText(getApplicationContext(), "Invalid Request: Email is linked to Facebook or Twitter",
+                                            Toast.LENGTH_SHORT).show();
                                     return;
                                 }
                                 Toast.makeText(getApplicationContext(), "Failed: Invalid information", Toast.LENGTH_SHORT).show();
@@ -219,24 +218,24 @@ public class LoginActivity extends Activity {
         });
     }
 
-    public void signin(String email_username, final String password){
+    private void signIn(String email_username, final String password){
         //Username are restricted to contain "@" when signing up,
         //So if there are "@" in email_username, then it is a email, otherwise it is a username
         if(email_username.contains("@")){
             ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
-            queryUser.whereEqualTo("email",email_username);
+            queryUser.whereEqualTo("email", email_username);
             queryUser.findInBackground(new FindCallback<ParseUser>() {
                 public void done(List<ParseUser> users, ParseException e) {
                     if (e == null) {
                         if (users.size() == 0) {
-                            Toast toast = Toast.makeText(getApplicationContext(), "Signin Failed, email not registered", Toast.LENGTH_SHORT);
+                            Toast toast = Toast.makeText(getApplicationContext(), "SignIn Failed: Email is not registered", Toast.LENGTH_SHORT);
                             toast.show();
                         } else if (users.size() > 1) {
-                            Toast toast = Toast.makeText(getApplicationContext(), "Signin Failed, Error in database, email is registered with more than 1 user", Toast.LENGTH_SHORT);
+                            Toast toast = Toast.makeText(getApplicationContext(), "SignIn Failed, Error in database; Email is registered with more than 1 user", Toast.LENGTH_SHORT);
                             toast.show();
                         } else {
                             String username = users.get(0).getUsername();
-                            signin(username, password);
+                            signIn(username, password);
                         }
                     } else {
                         Log.d("User", e.getMessage());
@@ -244,7 +243,7 @@ public class LoginActivity extends Activity {
                     }
                 }
             });
-        }else {
+        } else {
             ParseUser.logInInBackground(email_username, password, new LogInCallback() {
                 public void done(ParseUser user, ParseException e) {
                     if (user != null) {
@@ -260,23 +259,6 @@ public class LoginActivity extends Activity {
             });
         }
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                // app icon in action bar clicked; goto parent activity.
-                this.finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -284,7 +266,7 @@ public class LoginActivity extends Activity {
         ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void goToLoggedInPage(){
+    private void goToLoggedInPage(){
         if(Utility.checkNewEntryField()){
             Utility.setChangedRecord();
             Utility.generateRawFriendList(ParseUser.getCurrentUser());
@@ -293,7 +275,7 @@ public class LoginActivity extends Activity {
         startActivity(intent);
     }
 
-    public void setUpUsernameTwitter(ParseUser user){
+    private void setUpUsernameTwitter(ParseUser user){
         user.put("usernameTwitter", (ParseTwitterUtils.getTwitter().getScreenName()));
         if(user.get("newEntry") == null){
             ParseObject tempA = new ParseObject("Friend_update");
@@ -319,7 +301,7 @@ public class LoginActivity extends Activity {
         });
     }
 
-    public void setUpUsernameFacebook(final ParseUser user){
+    private void setUpUsernameFacebook(final ParseUser user){
         GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(),
                 new GraphRequest.GraphJSONObjectCallback() {
                     @Override
@@ -362,7 +344,7 @@ public class LoginActivity extends Activity {
         request.executeAsync();
     }
 
-    public void goToRegisterPage() {
+    private void goToRegisterPage() {
         Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
         startActivity(intent);
     }

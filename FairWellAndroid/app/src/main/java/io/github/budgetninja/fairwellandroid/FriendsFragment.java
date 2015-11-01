@@ -4,17 +4,19 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.InputType;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,7 +29,6 @@ import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +39,6 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,46 +48,52 @@ import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 /**
  *Created by HuMengpei on 9/30/2015.
  */
-public class FriendsActivity extends AppCompatActivity{
+public class FriendsFragment extends Fragment{
     private ParseUser user;
+    private ContentActivity parent;
     private FriendAdaptor adapter;
     private ListView view;
     private ConnectivityManager connMgr;
 
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_friend);
-        connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-
+    @Override
+    public void onCreate(Bundle bundle){
+        super.onCreate(bundle);
+        setHasOptionsMenu(true);
         user = ParseUser.getCurrentUser();
+        parent = (ContentActivity)getActivity();
+    }
 
-        if(getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeButtonEnabled(true);
-            getSupportActionBar().setElevation(0);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_friend, container, false);
+        ActionBar actionBar = parent.getSupportActionBar();
+        if(actionBar != null) {
+            actionBar.setHomeAsUpIndicator(null);
         }
+        getActivity().setTitle("Friend");
 
         List<Utility.Friend> friendList;
-        if(isNetworkConnected()) {
+        if(parent.isNetworkConnected()) {
             friendList = Utility.generateFriendArray();
         }
         else {
             friendList = Utility.generateFriendArrayOffline();
         }
 
-        view = (ListView) findViewById(R.id.friendlistview);
-        adapter = new FriendAdaptor(this, R.layout.friend_item, friendList);
+        view = (ListView) rootView.findViewById(R.id.friendlistview);
+        adapter = new FriendAdaptor(parent, R.layout.item_friend, friendList);
         view.setAdapter(adapter);
 
-        LinearLayout layout = (LinearLayout)findViewById(R.id.EmptyListView);
+        LinearLayout layout = (LinearLayout) rootView.findViewById(R.id.EmptyListView);
         TextView text = (TextView)layout.findViewById(R.id.EmptyListViewText);
         text.setText("No Friend");
         view.setEmptyView(layout);
+
+        return rootView;
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_friend, menu);
 
         // search box in friend activity's action bar
@@ -103,6 +109,7 @@ public class FriendsActivity extends AppCompatActivity{
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                parent.mMenuDrawer.closeMenu(false);
                 adapter.getFilter().filter(newText.toLowerCase());
                 return false;
             }
@@ -114,24 +121,19 @@ public class FriendsActivity extends AppCompatActivity{
                 return false;
             }
         });
-
-        return super.onCreateOptionsMenu(menu);
     }
 
     //this section is to programmatically set the search icon to be user's icon instead
     //of the default ugly black search icon
     //Issac
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public void onPrepareOptionsMenu(Menu menu) {
         MenuItem searchViewMenuItem = menu.findItem(R.id.action_search);
         SearchView mSearchView = (SearchView) MenuItemCompat.getActionView(searchViewMenuItem);
         int searchImgId = android.support.v7.appcompat.R.id.search_button;
         ImageView v = (ImageView) mSearchView.findViewById(searchImgId);
         v.setImageResource(R.drawable.search_small);
-        return super.onPrepareOptionsMenu(menu);
     }
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -139,40 +141,28 @@ public class FriendsActivity extends AppCompatActivity{
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_add_friend) {
-            if(!isNetworkConnected()) {
-                Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+            parent.mMenuDrawer.closeMenu(false);
+            if(!parent.isNetworkConnected()) {
+                Toast.makeText(parent.getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
             }
-            else{
-                displayAddFriendDialog();
-            }
+            else{ displayAddFriendDialog(); }
             return true;
         }
         if(id == android.R.id.home){
-            this.finish();
+            parent.mMenuDrawer.closeMenu(false);
+            parent.fragMgr.popBackStack();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onPause(){
-        super.onPause();
-        this.finish();
-    }
-
-    private boolean isNetworkConnected(){
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
-    }
-
     private void displayAddFriendDialog(){         //show dialog and prompt user to enter email
-        final AlertDialog.Builder builder = new AlertDialog.Builder(FriendsActivity.this);
-        final LinearLayout layout = new LinearLayout(FriendsActivity.this);
-        final TextView message = new TextView(FriendsActivity.this);
-        final EditText userInput = new EditText(FriendsActivity.this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+        final LinearLayout layout = new LinearLayout(parent);
+        final TextView message = new TextView(parent);
+        final EditText userInput = new EditText(parent);
         layout.setOrientation(LinearLayout.VERTICAL);
         LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
@@ -199,7 +189,7 @@ public class FriendsActivity extends AppCompatActivity{
                             addFriend(parseUser);
                         } else {
                             Log.d("AddFriend", e.getMessage());
-                            Toast.makeText(getApplicationContext(), "Failed to Find E-mail: " +
+                            Toast.makeText(parent.getApplicationContext(), "Failed to Find E-mail: " +
                                     userInput.getText().toString(), Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -218,7 +208,7 @@ public class FriendsActivity extends AppCompatActivity{
 
     private void addFriend(final ParseUser friend){
         if(user.getObjectId().equals(friend.getObjectId())){                         // can't add yourself as friend
-            Toast.makeText(getApplicationContext(), "Invalid Email Address",
+            Toast.makeText(parent.getApplicationContext(), "Invalid Email Address",
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -240,13 +230,13 @@ public class FriendsActivity extends AppCompatActivity{
                     Utility.addToExistingFriendList(newItem);
                     adapter.updateData(Utility.generateFriendArray());
 
-                    Toast.makeText(getApplicationContext(), "Sent a notification to <" +
+                    Toast.makeText(parent.getApplicationContext(), "Sent a notification to <" +
                             Utility.getUserName(friend) + ">", Toast.LENGTH_SHORT).show();
                 }
             });
             return;
         }
-        Toast.makeText(getApplicationContext(), "<" + Utility.getUserName(friend) +
+        Toast.makeText(parent.getApplicationContext(), "<" + Utility.getUserName(friend) +
                 "> are already in your friend list", Toast.LENGTH_SHORT).show();
     }
 
@@ -264,8 +254,7 @@ public class FriendsActivity extends AppCompatActivity{
         }
     }
 
-
-    public class FriendAdaptor extends ArrayAdapter<Utility.Friend>{
+    private class FriendAdaptor extends ArrayAdapter<Utility.Friend>{
 
         Context mContext;
         int mResource;
@@ -305,11 +294,11 @@ public class FriendsActivity extends AppCompatActivity{
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent){
+        public View getView(int position, View convertView, ViewGroup viewGroup){
             Utility.Friend currentItem = mData.get(position);
             ViewHolder holder;
             if(convertView == null){
-                convertView = getLayoutInflater().inflate(mResource, parent, false);
+                convertView = parent.getLayoutInflater().inflate(mResource, viewGroup, false);
                 holder = new ViewHolder();
                 holder.nameText = (TextView) convertView.findViewById(R.id.friend_name);
                 holder.emailText = (TextView) convertView.findViewById(R.id.friend_email);
@@ -324,16 +313,13 @@ public class FriendsActivity extends AppCompatActivity{
             }
             holder.nameText.setText(currentItem.name);
             holder.emailText.setText(currentItem.email);
-            if(currentItem.photo != null){
+            if(currentItem.hasPhoto()){
                 int DPI = getDPI(mContext);
                 int pixel = 70 * (DPI / 160);
-                Bitmap bmp = ContentActivity.decodeSampledBitmapFromByteArray(currentItem.photo, pixel, pixel);
+                Bitmap bmp = HomepageFragment.decodeSampledBitmapFromByteArray(currentItem.photo, pixel, pixel);
                 holder.photoImage.setImageBitmap(bmp);
             }
-            else{
-                holder.photoImage.setImageResource(R.drawable.profilepic);
-            }
-
+            else{ holder.photoImage.setImageResource(R.drawable.profilepic); }
 
             if(!currentItem.isUserOne && !currentItem.confirm) {
                 holder.confirmButton.setVisibility(View.VISIBLE);
@@ -345,7 +331,7 @@ public class FriendsActivity extends AppCompatActivity{
                     @SuppressWarnings("unchecked")
                     @Override
                     public void onClick(View button) {
-                        if (!isNetworkConnected()) {
+                        if (!parent.isNetworkConnected()) {
                             Toast.makeText(mContext, "Check Internet Connection", Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -372,7 +358,7 @@ public class FriendsActivity extends AppCompatActivity{
             holder.deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View button) {
-                    if (!isNetworkConnected()) {
+                    if (!parent.isNetworkConnected()) {
                         Toast.makeText(mContext, "Check Internet Connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -397,9 +383,13 @@ public class FriendsActivity extends AppCompatActivity{
                     builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            currentItem.deleteFriend();
-                            Utility.removeFromExistingFriendList(currentItem);
-                            adapter.remove(currentItem);
+                            if (currentItem.currentUserOwed > 0 || currentItem.friendOwed > 0) {
+                                Toast.makeText(mContext, "You can't delete friend with non-zero balance!", Toast.LENGTH_LONG).show();
+                            } else {
+                                currentItem.deleteFriend();
+                                Utility.removeFromExistingFriendList(currentItem);
+                                adapter.remove(currentItem);
+                            }
                         }
                     });
                     builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

@@ -1,21 +1,17 @@
 package io.github.budgetninja.fairwellandroid;
 
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * A placeholder fragment containing a simple view.
- */
-public class ViewStatementsFragment extends Fragment {
+public class SmartSolveFragment extends Fragment {
 
-    private static final int POSITION_HOME = 0;
     private ContentActivity parent;
 
     @Override
@@ -28,13 +24,14 @@ public class ViewStatementsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_smart_solve, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
-        if(actionBar != null) {
+        if (actionBar != null) {
             actionBar.setHomeAsUpIndicator(null);
         }
-        getActivity().setTitle("View Statement");
+        getActivity().setTitle("Smart Solve");
 
-        return inflater.inflate(R.layout.fragment_view_statements, container, false);
+        return view;
     }
 
     @Override
@@ -48,4 +45,5 @@ public class ViewStatementsFragment extends Fragment {
                 return super.onOptionsItemSelected(item);
         }
     }
+
 }

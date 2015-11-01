@@ -56,10 +56,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         //Function of Cancel Button
         cancelButton.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Cancelled", Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
@@ -111,14 +109,12 @@ public class RegisterActivity extends AppCompatActivity {
                         return;
                     }
                     //No check on agreement
-                    Toast.makeText(getApplicationContext(), "Please read and agree " +
-                            "the 'Term and Condition'", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Please read and agree the 'Term and Condition'", Toast.LENGTH_SHORT).show();
                     ConfirmPass.setText("");
                     return;
                 }
                 //Missing info or Not match password
-                Toast.makeText(getApplicationContext(), "Please double check " +
-                        "all information", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Please double check all information", Toast.LENGTH_SHORT).show();
                 ConfirmPass.setText("");
             }
         });
@@ -151,7 +147,6 @@ public class RegisterActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                // app icon in action bar clicked; goto parent activity.
                 this.finish();
                 return true;
             default:

@@ -7,10 +7,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -29,20 +31,23 @@ import java.util.List;
 public class ResolveStatementsFragment extends Fragment {
 
     private ConnectivityManager connMgr;
-
-    public ResolveStatementsFragment() {
-    }
+    private ContentActivity parent;
 
     @Override
     public void onCreate(Bundle bundle){
         super.onCreate(bundle);
         setHasOptionsMenu(true);
+        parent = (ContentActivity)getActivity();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_resolve_statements, container, false);
+        ActionBar actionBar = parent.getSupportActionBar();
+        if(actionBar != null) {
+            actionBar.setHomeAsUpIndicator(null);
+        }
         getActivity().setTitle("Resolve Statement");
         connMgr = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -55,7 +60,7 @@ public class ResolveStatementsFragment extends Fragment {
         }
 
         ListView view = (ListView) rootView.findViewById(R.id.ResolveStatementsListView);
-        ResolveStatementAdaptor adapter = new ResolveStatementAdaptor(getActivity(), R.layout.resolvestatements_item, friendList);
+        ResolveStatementAdaptor adapter = new ResolveStatementAdaptor(getActivity(), R.layout.item_resolve_statements, friendList);
         view.setAdapter(adapter);
 
         LinearLayout layout = (LinearLayout)rootView.findViewById(R.id.EmptyListView_resolve);
@@ -68,9 +73,15 @@ public class ResolveStatementsFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.menu_resolve_statements, menu);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                parent.mMenuDrawer.closeMenu(false);
+                parent.fragMgr.popBackStack();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private boolean isNetworkConnected(){
