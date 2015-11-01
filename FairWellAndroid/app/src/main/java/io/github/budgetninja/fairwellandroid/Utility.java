@@ -1,16 +1,10 @@
 package io.github.budgetninja.fairwellandroid;
 
-import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
 import android.util.Log;
-import android.widget.DatePicker;
-import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -22,13 +16,9 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
+
 
 /**
  *Created by Issac on 9/23/2015.
@@ -97,7 +87,7 @@ public class Utility {
         }
 
         @Override
-        public int compareTo(Friend another){
+        public int compareTo(@NonNull Friend another){
             return name.compareToIgnoreCase(another.name);
         }
 

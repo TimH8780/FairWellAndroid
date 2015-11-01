@@ -11,8 +11,6 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -62,7 +60,7 @@ public class LoginActivity extends Activity {
         password = (EditText) findViewById(R.id.loginPassword);
         TextView forgetPass = (TextView) findViewById(R.id.forgetPassword);
 
-        //Function of Login Button
+        //Login Button
         loginBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,7 +72,7 @@ public class LoginActivity extends Activity {
             }
         });
 
-        //Function of Register Button
+        //Register Button
         registerBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,7 +80,7 @@ public class LoginActivity extends Activity {
             }
         });
 
-        //Function of Facebook Login
+        //Facebook Login
         facebookLoginBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,7 +117,7 @@ public class LoginActivity extends Activity {
             }
         });
 
-        //Function of Twitter Login
+        //Twitter Login
         twitterLoginBut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -148,7 +146,7 @@ public class LoginActivity extends Activity {
             }
         });
 
-        //Function of forget password
+        //Forget Password
         forgetPass.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -267,10 +265,15 @@ public class LoginActivity extends Activity {
     }
 
     private void goToLoggedInPage(){
-        if(Utility.checkNewEntryField()){
-            Utility.setChangedRecord();
-            Utility.generateRawFriendList(ParseUser.getCurrentUser());
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if(Utility.checkNewEntryField()){
+                    Utility.setChangedRecord();
+                    Utility.generateRawFriendList(ParseUser.getCurrentUser());
+                }
+            }
+        }).start();
         Intent intent = new Intent(LoginActivity.this, ContentActivity.class);
         startActivity(intent);
     }

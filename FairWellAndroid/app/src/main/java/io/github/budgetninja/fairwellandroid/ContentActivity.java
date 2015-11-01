@@ -44,7 +44,7 @@ public class ContentActivity extends AppCompatActivity {
 
     private static final String STATE_ACTIVE_POSITION = "net.simonvt.menudrawer.samples.ContentActivity.activePosition";
     private static final String STATE_CONTENT_TEXT = "net.simonvt.menudrawer.samples.ContentActivity.contentText";
-    private static final int POSITION_HOME = 0;
+    public static final int POSITION_HOME = 0;
     private static final int POSITION_FRIENDS = 2;
     private static final int POSITION_SMART_SOLVE = 3;
     private static final int POSITION_ACCOUNT_SETTING = 5;
@@ -52,9 +52,9 @@ public class ContentActivity extends AppCompatActivity {
     private static final int POSITION_RATE_THIS_APP = 8;
     private static final int POSITION_ABOUT_US = 9;
     private static final int POSITION_LOGOUT = 10;
-    private static final int INDEX_VIEW_STATEMENT = 1;
-    private static final int INDEX_ADD_STATEMENT = 4;
-    private static final int INDEX_RESOLVE_STATEMENT = 7;
+    public static final int INDEX_VIEW_STATEMENT = 11;
+    public static final int INDEX_ADD_STATEMENT = 12;
+    public static final int INDEX_RESOLVE_STATEMENT = 13;
 
     protected MenuDrawer mMenuDrawer;
     private MenuAdapter mAdapter;
@@ -63,10 +63,10 @@ public class ContentActivity extends AppCompatActivity {
     private String mContentText;
     boolean doubleBackToExitPressedOnce = false;
 
-    private ConnectivityManager connectMgr;
-    private ParseUser user;
+    protected ConnectivityManager connectMgr;
     protected FragmentManager fragMgr;
     protected FragmentTransaction fragTrans;
+    private ParseUser user;
 
     @Override
     protected void onCreate(Bundle inState) {
@@ -193,6 +193,7 @@ public class ContentActivity extends AppCompatActivity {
 
     protected void layoutManage(int index){
         fragTrans = fragMgr.beginTransaction();
+        checkForUpdate();
         Fragment fragment;
         switch (index) {
             case POSITION_HOME:
@@ -228,6 +229,14 @@ public class ContentActivity extends AppCompatActivity {
                 fragTrans.replace(R.id.container, new AccountSettingFragment(), "Account").addToBackStack("Account");
                 break;
 
+            case POSITION_NOTIFICATION_SETTING:
+                fragment = fragMgr.findFragmentByTag("Notification");
+                if(fragment != null){
+                    if(fragment.isVisible()) { break; }
+                }
+                fragTrans.replace(R.id.container, new NotificationSettingFragment(), "Notification").addToBackStack("Notification");
+                break;
+
             case INDEX_VIEW_STATEMENT:
                 fragTrans.replace(R.id.container, new ViewStatementsFragment(), "View").addToBackStack("View");
                 break;
@@ -248,14 +257,14 @@ public class ContentActivity extends AppCompatActivity {
         return (networkInfo != null && networkInfo.isConnected());
     }
 
-    protected void checkForUpdate(){
+    protected void checkForUpdate(){        //Run by other Thread
         new Thread(new Runnable() {
             @Override
             public void run() {
                 if(isNetworkConnected()){
                     if(Utility.checkNewEntryField()){
-                        Utility.setChangedRecord();
                         Utility.generateRawFriendList(user);
+                        Utility.setChangedRecord();
                     }
                 }
             }
@@ -330,14 +339,11 @@ public class ContentActivity extends AppCompatActivity {
                     break;
 
                 case POSITION_ACCOUNT_SETTING:
-                    //Intent intent2 = new Intent(ContentActivity.this,AccountSettingFragment.class);
-                    //startActivity(intent2);
                     layoutManage(position);
                     break;
 
                 case POSITION_NOTIFICATION_SETTING:
-                    Intent intent3 = new Intent(ContentActivity.this,NotificationSettingActivity.class);
-                    startActivity(intent3);
+                    layoutManage(position);
                     break;
 
                 case POSITION_RATE_THIS_APP:

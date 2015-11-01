@@ -2,8 +2,6 @@ package io.github.budgetninja.fairwellandroid;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.net.NetworkInfo;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
@@ -46,13 +44,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
-import java.util.TimerTask;
 
 import static android.os.Environment.isExternalStorageRemovable;
 import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_VIEW_STATEMENT;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_ADD_STATEMENT;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_RESOLVE_STATEMENT;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.POSITION_HOME;
 
 
-//Do not modify this code - it is part of the side panel.
+
 
 public class HomepageFragment extends Fragment {
 
@@ -61,9 +62,6 @@ public class HomepageFragment extends Fragment {
     private static final long DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
     private static final String TAG = "ImageCache";
     private static final int DISK_CACHE_INDEX = 0;
-    private static final int INDEX_VIEW_STATEMENT = 1;
-    private static final int INDEX_ADD_STATEMENT = 4;
-    private static final int INDEX_RESOLVE_STATEMENT = 7;
     private final Object mDiskCacheLock = new Object();
     private boolean mDiskCacheStarting = true;
     public static final String DISK_CACHE_SUBDIR = "images";
@@ -86,7 +84,7 @@ public class HomepageFragment extends Fragment {
         user = ParseUser.getCurrentUser();
         parent = (ContentActivity)getActivity();
 
-        // Get max available VM memory, exceeding this amount will throw an
+        // Get max available VM memory, exceeding this capacity will throw an
         // OutOfMemory exception. Stored in kilobytes as LruCache takes an
         // int in its constructor.
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
@@ -106,8 +104,6 @@ public class HomepageFragment extends Fragment {
         new InitDiskCacheTask().execute(cacheDir);
         DPI = getDPI(parent.getApplicationContext());
         PIXEL_PHOTO = 200 * (DPI / 160);
-
-        parent.checkForUpdate();
     }
 
     @Override
@@ -154,7 +150,7 @@ public class HomepageFragment extends Fragment {
         if(user != null){
             userPhotoFile = user.getParseFile("photo");
             if(userPhotoFile!=null) {
-                loadParseFiletoImageView(userPhotoFile, userPhotoView,userPhotoFile.getName().substring(0, 48));
+                loadParseFiletoImageView(userPhotoFile, userPhotoView, userPhotoFile.getName().substring(0, 48));
             }
         }
 

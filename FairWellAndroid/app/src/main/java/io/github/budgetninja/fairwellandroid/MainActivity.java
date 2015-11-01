@@ -30,19 +30,24 @@ public class MainActivity extends AppCompatActivity {
         //show tutorial slide?
 
         ParseUser user = ParseUser.getCurrentUser();
-        Intent intent;
-        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        final ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         Utility.addReferenceConnectivityManager(connMgr);
+        Intent intent;
 
-        if(user != null){            //Already logged in (current user exists)
-            intent = new Intent(MainActivity.this, ContentActivity.class);
-            if(networkInfo != null && networkInfo.isConnected()) {
-                if(Utility.checkNewEntryField()){
-                    Utility.setChangedRecord();
-                    Utility.generateRawFriendList(ParseUser.getCurrentUser());
+        if(user != null){               //Already logged in (current user exists)
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+                    if(networkInfo != null && networkInfo.isConnected()) {
+                        if(Utility.checkNewEntryField()){
+                            Utility.setChangedRecord();
+                            Utility.generateRawFriendList(ParseUser.getCurrentUser());
+                        }
+                    }
                 }
-            }
+            }).start();
+            intent = new Intent(MainActivity.this, ContentActivity.class);
         } else {                            //Need to log in
             intent = new Intent(MainActivity.this, LoginActivity.class);
         }

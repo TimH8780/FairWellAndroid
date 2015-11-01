@@ -3,7 +3,7 @@ package io.github.budgetninja.fairwellandroid;
 import android.os.Build;
 
 /**
- * Created by HuMengpei on 9/12/2015.
+ *Created by HuMengpei on 9/12/2015.
  */
 public class VersionChecker {
 

@@ -4,13 +4,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.InputType;
 import android.util.Log;
@@ -49,11 +46,11 @@ import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
  *Created by HuMengpei on 9/30/2015.
  */
 public class FriendsFragment extends Fragment{
+
+    private static final int IMAGE_WIDTH_HEIGHT = 80;
     private ParseUser user;
     private ContentActivity parent;
     private FriendAdaptor adapter;
-    private ListView view;
-    private ConnectivityManager connMgr;
 
     @Override
     public void onCreate(Bundle bundle){
@@ -70,17 +67,13 @@ public class FriendsFragment extends Fragment{
         if(actionBar != null) {
             actionBar.setHomeAsUpIndicator(null);
         }
-        getActivity().setTitle("Friend");
+        parent.setTitle("Friend");
 
         List<Utility.Friend> friendList;
-        if(parent.isNetworkConnected()) {
-            friendList = Utility.generateFriendArray();
-        }
-        else {
-            friendList = Utility.generateFriendArrayOffline();
-        }
+        if(parent.isNetworkConnected()) { friendList = Utility.generateFriendArray(); }
+        else { friendList = Utility.generateFriendArrayOffline(); }
 
-        view = (ListView) rootView.findViewById(R.id.friendlistview);
+        ListView view = (ListView) rootView.findViewById(R.id.friendlistview);
         adapter = new FriendAdaptor(parent, R.layout.item_friend, friendList);
         view.setAdapter(adapter);
 
@@ -106,7 +99,6 @@ public class FriendsFragment extends Fragment{
                 adapter.getFilter().filter(query.toLowerCase());
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
                 parent.mMenuDrawer.closeMenu(false);
@@ -145,7 +137,7 @@ public class FriendsFragment extends Fragment{
         if (id == R.id.action_add_friend) {
             parent.mMenuDrawer.closeMenu(false);
             if(!parent.isNetworkConnected()) {
-                Toast.makeText(parent.getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
             }
             else{ displayAddFriendDialog(); }
             return true;
@@ -158,7 +150,7 @@ public class FriendsFragment extends Fragment{
         return super.onOptionsItemSelected(item);
     }
 
-    private void displayAddFriendDialog(){         //show dialog and prompt user to enter email
+    private void displayAddFriendDialog(){          //show dialog and prompt user to enter email
         final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
         final LinearLayout layout = new LinearLayout(parent);
         final TextView message = new TextView(parent);
@@ -189,8 +181,7 @@ public class FriendsFragment extends Fragment{
                             addFriend(parseUser);
                         } else {
                             Log.d("AddFriend", e.getMessage());
-                            Toast.makeText(parent.getApplicationContext(), "Failed to Find E-mail: " +
-                                    userInput.getText().toString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(parent, "Failed to Find E-mail: " + userInput.getText().toString(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -208,8 +199,7 @@ public class FriendsFragment extends Fragment{
 
     private void addFriend(final ParseUser friend){
         if(user.getObjectId().equals(friend.getObjectId())){                         // can't add yourself as friend
-            Toast.makeText(parent.getApplicationContext(), "Invalid Email Address",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(parent, "Invalid Email Address", Toast.LENGTH_SHORT).show();
             return;
         }
         if (!isDuplicateFriend(user, friend)) {
@@ -230,14 +220,12 @@ public class FriendsFragment extends Fragment{
                     Utility.addToExistingFriendList(newItem);
                     adapter.updateData(Utility.generateFriendArray());
 
-                    Toast.makeText(parent.getApplicationContext(), "Sent a notification to <" +
-                            Utility.getUserName(friend) + ">", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(parent, "Sent a notification to <" + Utility.getUserName(friend) + ">", Toast.LENGTH_SHORT).show();
                 }
             });
             return;
         }
-        Toast.makeText(parent.getApplicationContext(), "<" + Utility.getUserName(friend) +
-                "> are already in your friend list", Toast.LENGTH_SHORT).show();
+        Toast.makeText(parent, "<" + Utility.getUserName(friend) + "> are already in your friend list", Toast.LENGTH_SHORT).show();
     }
 
     private boolean isDuplicateFriend(ParseUser userOne, ParseUser userTwo){            // check if added before
@@ -315,7 +303,7 @@ public class FriendsFragment extends Fragment{
             holder.emailText.setText(currentItem.email);
             if(currentItem.hasPhoto()){
                 int DPI = getDPI(mContext);
-                int pixel = 70 * (DPI / 160);
+                int pixel = IMAGE_WIDTH_HEIGHT * (DPI / 160);
                 Bitmap bmp = HomepageFragment.decodeSampledBitmapFromByteArray(currentItem.photo, pixel, pixel);
                 holder.photoImage.setImageBitmap(bmp);
             }
@@ -323,8 +311,7 @@ public class FriendsFragment extends Fragment{
 
             if(!currentItem.isUserOne && !currentItem.confirm) {
                 holder.confirmButton.setVisibility(View.VISIBLE);
-                holder.statusText.setVisibility(View.VISIBLE);
-                holder.statusText.setText("Awaiting for your\nresponse");
+                holder.statusText.setVisibility(View.INVISIBLE);
                 Pair<Integer, TextView> data = new Pair<>(position, holder.statusText);
                 holder.confirmButton.setTag(data);
                 holder.confirmButton.setOnClickListener(new View.OnClickListener() {
@@ -347,7 +334,6 @@ public class FriendsFragment extends Fragment{
             else if(currentItem.isUserOne && !currentItem.confirm){
                 holder.confirmButton.setVisibility(View.INVISIBLE);
                 holder.statusText.setVisibility(View.VISIBLE);
-                holder.statusText.setText("Awaiting for confirmation");
             }
             else{           //confirmed
                 holder.confirmButton.setVisibility(View.INVISIBLE);

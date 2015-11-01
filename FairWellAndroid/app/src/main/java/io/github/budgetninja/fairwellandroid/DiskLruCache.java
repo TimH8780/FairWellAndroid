@@ -55,7 +55,7 @@ import java.util.concurrent.TimeUnit;
  * https://android.googlesource.com/platform/libcore/+/android-4.1.1_r1/luni/src/main/java/libcore/io/DiskLruCache.java
  ******************************************************************************
  *
- * A cache that uses a bounded amount of space on a filesystem. Each cache
+ * A cache that uses a bounded capacity of space on a filesystem. Each cache
  * entry has a string key and a fixed number of values. Values are byte
  * sequences, accessible as streams or files. Each value must be between {@code
  * 0} and {@code Integer.MAX_VALUE} bytes in length.

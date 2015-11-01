@@ -5,12 +5,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.widget.Toolbar;
-//import android.support.v7fix.preference.PreferenceFragmentCompatFix;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
+
 
 public class AccountSettingFragment extends PreferenceFragmentCompat {
 
@@ -26,9 +22,9 @@ public class AccountSettingFragment extends PreferenceFragmentCompat {
         if(actionBar != null) {
             actionBar.setHomeAsUpIndicator(null);
         }
-        getActivity().setTitle("Account Setting");
+        parent.setTitle("Account Setting");
 
-        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(parent.getBaseContext());
 
         String strUserName = SP.getString("username", "NA");
         String strPassword = SP.getString("password", "NA");
