@@ -56,7 +56,7 @@
             android:label="@string/title_activity_container"
             android:screenOrientation="portrait" >
         </activity>
-
+        <activity android:name="com.android.camera.CropImage" />
     </application>
 
 </manifest>

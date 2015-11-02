@@ -51,6 +51,22 @@
         <item name="mdActiveIndicator">@drawable/menu_arrow_bottom</item>
         <item name="mdMenuSize">64dp</item>
     </style>
-
-
+    <style name="GenericProgressBackground" parent="android:Theme">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/trans_black</item>
+    </style>
+    <style name="GenericProgressBackground_Transparent" parent="android:Theme">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">#99000000</item>
+    </style>
+    <style name="GenericProgressIndicator" parent="@android:style/Widget.ProgressBar">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:indeterminate">true</item>
+        <item name="android:indeterminateDrawable">@drawable/spinner_white</item>
+        <item name="android:animationResolution">33</item>
+        <item name="android:layout_centerInParent">true</item>
+    </style>
 </resources>

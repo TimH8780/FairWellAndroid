@@ -2,8 +2,9 @@ package io.github.budgetninja.fairwellandroid;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.support.v7.app.ActionBar;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -17,6 +18,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
@@ -28,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.camera.CropImageIntentBuilder;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -45,12 +48,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 
+import static android.app.Activity.RESULT_OK;
 import static android.os.Environment.isExternalStorageRemovable;
-import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
-import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_VIEW_STATEMENT;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_ADD_STATEMENT;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_RESOLVE_STATEMENT;
-import static io.github.budgetninja.fairwellandroid.ContentActivity.POSITION_HOME;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_VIEW_STATEMENT;
+import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 
 
@@ -58,6 +61,7 @@ import static io.github.budgetninja.fairwellandroid.ContentActivity.POSITION_HOM
 public class HomepageFragment extends Fragment {
 
     private static int REQUEST_PICTURE =1;
+    private static int REQUEST_CROP_PICTURE = 2;
     private static final int DISK_CACHE_COUNT = 1;
     private static final long DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
     private static final String TAG = "ImageCache";
@@ -114,7 +118,6 @@ public class HomepageFragment extends Fragment {
             actionBar.setHomeAsUpIndicator(R.drawable.nav_icon);
         }
         parent.setTitle("FairWell");
-
         //3 Buttons Functions
         Button addStatementButton = (Button) view.findViewById(R.id.addStatementButton);
         addStatementButton.setOnClickListener(new View.OnClickListener() {
@@ -139,12 +142,11 @@ public class HomepageFragment extends Fragment {
         name.setText(Utility.getUserName(user));
         //Picture
         userPhotoView = (ImageView) view.findViewById(R.id.user_photo);
-        userPhotoView.setOnClickListener(new View.OnClickListener() {
+        userPhotoView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View v) {
-                //startActivityForResult(Intent.createChooser(new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT), "Select picture"), REQUEST_PICTURE);
-                Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, REQUEST_PICTURE);
+            public boolean onLongClick(View view) {
+                promptUploadPhotoDialog();
+                return true;
             }
         });
         if(user != null){
@@ -171,7 +173,19 @@ public class HomepageFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_PICTURE && resultCode == Activity.RESULT_OK) {
+
+        File croppedImageFile = new File(getActivity().getFilesDir(), "temp.jpg");
+        if (requestCode==REQUEST_PICTURE&&resultCode == RESULT_OK) {
+            photoUri = data.getData();
+            Uri croppedImage = Uri.fromFile(croppedImageFile);
+            CropImageIntentBuilder cropImage = new CropImageIntentBuilder(PIXEL_PHOTO, PIXEL_PHOTO, croppedImage);
+            cropImage.setOutlineColor(0xFF03A9F4);
+            cropImage.setSourceImage(data.getData());
+            //requestCode*11 == code for Crop Picture
+            startActivityForResult(cropImage.getIntent(getContext()), REQUEST_CROP_PICTURE);
+        }
+        if (requestCode == REQUEST_CROP_PICTURE && resultCode == Activity.RESULT_OK) {
+            showProgressBar();
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -179,15 +193,16 @@ public class HomepageFragment extends Fragment {
                 }
             }).start();
             //Uri imageAboutToCrop = Uri.fromFile(fileAboutToCrop);
-            photoUri = data.getData();
+            //photoUri = data.getData();
             //Bitmap bitmapInDisk = getBitmapFromDiskCache(userPhotoFile.getName().substring(0, 48) + "_large");
-            ParseFile newPhoto = new ParseFile("photo.JPEG", getBytesFromBitmap(bitmapCompress(getBitmapFromURI(photoUri),50)));
+            final Bitmap photoBitmap = BitmapFactory.decodeFile(croppedImageFile.getAbsolutePath());
+            ParseFile newPhoto = new ParseFile("photo.JPEG", getBytesFromBitmap(photoBitmap));
             user.put("photo", newPhoto);
             user.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
                     if(e == null) {
-                        loadBitmap(getBytesFromBitmap(getBitmapFromURI(photoUri)),
+                        loadBitmap(getBytesFromBitmap(photoBitmap),
                                 userPhotoView, String.valueOf(photoUri.hashCode()), PIXEL_PHOTO, PIXEL_PHOTO, null);
                     } else {
                         Toast.makeText(parent.getApplicationContext(),"Failed to upload new profile picture, please try again.",Toast.LENGTH_SHORT).show();
@@ -321,6 +336,7 @@ public class HomepageFragment extends Fragment {
                 if (BitmapWorkerTask.this == bitmapWorkerTask && imageView != null) {
                     imageView.setImageBitmap(bitmap);
                 }
+                hideProgressBar();
             }
         }
     }
@@ -342,14 +358,17 @@ public class HomepageFragment extends Fragment {
     public void loadBitmap(byte[] sourceByteArray, ImageView imageView, String keyProvided, int w, int h, Bitmap bitmapInDisk) {
         if(sourceByteArray == null){
             imageView.setImageBitmap(bitmapInDisk);
+            hideProgressBar();
         }else if (cancelPotentialWork(sourceByteArray, imageView)) {
             Bitmap bitmap = getBitmapFromMemCache(keyProvided);
             if(bitmap != null){
                 imageView.setImageBitmap(bitmap);
+                hideProgressBar();
             } else {
                 bitmap = getBitmapFromDiskCache(keyProvided);
                 if (bitmap != null) {
                     imageView.setImageBitmap(bitmap);
+                    hideProgressBar();
                 } else {
                     final BitmapWorkerTask task = new BitmapWorkerTask(imageView, keyProvided,w,h);
                     final AsyncDrawable asyncDrawable =
@@ -512,5 +531,40 @@ public class HomepageFragment extends Fragment {
         final String cacheDir = "/Android/data/" + context.getPackageName() + "/cache/";
         return new File(Environment.getExternalStorageDirectory().getPath() + cacheDir);
     }
-
+    public void promptUploadPhotoDialog(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Upload a new picture as your photo?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //startActivityForResult(Intent.createChooser(new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT), "Select picture"), REQUEST_PICTURE);
+                Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent, REQUEST_PICTURE);
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private void showProgressBar(){
+        if(isAdded()){
+            View progressView = getActivity().findViewById(R.id.loadingPanel);
+            if(progressView!=null){
+                progressView.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+    private void hideProgressBar(){
+        if(isAdded()){
+            View progressView = getActivity().findViewById(R.id.loadingPanel);
+            if(progressView!=null){
+                progressView.setVisibility(View.GONE);
+            }
+        }
+    }
 }
