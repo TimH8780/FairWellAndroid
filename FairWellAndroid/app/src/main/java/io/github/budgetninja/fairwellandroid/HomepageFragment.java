@@ -179,11 +179,11 @@ public class HomepageFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        File croppedImageFile = new File(getActivity().getFilesDir(), "temp.jpg");
+        final File croppedImageFile = new File(getActivity().getFilesDir(), "temp.jpg");
+        Uri croppedImageUri = Uri.fromFile(croppedImageFile);
         if (requestCode==REQUEST_PICTURE&&resultCode == RESULT_OK) {
             photoUri = data.getData();
-            Uri croppedImage = Uri.fromFile(croppedImageFile);
-            CropImageIntentBuilder cropImage = new CropImageIntentBuilder(PIXEL_PHOTO, PIXEL_PHOTO, croppedImage);
+            CropImageIntentBuilder cropImage = new CropImageIntentBuilder(PIXEL_PHOTO, PIXEL_PHOTO, croppedImageUri);
             cropImage.setOutlineColor(0xFF03A9F4);
             cropImage.setSourceImage(data.getData());
             //requestCode*11 == code for Crop Picture
@@ -197,23 +197,19 @@ public class HomepageFragment extends Fragment {
                     Utility.setNewEntryFieldForAllFriend();
                 }
             }).start();
-            //Uri imageAboutToCrop = Uri.fromFile(fileAboutToCrop);
-            //photoUri = data.getData();
-            //Bitmap bitmapInDisk = getBitmapFromDiskCache(userPhotoFile.getName().substring(0, 48) + "_large");
             final Bitmap photoBitmap = BitmapFactory.decodeFile(croppedImageFile.getAbsolutePath());
-            ParseFile newPhoto = new ParseFile("photo.JPEG", getBytesFromBitmap(photoBitmap));
+            ParseFile newPhoto = new ParseFile("photo.JPEG", getBytesFromBitmap(photoBitmap,50));
             user.put("photo", newPhoto);
             user.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
-                    if(e == null) {
-                        loadBitmap(getBytesFromBitmap(photoBitmap),
-                                userPhotoView, String.valueOf(photoUri.hashCode()), PIXEL_PHOTO, PIXEL_PHOTO, null);
+                    if (e == null) {
+                        loadBitmap(getBytesFromBitmap(photoBitmap,50),
+                                userPhotoView, user.getParseFile("photo").getName().substring(0, 48), PIXEL_PHOTO, PIXEL_PHOTO, null);
                     } else {
-                        Toast.makeText(parent.getApplicationContext(),"Failed to upload new profile picture, please try again.",Toast.LENGTH_SHORT).show();
-                        Log.d("User","Failed to upload profile picture");
+                        Toast.makeText(parent.getApplicationContext(), "Failed to upload new profile picture, please try again.", Toast.LENGTH_SHORT).show();
+                        Log.d("User", "Failed to upload profile picture");
                     }
-                    //loadBitmap(getBytesFromBitmap(getBitmapFromURI(photoUri)), userPhotoView, String.valueOf(photoUri.hashCode()),PIXEL_PHOTO,PIXEL_PHOTO,bitmapInDisk);
                 }
             });
         }
@@ -227,9 +223,9 @@ public class HomepageFragment extends Fragment {
         return BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.toByteArray().length);
     }
 
-    public static byte[] getBytesFromBitmap(Bitmap bitmap) {
+    public static byte[] getBytesFromBitmap(Bitmap bitmap,int rate) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, rate, stream);
         return stream.toByteArray();
     }
 
