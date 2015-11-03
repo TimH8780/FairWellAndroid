@@ -269,8 +269,8 @@ public class LoginActivity extends Activity {
             @Override
             public void run() {
                 if(Utility.checkNewEntryField()){
-                    Utility.setChangedRecord();
                     Utility.generateRawFriendList(ParseUser.getCurrentUser());
+                    Utility.setChangedRecord();
                 }
             }
         }).start();

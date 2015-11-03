@@ -369,10 +369,19 @@ public class Utility {
     public static boolean checkNewEntryField(){
         try {
             return ParseUser.getCurrentUser().getParseObject("newEntry").fetch().getBoolean("newEntry");
-        }catch (ParseException e) {
-            Log.d("checkNewEntry", e.getMessage());
+        }catch (ParseException|NullPointerException e) {
+            Log.d("getRawListLocation", "Not exist online, Generating Now...");          // Generate a new one if not exist
+            ParseObject tempA = new ParseObject("Friend_update");
+            tempA.put("newEntry", false);
+            tempA.saveInBackground();
+            ParseUser.getCurrentUser().put("newEntry", tempA);
+            ParseUser.getCurrentUser().saveInBackground();
+            ParseObject tempB = ParseUser.getCurrentUser().getParseObject("newEntry");
+            tempB.put("list", new ArrayList<ParseObject>());
+            tempB.put("offlineFriendList", new ArrayList<String>());
+            tempB.pinInBackground();
+            return false;
         }
-        return true;
     }
 
     private static void editNewEntryField(ParseUser user, final boolean newResult){
@@ -386,14 +395,33 @@ public class Utility {
     }
 
     public static ParseObject getRawListLocation(){
+        ParseUser user = ParseUser.getCurrentUser();
         try {
-            ParseObject x = ParseUser.getCurrentUser().getParseObject("newEntry");
-            x.fetchFromLocalDatastore();
-            return x;
-        }catch (ParseException e) {
-            Log.d("checkNewEntryField", e.getMessage());
+            Log.d("getRawListLocation", "From offline");                        // Get it from local if possible
+            ParseObject offline = user.getParseObject("newEntry");
+            offline.fetchFromLocalDatastore();
+            return offline;
+        }catch (ParseException|NullPointerException e) {
+            try {
+                Log.d("getRawListLocation", "From online");                     // Get it from online if can't find in local
+                ParseObject online = user.getParseObject("newEntry");
+                online.fetch();
+                online.pinInBackground();
+                return online;
+            } catch (ParseException|NullPointerException e1) {
+                Log.d("getRawListLocation", "Not exist, Generating Now...");  // Generate a new one if neither in local nor online
+                ParseObject tempA = new ParseObject("Friend_update");
+                tempA.put("newEntry", false);
+                tempA.saveInBackground();
+                user.put("newEntry", tempA);
+                user.saveInBackground();
+                ParseObject tempB = user.getParseObject("newEntry");
+                tempB.put("list", new ArrayList<ParseObject>());
+                tempB.put("offlineFriendList", new ArrayList<String>());
+                tempB.pinInBackground();
+                return tempB;
+            }
         }
-        return new ParseObject("Friend_update");
     }
 
     public static void setNewEntryFieldForAllFriend(){

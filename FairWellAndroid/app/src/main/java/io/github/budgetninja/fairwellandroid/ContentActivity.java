@@ -379,11 +379,12 @@ public class ContentActivity extends AppCompatActivity {
                         @Override
                         public void done(ParseException e) {
                             if (e == null) {
-                                Intent intent = new Intent(ContentActivity.this, MainActivity.class);
-                                ContentActivity.this.finish();
-                                Utility.resetExistingFriendList();
-                                Utility.setChangedRecord();
-                                startActivity(intent);
+                                //Intent intent = new Intent(ContentActivity.this, MainActivity.class);
+                                //ContentActivity.this.finish();
+                                //Utility.resetExistingFriendList();
+                                //Utility.setChangedRecord();
+                                //startActivity(intent);
+                                System.exit(0);
                             } else {
                                 Toast.makeText(getApplicationContext(), getString(R.string.logout_failed), Toast.LENGTH_SHORT).show();
                             }
