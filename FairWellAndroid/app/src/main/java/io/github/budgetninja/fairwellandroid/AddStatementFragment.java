@@ -5,6 +5,8 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -35,9 +37,13 @@ import android.widget.Toast;
 
 import com.parse.ParseUser;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -47,12 +53,12 @@ public class AddStatementFragment extends Fragment {
     private TextView clickedText;
     private TextView deadlineField;
     private TextView dateField;
-    private Button addSnapshotButton;
-    private Button addMemberButton;
-    private Button confirmButton;
-    private TableLayout tableLayout;
+    private LinearLayout layoutMemberDisplay;
+    private DateFormat format;
     private static ArrayList<Integer> dateRecord;
     private static int viewSel;
+    private int counter;
+    private int maxCapacity;
 
     private ParseUser user;
     private ContentActivity parent;
@@ -60,6 +66,7 @@ public class AddStatementFragment extends Fragment {
     private int modePosition;
     private Boolean[] friendSelected;
     private List<Utility.Friend> friendList;
+    private List<Utility.Friend> selectedMember;
 
     private static final int DATE = 0;
     private static final int DEADLINE = 3;
@@ -77,10 +84,13 @@ public class AddStatementFragment extends Fragment {
         super.onCreate(bundle);
         setHasOptionsMenu(true);
 
+        maxCapacity = -1;
+        counter = -1;
         parent = (ContentActivity)getActivity();
         user = ParseUser.getCurrentUser();
         paidByPosition = SELF;
         modePosition = SPLIT_EQUALLY;
+        format = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
         if(parent.isNetworkConnected()) {
             friendList = new ArrayList<>(Utility.generateFriendArray());
         }
@@ -109,61 +119,58 @@ public class AddStatementFragment extends Fragment {
         }
         parent.setTitle("Add Statement");
 
-        Spinner spinner = (Spinner) rootView.findViewById(R.id.spinner);
-        Spinner spinner2 = (Spinner) rootView.findViewById(R.id.spinner2);
+        Spinner paidBySpinner = (Spinner) rootView.findViewById(R.id.spinner);
+        Spinner modeSpinner = (Spinner) rootView.findViewById(R.id.spinner2);
         final EditText moneyAmount = (EditText) rootView.findViewById(R.id.moneyAmount);
-        addMemberButton = (Button) rootView.findViewById(R.id.addMemberButton);
-        addSnapshotButton = (Button) rootView.findViewById(R.id.addSnapshotButton);
+        Button addMemberButton = (Button) rootView.findViewById(R.id.addMemberButton);
+        Button addSnapshotButton = (Button) rootView.findViewById(R.id.addSnapshotButton);
+        Button confirmButton = (Button) rootView.findViewById(R.id.confirmButton);
         clickedText = (TextView) rootView.findViewById(R.id.clickText);
         dateField = (TextView) rootView.findViewById(R.id.dateField);
         deadlineField = (TextView) rootView.findViewById(R.id.deadlineField);
-        tableLayout = (TableLayout) rootView.findViewById(R.id.tableLayout);
+        layoutMemberDisplay = (LinearLayout) rootView.findViewById(R.id.layout_member_display);
 
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<Utility.Friend> adapter = new ArrayAdapter<>(getContext(),
+        ArrayAdapter<Utility.Friend> paidByAdapter = new ArrayAdapter<>(getContext(),
                 android.R.layout.simple_spinner_item, friendList);
-        ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(getContext(),
+        ArrayAdapter<CharSequence> modeAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.mode_array, android.R.layout.simple_spinner_item);
 
         // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        paidByAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         // Apply the adapter to the spinner
-        spinner.setAdapter(adapter);
-        spinner2.setAdapter(adapter2);
+        paidBySpinner.setAdapter(paidByAdapter);
+        modeSpinner.setAdapter(modeAdapter);
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        paidBySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 paidByPosition = position;
+                friendSelected = new Boolean[friendList.size()];
+                selectedMember = new ArrayList<>();
+                displayMemberSelected();
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) { /* do nothing */ }
         });
-        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+        modeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 modePosition = position;
+                friendSelected = new Boolean[friendList.size()];
+                selectedMember = new ArrayList<>();
+                displayMemberSelected();
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) { /* do nothing */ }
         });
 
-        confirmButton = (Button) rootView.findViewById(R.id.confirmButton);
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!parent.isNetworkConnected()) {
-                    Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Toast.makeText(getContext(), "Fairwell will send notification to the party members! "
-                        , Toast.LENGTH_SHORT).show();
-                parent.fragMgr.popBackStack();
-            }
-        });
-
+        confirmButton.setOnClickListener(confirmButtonListener);
+        addMemberButton.setOnClickListener(addMemberButtonListener);
         dateField.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -172,13 +179,15 @@ public class AddStatementFragment extends Fragment {
         });
         deadlineField.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {showDatePickerDialog(DEADLINE);
+            public void onClick(View v) {
+                showDatePickerDialog(DEADLINE);
             }
         });
 
         moneyAmount.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { /* do nothing */ }
+
             @Override
             public void afterTextChanged(Editable s) { /* do nothing */ }
 
@@ -204,10 +213,80 @@ public class AddStatementFragment extends Fragment {
             }
         });
 
-        addMemberButton.setOnClickListener(new View.OnClickListener() {
+        addSnapshotButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(modePosition == SPLIT_EQUALLY){
+                Toast.makeText(parent, "Unavailable now", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        return rootView;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                parent.mMenuDrawer.closeMenu(false);
+                parent.fragMgr.popBackStack();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    protected void setClickedIconText(String string) {
+        if (!string.equals("")) {
+            clickedText.setText("Category: " + string);
+        }
+    }
+
+    private void displayMemberSelected(){
+        layoutMemberDisplay.removeAllViews();
+        int counter = selectedMember.size();
+        if(counter != 0) {
+            TextView text = new TextView(parent);
+            text.setTextColor(Color.RED);
+            text.setGravity(Gravity.CENTER_HORIZONTAL);
+            text.setTypeface(null, Typeface.BOLD);
+            text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+            TextView memberName = new TextView(parent);
+            memberName.setGravity(Gravity.CENTER_HORIZONTAL);
+
+            StringBuilder data = new StringBuilder("");
+            for (int i = 0; i < counter; i++) {
+                data.append(selectedMember.get(i).name).append("\n");
+            }
+            if(this.counter > 0){
+                text.setText("Selected Member [" + Integer.toString(counter) + "+" + Integer.toString(this.counter) + "]");
+                data.append("(").append(this.counter).append(" Unknown People)").append("\n");
+            } else{
+                text.setText("Selected Member [" + Integer.toString(counter) + "]");
+            }
+            memberName.setText(data.toString());
+            layoutMemberDisplay.addView(text);
+            layoutMemberDisplay.addView(memberName);
+        }
+    }
+
+    private View.OnClickListener confirmButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (!parent.isNetworkConnected()) {
+                Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Toast.makeText(getContext(), "Fairwell will send notification to the party members! "
+                    , Toast.LENGTH_SHORT).show();
+            parent.fragMgr.popBackStack();
+        }
+    };
+
+    private View.OnClickListener addMemberButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (modePosition) {
+                case SPLIT_EQUALLY:
                     final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
                     LinearLayout linearLayout = new LinearLayout(parent);
                     linearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -242,12 +321,12 @@ public class AddStatementFragment extends Fragment {
                                 public void onClick(View v) {
                                     String text = editText.getText().toString();
                                     if (text.equals("")) {
-                                        Toast.makeText(parent, "Please enter number greater than 1", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(parent, "Please enter number greater than 0", Toast.LENGTH_SHORT).show();
                                     } else {
                                         int num = Integer.valueOf(text);
-                                        if (num <= 1) {
+                                        if (num < 1) {
                                             editText.setText("");
-                                            Toast.makeText(parent, "Please enter number greater than 1", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(parent, "Please enter number greater than 0", Toast.LENGTH_SHORT).show();
                                         } else {
                                             dialog.dismiss();
                                             showMemberSelectionList(num);
@@ -258,47 +337,27 @@ public class AddStatementFragment extends Fragment {
                         }
                     });
                     dialog.show();
-                } else if(modePosition == BY_PERCENTAGE){
+                    break;
+
+                case BY_PERCENTAGE:
                     showMemberSelectionList(-1);
-                } else {
+                    break;
+
+                case BY_RATIO:
                     showMemberSelectionList(-1);
-                }
+                    break;
             }
-        });
-
-        addSnapshotButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(parent, "Unavailable now", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        return rootView;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                parent.mMenuDrawer.closeMenu(false);
-                parent.fragMgr.popBackStack();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
-    }
-
-    protected void setClickedIconText(String string) {
-        if (!string.equals("")) {
-            clickedText.setText("Category: " + string);
-        }
-    }
+    };
 
     private void showMemberSelectionList(final int capacity){
         final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+        final TextView capacityText = new TextView(parent);
+        final Boolean[] result = new Boolean[friendList.size()];
         ListView container = new ListView(parent);
-        TextView capacityText = new TextView(parent);
-        if(capacity > 1){
+        maxCapacity = capacity;
+        counter = capacity;
+        if(capacity > 0){
             TextView textView = new TextView(parent);
             textView.setText("Maximum Capacity: ");
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
@@ -318,20 +377,47 @@ public class AddStatementFragment extends Fragment {
         } else {
             builder.setView(container);
         }
-        MemberSelectionAdaptor memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.item_add_member, friendList, capacity, capacityText);
+        MemberSelectionAdaptor memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.item_add_member, friendList);
         container.setAdapter(memberAdaptor);
+        container.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                CheckBox checkBox = (CheckBox) view.findViewById(R.id.memberCheckBox);
+                if (checkBox.isChecked()) {
+                    result[position] = false;
+                    checkBox.setChecked(false);
+                    if (counter >= 0) {
+                        capacityText.setText(Integer.toString(++counter));
+                    }
+                } else if (counter != 0 && (maxCapacity != 1 || paidByPosition != position)) {
+                    result[position] = true;
+                    checkBox.setChecked(true);
+                    if (counter > 0) {
+                        capacityText.setText(Integer.toString(--counter));
+                    }
+                }
+            }
+        });
         builder.setTitle("Select Member(s)");
         builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // do something
+                friendSelected = Arrays.copyOf(result, result.length);
+                selectedMember = new ArrayList<Utility.Friend>();
+                for (int i = 0; i < result.length; i++) {
+                    if (friendSelected[i] != null) {
+                        if (friendSelected[i]) {
+                            selectedMember.add(friendList.get(i));
+                        }
+                    }
+                }
+                displayMemberSelected();
+/*                if(paidByPosition != 0){
+                    friendList.get(paidByPosition).generateFriendToFriendRelationship(friendList.get(2));
+                }*/
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {dialog.cancel();
-            }
-        });
+        builder.setNegativeButton("Cancel", null);
         final AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -376,17 +462,13 @@ public class AddStatementFragment extends Fragment {
 
         Context mContext;
         int mResource;
-        int capacity;
-        TextView capacityText;
         List<Utility.Friend> mObject;
 
-        public MemberSelectionAdaptor(Context context, int resource, List<Utility.Friend> objects, int capacity, TextView numberText){
+        public MemberSelectionAdaptor(Context context, int resource, List<Utility.Friend> objects){
             super(context, resource, objects);
             mContext = context;
             mResource = resource;
             mObject = objects;
-            this.capacity = capacity;
-            this.capacityText = numberText;
         }
 
         private class ViewHolder{
@@ -411,26 +493,6 @@ public class AddStatementFragment extends Fragment {
             viewHolder.position = position;
             viewHolder.nameText.setText(currentItem.name);
             viewHolder.box.setChecked(false);
-
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ViewHolder holder = (ViewHolder) v.getTag();
-                    if(holder.box.isChecked()){
-                        friendSelected[holder.position] = false;
-                        holder.box.setChecked(false);
-                        if(capacity >= 0){
-                            capacityText.setText(Integer.toString(++capacity));
-                        }
-                    } else if(capacity != 0) {
-                        friendSelected[holder.position] = true;
-                        holder.box.setChecked(true);
-                        if(capacity > 0){
-                            capacityText.setText(Integer.toString(--capacity));
-                        }
-                    }
-                }
-            });
 
             return convertView;
         }

@@ -28,31 +28,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_x="0dip"
-                android:layout_y="0dip"
-        />
+                android:layout_y="0dip"/>
+
         <RelativeLayout android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingLeft="10dip"
                 android:paddingRight="10dip"
-            android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true">
+
             <Button
                     android:id="@+id/save"
                     android:layout_width="100dip"
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
-                    android:text="@string/crop_save_text"
-            />
+                    android:text="@string/crop_save_text" />
+
             <Button
                     android:id="@+id/discard"
                     android:layout_width="100dip"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:text="@string/crop_discard_text"
-            />
+                    android:text="@string/crop_discard_text" />
+
         </RelativeLayout>
+
     </RelativeLayout>
 
 </FrameLayout>

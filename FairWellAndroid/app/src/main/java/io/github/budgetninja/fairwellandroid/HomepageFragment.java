@@ -118,6 +118,7 @@ public class HomepageFragment extends Fragment {
             actionBar.setHomeAsUpIndicator(R.drawable.nav_icon);
         }
         parent.setTitle("FairWell");
+
         //3 Buttons Functions
         Button addStatementButton = (Button) view.findViewById(R.id.addStatementButton);
         addStatementButton.setOnClickListener(new View.OnClickListener() {
@@ -125,21 +126,25 @@ public class HomepageFragment extends Fragment {
                 parent.layoutManage(INDEX_ADD_STATEMENT);
             }
         });
+
         Button resolveStatementButton = (Button) view.findViewById(R.id.resolveStatementButton);
         resolveStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 parent.layoutManage(INDEX_RESOLVE_STATEMENT);
             }
         });
+
         Button viewStatementButton = (Button) view.findViewById(R.id.viewStatementButton);
         viewStatementButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 parent.layoutManage(INDEX_VIEW_STATEMENT);
             }
         });
+
         //Display Full Name
         TextView name = (TextView) view.findViewById(R.id.name);
         name.setText(Utility.getUserName(user));
+
         //Picture
         userPhotoView = (ImageView) view.findViewById(R.id.user_photo);
         userPhotoView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -369,12 +374,16 @@ public class HomepageFragment extends Fragment {
                 if (bitmap != null) {
                     imageView.setImageBitmap(bitmap);
                     hideProgressBar();
-                } else {
+                } else if(isAdded()){
+                    Log.d("loadBitmap", "Fragment Attached");
                     final BitmapWorkerTask task = new BitmapWorkerTask(imageView, keyProvided,w,h);
                     final AsyncDrawable asyncDrawable =
                             new AsyncDrawable(getResources(), BitmapFactory.decodeResource(getResources(), R.drawable.profilepic), task);
                     imageView.setImageDrawable(asyncDrawable);
                     task.execute(sourceByteArray);
+                    hideProgressBar();
+                } else {
+                    Log.d("loadBitmap", "Fragment Not Attached");
                 }
             }
         }
@@ -531,9 +540,10 @@ public class HomepageFragment extends Fragment {
         final String cacheDir = "/Android/data/" + context.getPackageName() + "/cache/";
         return new File(Environment.getExternalStorageDirectory().getPath() + cacheDir);
     }
+
     public void promptUploadPhotoDialog(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Upload a new picture as your photo?");
+        builder.setTitle("Upload a New Picture as Profile Photo?");
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -542,7 +552,7 @@ public class HomepageFragment extends Fragment {
                 startActivityForResult(intent, REQUEST_PICTURE);
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -551,20 +561,18 @@ public class HomepageFragment extends Fragment {
         final AlertDialog dialog = builder.create();
         dialog.show();
     }
+
     private void showProgressBar(){
-        if(isAdded()){
-            View progressView = getActivity().findViewById(R.id.loadingPanel);
-            if(progressView!=null){
-                progressView.setVisibility(View.VISIBLE);
-            }
+        View progressView = getActivity().findViewById(R.id.loadingPanel);
+        if(progressView != null){
+            progressView.setVisibility(View.VISIBLE);
         }
     }
+
     private void hideProgressBar(){
-        if(isAdded()){
-            View progressView = getActivity().findViewById(R.id.loadingPanel);
-            if(progressView!=null){
-                progressView.setVisibility(View.GONE);
-            }
+        View progressView = getActivity().findViewById(R.id.loadingPanel);
+        if(progressView != null){
+            progressView.setVisibility(View.GONE);
         }
     }
 }

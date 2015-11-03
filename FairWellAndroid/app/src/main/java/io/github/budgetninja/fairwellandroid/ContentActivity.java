@@ -84,6 +84,7 @@ public class ContentActivity extends AppCompatActivity {
                 else { Utility.generateFriendArrayOffline();}
             }
         }).start();
+
         //ActionBar
         if(getSupportActionBar() != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -91,6 +92,7 @@ public class ContentActivity extends AppCompatActivity {
             }
             getSupportActionBar().setElevation(0);
         }
+
         //SideMenu
         if (inState != null) {
             mActivePosition = inState.getInt(STATE_ACTIVE_POSITION);
@@ -124,6 +126,7 @@ public class ContentActivity extends AppCompatActivity {
                 return v instanceof SeekBar;
             }
         });
+
         //Prompt Facebook and Twitter User to setup email
         if(isNetworkConnected()) {
             if (user != null) {
