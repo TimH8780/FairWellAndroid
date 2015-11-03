@@ -369,7 +369,7 @@ public class Utility {
     public static boolean checkNewEntryField(){
         try {
             return ParseUser.getCurrentUser().getParseObject("newEntry").fetch().getBoolean("newEntry");
-        }catch (ParseException|NullPointerException e) {
+        }catch (ParseException e) {
             Log.d("getRawListLocation", "Not exist online, Generating Now...");          // Generate a new one if not exist
             ParseObject tempA = new ParseObject("Friend_update");
             tempA.put("newEntry", false);

@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -70,7 +71,7 @@ public class ContentActivity extends AppCompatActivity {
     private ParseUser user;
 
     @Override
-    protected void onCreate(Bundle inState) {
+    protected void onCreate(final Bundle inState) {
         super.onCreate(inState);
         connectMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         fragMgr = getSupportFragmentManager();
@@ -78,11 +79,16 @@ public class ContentActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if(isNetworkConnected()) {
-                    Utility.generateRawFriendList(user);
-                    Utility.generateFriendArray();
+                try {
+                    if (isNetworkConnected()) {
+                        Utility.generateRawFriendList(user);
+                        Utility.generateFriendArray();
+                    } else {
+                        Utility.generateFriendArrayOffline();
+                    }
+                }catch (NullPointerException e){
+                    Log.d("Thread", e.toString());
                 }
-                else { Utility.generateFriendArrayOffline();}
             }
         }).start();
 
@@ -269,11 +275,13 @@ public class ContentActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if(isNetworkConnected()){
-                    if(Utility.checkNewEntryField()){
+                if(isNetworkConnected()) try {
+                    if (Utility.checkNewEntryField()) {
                         Utility.generateRawFriendList(user);
                         Utility.setChangedRecord();
                     }
+                } catch (NullPointerException e){
+                    Log.d("Thread", e.toString());
                 }
             }
         }).start();
@@ -379,12 +387,11 @@ public class ContentActivity extends AppCompatActivity {
                         @Override
                         public void done(ParseException e) {
                             if (e == null) {
-                                //Intent intent = new Intent(ContentActivity.this, MainActivity.class);
-                                //ContentActivity.this.finish();
-                                //Utility.resetExistingFriendList();
-                                //Utility.setChangedRecord();
-                                //startActivity(intent);
-                                System.exit(0);
+                                Intent intent = new Intent(ContentActivity.this, MainActivity.class);
+                                ContentActivity.this.finish();
+                                Utility.resetExistingFriendList();
+                                Utility.setChangedRecord();
+                                startActivity(intent);
                             } else {
                                 Toast.makeText(getApplicationContext(), getString(R.string.logout_failed), Toast.LENGTH_SHORT).show();
                             }

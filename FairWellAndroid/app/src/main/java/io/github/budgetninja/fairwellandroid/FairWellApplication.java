@@ -11,7 +11,7 @@ import com.parse.ParseTwitterUtils;
 /**
  *Created by HuMengpei on 9/16/2015.
  */
-public class FairwellApplication extends Application{
+public class FairWellApplication extends Application{
     public final static int APP_VERSION = 1;
     @Override
     public void onCreate() {
