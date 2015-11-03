@@ -494,4 +494,5 @@
 
     <!-- The messsage shown on progress dialog when deleting images -->
     <string name="delete_images_message">Deleting images\u2026</string>
+    <string name="summary"><u>Statement Summary</u></string>
 </resources>

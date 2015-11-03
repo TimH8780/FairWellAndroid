@@ -45,14 +45,18 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_ADD_STATEMENT_SUMMARY;
+
 /**
  * A placeholder fragment containing a simple view.
  */
 public class AddStatementFragment extends Fragment {
 
     private TextView clickedText;
+    private TextView description;
     private TextView deadlineField;
     private TextView dateField;
+    private EditText moneyAmount;
     private LinearLayout layoutMemberDisplay;
     private DateFormat format;
     private static ArrayList<Integer> dateRecord;
@@ -121,10 +125,11 @@ public class AddStatementFragment extends Fragment {
 
         Spinner paidBySpinner = (Spinner) rootView.findViewById(R.id.spinner);
         Spinner modeSpinner = (Spinner) rootView.findViewById(R.id.spinner2);
-        final EditText moneyAmount = (EditText) rootView.findViewById(R.id.moneyAmount);
+        moneyAmount = (EditText) rootView.findViewById(R.id.moneyAmount);
         Button addMemberButton = (Button) rootView.findViewById(R.id.addMemberButton);
         Button addSnapshotButton = (Button) rootView.findViewById(R.id.addSnapshotButton);
         Button confirmButton = (Button) rootView.findViewById(R.id.confirmButton);
+        description = (TextView) rootView.findViewById(R.id.statement_description);
         clickedText = (TextView) rootView.findViewById(R.id.clickText);
         dateField = (TextView) rootView.findViewById(R.id.dateField);
         deadlineField = (TextView) rootView.findViewById(R.id.deadlineField);
@@ -276,9 +281,17 @@ public class AddStatementFragment extends Fragment {
                 Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
                 return;
             }
-            Toast.makeText(getContext(), "Fairwell will send notification to the party members! "
-                    , Toast.LENGTH_SHORT).show();
-            parent.fragMgr.popBackStack();
+            Boolean check_1 = !description.getText().toString().equals("");
+            Boolean check_2 = !clickedText.getText().toString().equals("");
+            Boolean check_3 = !moneyAmount.getText().toString().equals("");
+            Boolean check_4 = !dateField.getText().toString().equals("");
+            Boolean check_5 = !deadlineField.getText().toString().equals("");
+            Boolean check_6 = !selectedMember.isEmpty();
+            if(check_1 && check_2 && check_3 && check_4 && check_5 && check_6){
+                parent.layoutManage(INDEX_ADD_STATEMENT_SUMMARY);
+            } else {
+                Toast.makeText(getContext(), "Please fill in all information with SnapShot as optional", Toast.LENGTH_SHORT).show();
+            }
         }
     };
 
@@ -412,9 +425,6 @@ public class AddStatementFragment extends Fragment {
                     }
                 }
                 displayMemberSelected();
-/*                if(paidByPosition != 0){
-                    friendList.get(paidByPosition).generateFriendToFriendRelationship(friendList.get(2));
-                }*/
             }
         });
         builder.setNegativeButton("Cancel", null);

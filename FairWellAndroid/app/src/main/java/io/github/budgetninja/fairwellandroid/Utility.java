@@ -67,6 +67,7 @@ public class Utility {
 
         private String parseObjectID;
         private ParseUser friend;
+        private boolean reload;
         String name;
         String email;
         boolean confirm;
@@ -85,6 +86,7 @@ public class Utility {
             this.currentUserOwed = currentUserOwed;
             this.friendOwed = friendOwed;
             this.isUserOne = isUserOne;
+            reload = false;
             obtainPhoto();
         }
 
@@ -97,27 +99,36 @@ public class Utility {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    if(connMgr != null) {
-                        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-                        boolean hasNetwork = (networkInfo != null && networkInfo.isConnected());
-                        if (friend != null && hasNetwork) {
-                            ParseFile data = friend.getParseFile("photo");
-                            if (data != null) {
-                                data.getDataInBackground(new GetDataCallback() {
-                                    @Override
-                                    public void done(byte[] bytes, ParseException e) {
-                                        if (e == null) { Friend.this.photo = bytes; }
-                                        else { Friend.this.photo = null; }
+                    if (friend != null) {
+                        ParseFile data = friend.getParseFile("photo");
+                        if (data != null) {
+                            data.getDataInBackground(new GetDataCallback() {
+                                @Override
+                                public void done(byte[] bytes, ParseException e) {
+                                    if (e == null) {
+                                        Friend.this.photo = bytes;
+                                    } else {
+                                        Friend.this.photo = null;
                                     }
-                                });
-                            } else photo = null;
+                                }
+                            });
                         } else photo = null;
                     } else photo = null;
                 }
             }).start();
         }
 
-        public boolean hasPhoto(){ return (photo != null); }
+        public boolean hasPhoto(){
+            if(photo != null){
+                reload = false;
+                return true;
+            }
+            if(!reload){
+                obtainPhoto();
+                reload = true;
+            }
+            return false;
+        }
 
         public void generateFriendToFriendRelationship(final Friend another){
             ParseQuery<ParseObject> query = ParseQuery.getQuery("FriendList");
@@ -396,10 +407,4 @@ public class Utility {
         return (int)(ctx.getResources().getDisplayMetrics().density*160f);
     }
 
-    private static ConnectivityManager connMgr;
-    public static void addReferenceConnectivityManager(ConnectivityManager manager){
-        if(connMgr == null){
-            connMgr = manager;
-        }
-    }
 }

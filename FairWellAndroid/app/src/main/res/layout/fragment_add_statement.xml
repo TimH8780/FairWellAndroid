@@ -10,6 +10,7 @@
         android:padding="15dp">
 
         <EditText
+            android:id="@+id/statement_description"
             android:hint="Enter description"
             android:inputType="text"
             android:maxLength="30"
@@ -350,7 +351,7 @@
             android:textColor="@color/textLight"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="CONFIRM!"
+            android:text="View Summary"
             android:textStyle="bold"
             android:textSize="25sp"
             android:gravity="center"

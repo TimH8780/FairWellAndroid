@@ -302,12 +302,16 @@ public class FriendsFragment extends Fragment{
             holder.nameText.setText(currentItem.name);
             holder.emailText.setText(currentItem.email);
             if(currentItem.hasPhoto()){
+                Log.d("Photo - has", holder.nameText.getText().toString());
                 int DPI = getDPI(mContext);
                 int pixel = IMAGE_WIDTH_HEIGHT * (DPI / 160);
                 Bitmap bmp = HomepageFragment.decodeSampledBitmapFromByteArray(currentItem.photo, pixel, pixel);
                 holder.photoImage.setImageBitmap(bmp);
             }
-            else{ holder.photoImage.setImageResource(R.drawable.profilepic); }
+            else{
+                Log.d("Photo - don't has", holder.nameText.getText().toString());
+                holder.photoImage.setImageResource(R.drawable.profilepic);
+            }
 
             if(!currentItem.isUserOne && !currentItem.confirm) {
                 holder.confirmButton.setVisibility(View.VISIBLE);

@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
 
         ParseUser user = ParseUser.getCurrentUser();
         final ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        Utility.addReferenceConnectivityManager(connMgr);
         Intent intent;
 
         if(user != null){               //Already logged in (current user exists)

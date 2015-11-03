@@ -55,6 +55,7 @@ public class ContentActivity extends AppCompatActivity {
     public static final int INDEX_VIEW_STATEMENT = 11;
     public static final int INDEX_ADD_STATEMENT = 12;
     public static final int INDEX_RESOLVE_STATEMENT = 13;
+    public static final int INDEX_ADD_STATEMENT_SUMMARY = 14;
 
     protected MenuDrawer mMenuDrawer;
     private MenuAdapter mAdapter;
@@ -250,6 +251,10 @@ public class ContentActivity extends AppCompatActivity {
 
             case INDEX_RESOLVE_STATEMENT:
                 fragTrans.replace(R.id.container, new ResolveStatementsFragment(), "Resolve").addToBackStack("Resolve");
+                break;
+
+            case INDEX_ADD_STATEMENT_SUMMARY:
+                fragTrans.replace(R.id.container, new AddStatementSummaryFragment(), "Summary").addToBackStack("Summary");
                 break;
         }
         fragTrans.commit();
