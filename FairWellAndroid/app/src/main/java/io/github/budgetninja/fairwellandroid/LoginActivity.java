@@ -264,20 +264,6 @@ public class LoginActivity extends Activity {
         ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void goToLoggedInPage(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if(Utility.checkNewEntryField()){
-                    Utility.generateRawFriendList(ParseUser.getCurrentUser());
-                    Utility.setChangedRecord();
-                }
-            }
-        }).start();
-        Intent intent = new Intent(LoginActivity.this, ContentActivity.class);
-        startActivity(intent);
-    }
-
     private void setUpUsernameTwitter(ParseUser user){
         user.put("usernameTwitter", (ParseTwitterUtils.getTwitter().getScreenName()));
         if(user.get("newEntry") == null){
@@ -349,6 +335,11 @@ public class LoginActivity extends Activity {
 
     private void goToRegisterPage() {
         Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+        startActivity(intent);
+    }
+
+    private void goToLoggedInPage(){
+        Intent intent = new Intent(LoginActivity.this, ContentActivity.class);
         startActivity(intent);
     }
 

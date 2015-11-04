@@ -99,8 +99,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     return;
                                 }
                                 //Fail
-                                Toast.makeText(getApplicationContext(), "Failed to register: "
-                                        + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Failed to register: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                                 ConfirmPass.setText("");
                                 agreement.setChecked(false);
                             }

@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 /**
@@ -69,7 +70,7 @@ public class FriendsFragment extends Fragment{
         }
         parent.setTitle("Friend");
 
-        List<Utility.Friend> friendList;
+        List<Friend> friendList;
         if(parent.isNetworkConnected()) { friendList = Utility.generateFriendArray(); }
         else { friendList = Utility.generateFriendArrayOffline(); }
 
@@ -129,9 +130,6 @@ public class FriendsFragment extends Fragment{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_add_friend) {
@@ -156,8 +154,7 @@ public class FriendsFragment extends Fragment{
         final TextView message = new TextView(parent);
         final EditText userInput = new EditText(parent);
         layout.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
+        LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         para.setMargins(20, 20, 20, 0);
         message.setText("Please enter the email address of your friend:");
         message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
@@ -166,7 +163,7 @@ public class FriendsFragment extends Fragment{
         userInput.setLayoutParams(para);
         layout.addView(message);
         layout.addView(userInput);
-        builder.setTitle("Add Friend");             //use e-mail for now, may need to change
+        builder.setTitle("Add Friend");
         builder.setView(layout);
 
         builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
@@ -215,7 +212,7 @@ public class FriendsFragment extends Fragment{
                     ParseObject temp = Utility.getRawListLocation();
                     temp.getList("list").add(friendList);
                     temp.pinInBackground();
-                    Utility.Friend newItem = new Utility.Friend(friendList.getObjectId(), friend,
+                    Friend newItem = new Friend(friendList.getObjectId(), friend,
                             Utility.getUserName(friend), friend.getEmail(), 0, 0, false, true);
                     Utility.addToExistingFriendList(newItem);
                     adapter.updateData(Utility.generateFriendArray());
@@ -242,14 +239,14 @@ public class FriendsFragment extends Fragment{
         }
     }
 
-    private class FriendAdaptor extends ArrayAdapter<Utility.Friend>{
+    private class FriendAdaptor extends ArrayAdapter<Friend>{
 
         Context mContext;
         int mResource;
-        List<Utility.Friend> mData;
-        private List<Utility.Friend> backupData;
+        List<Friend> mData;
+        private List<Friend> backupData;
 
-        public FriendAdaptor(Context context, int resource, List<Utility.Friend> objects){
+        public FriendAdaptor(Context context, int resource, List<Friend> objects){
             super(context, resource, objects);
             mContext = context;
             mResource = resource;
@@ -257,7 +254,7 @@ public class FriendsFragment extends Fragment{
             backupData = objects;
         }
 
-        public void updateData(List<Utility.Friend> data){
+        public void updateData(List<Friend> data){
             mData = data;
             backupData = data;
             FriendAdaptor.this.notifyDataSetChanged();
@@ -275,7 +272,7 @@ public class FriendsFragment extends Fragment{
         }
 
         @Override
-        public void remove(Utility.Friend item){
+        public void remove(Friend item){
             mData.remove(item);
             backupData.remove(item);
             FriendAdaptor.this.notifyDataSetChanged();
@@ -283,7 +280,7 @@ public class FriendsFragment extends Fragment{
 
         @Override
         public View getView(int position, View convertView, ViewGroup viewGroup){
-            Utility.Friend currentItem = mData.get(position);
+            Friend currentItem = mData.get(position);
             ViewHolder holder;
             if(convertView == null){
                 convertView = parent.getLayoutInflater().inflate(mResource, viewGroup, false);
@@ -302,14 +299,12 @@ public class FriendsFragment extends Fragment{
             holder.nameText.setText(currentItem.name);
             holder.emailText.setText(currentItem.email);
             if(currentItem.hasPhoto()){
-                Log.d("Photo - has", holder.nameText.getText().toString());
                 int DPI = getDPI(mContext);
                 int pixel = IMAGE_WIDTH_HEIGHT * (DPI / 160);
                 Bitmap bmp = HomepageFragment.decodeSampledBitmapFromByteArray(currentItem.photo, pixel, pixel);
                 holder.photoImage.setImageBitmap(bmp);
             }
             else{
-                Log.d("Photo - don't has", holder.nameText.getText().toString());
                 holder.photoImage.setImageResource(R.drawable.profilepic);
             }
 
@@ -327,7 +322,7 @@ public class FriendsFragment extends Fragment{
                             return;
                         }
                         Pair<Integer, TextView> data = (Pair<Integer, TextView>) button.getTag();
-                        Utility.Friend currentItem = mData.get(data.first);
+                        Friend currentItem = mData.get(data.first);
                         currentItem.setConfirm();
                         button.setVisibility(View.INVISIBLE);
                         data.second.setVisibility(View.INVISIBLE);
@@ -353,7 +348,7 @@ public class FriendsFragment extends Fragment{
                         return;
                     }
                     int position = (int) button.getTag();
-                    final Utility.Friend currentItem = mData.get(position);
+                    final Friend currentItem = mData.get(position);
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                     TextView message = new TextView(mContext);
@@ -405,7 +400,7 @@ public class FriendsFragment extends Fragment{
                         results.values = backupData;
                     }
                     else{
-                        List<Utility.Friend> data = new ArrayList<>();
+                        List<Friend> data = new ArrayList<>();
                         for(int i = 0; i < backupData.size(); i++){
                             if(backupData.get(i).name.toLowerCase().contains(constraint)){
                                 data.add(backupData.get(i));
@@ -419,7 +414,7 @@ public class FriendsFragment extends Fragment{
                 @SuppressWarnings("unchecked")
                 @Override
                 protected void publishResults(CharSequence constraint, FilterResults results) {
-                    mData = (List< Utility.Friend>) results.values;
+                    mData = (List<Friend>) results.values;
                     FriendAdaptor.this.notifyDataSetChanged();
                 }
             };

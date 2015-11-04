@@ -31,7 +31,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +44,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_ADD_STATEMENT_SUMMARY;
+import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_STATEMENT_SUMMARY;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -69,8 +69,9 @@ public class AddStatementFragment extends Fragment {
     private int paidByPosition;
     private int modePosition;
     private Boolean[] friendSelected;
-    private List<Utility.Friend> friendList;
-    private List<Utility.Friend> selectedMember;
+    private List<Friend> friendList;
+    private List<Friend> selectedMember;
+    private ViewStatementSummaryListener callBack;
 
     private static final int DATE = 0;
     private static final int DEADLINE = 3;
@@ -78,9 +79,9 @@ public class AddStatementFragment extends Fragment {
     private static final int MONTH = 1;
     private static final int DAY = 2;
     private static final int SELF = 0;
-    private static final int SPLIT_EQUALLY = 0;
-    private static final int BY_PERCENTAGE = 1;
-    private static final int BY_RATIO = 2;
+    public static final int SPLIT_EQUALLY = 0;
+    public static final int BY_PERCENTAGE = 1;
+    public static final int BY_RATIO = 2;
 
 
     @Override
@@ -95,13 +96,10 @@ public class AddStatementFragment extends Fragment {
         paidByPosition = SELF;
         modePosition = SPLIT_EQUALLY;
         format = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
-        if(parent.isNetworkConnected()) {
-            friendList = new ArrayList<>(Utility.generateFriendArray());
-        }
-        else {
-            friendList = new ArrayList<>(Utility.generateFriendArrayOffline());
-        }
-        friendList.add(0, new Utility.Friend(null, user, "Self", null, -1, -1, true, true)); //user her/himself
+
+        if(parent.isNetworkConnected()) { friendList = new ArrayList<>(Utility.generateFriendArray()); }
+        else { friendList = new ArrayList<>(Utility.generateFriendArrayOffline()); }
+        friendList.add(0, new Friend(null, user, "Self", null, -1, -1, true, true)); //user her/himself
         friendSelected = new Boolean[friendList.size()];
 
         // An array used to record the date set by user for DATE and DEADLINE
@@ -136,7 +134,7 @@ public class AddStatementFragment extends Fragment {
         layoutMemberDisplay = (LinearLayout) rootView.findViewById(R.id.layout_member_display);
 
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<Utility.Friend> paidByAdapter = new ArrayAdapter<>(getContext(),
+        ArrayAdapter<Friend> paidByAdapter = new ArrayAdapter<>(getContext(),
                 android.R.layout.simple_spinner_item, friendList);
         ArrayAdapter<CharSequence> modeAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.mode_array, android.R.layout.simple_spinner_item);
@@ -240,6 +238,24 @@ public class AddStatementFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onAttach(Context context){
+        super.onAttach(context);
+
+        if(context instanceof ContentActivity) {
+            try {
+                callBack = (ViewStatementSummaryListener) context;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(context.toString() + " must implement this listener");
+            }
+        }
+    }
+
+    public interface ViewStatementSummaryListener{
+        void statementData(String description, String category, String date, String deadline, int mode, int totalPeople,
+                           String amount, Friend payee, List<Friend> payer);
+    }
+
     protected void setClickedIconText(String string) {
         if (!string.equals("")) {
             clickedText.setText("Category: " + string);
@@ -281,14 +297,17 @@ public class AddStatementFragment extends Fragment {
                 Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
                 return;
             }
-            Boolean check_1 = !description.getText().toString().equals("");
-            Boolean check_2 = !clickedText.getText().toString().equals("");
-            Boolean check_3 = !moneyAmount.getText().toString().equals("");
-            Boolean check_4 = !dateField.getText().toString().equals("");
-            Boolean check_5 = !deadlineField.getText().toString().equals("");
-            Boolean check_6 = !selectedMember.isEmpty();
-            if(check_1 && check_2 && check_3 && check_4 && check_5 && check_6){
-                parent.layoutManage(INDEX_ADD_STATEMENT_SUMMARY);
+            String descr = description.getText().toString();
+            String categ = clickedText.getText().toString();
+            String amount = moneyAmount.getText().toString();
+            String date = dateField.getText().toString();
+            String deadline = deadlineField.getText().toString();
+            Boolean member = selectedMember.isEmpty();
+
+            if(!descr.equals("") && !categ.equals("") && !amount.equals("") && !date.equals("") && !deadline.equals("") && !member){
+                parent.layoutManage(INDEX_STATEMENT_SUMMARY);
+                Friend payee = (paidByPosition == 0) ? null : friendList.get(paidByPosition);
+                callBack.statementData(descr, categ.substring(10), date, deadline, modePosition, maxCapacity, amount, payee, selectedMember);
             } else {
                 Toast.makeText(getContext(), "Please fill in all information with SnapShot as optional", Toast.LENGTH_SHORT).show();
             }
@@ -416,7 +435,7 @@ public class AddStatementFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 friendSelected = Arrays.copyOf(result, result.length);
-                selectedMember = new ArrayList<Utility.Friend>();
+                selectedMember = new ArrayList<>();
                 for (int i = 0; i < result.length; i++) {
                     if (friendSelected[i] != null) {
                         if (friendSelected[i]) {
@@ -468,13 +487,13 @@ public class AddStatementFragment extends Fragment {
         return (dateRecord.get(view + DAY) != day) && (!result);
     }
 
-    private class MemberSelectionAdaptor extends ArrayAdapter<Utility.Friend>{
+    private class MemberSelectionAdaptor extends ArrayAdapter<Friend>{
 
         Context mContext;
         int mResource;
-        List<Utility.Friend> mObject;
+        List<Friend> mObject;
 
-        public MemberSelectionAdaptor(Context context, int resource, List<Utility.Friend> objects){
+        public MemberSelectionAdaptor(Context context, int resource, List<Friend> objects){
             super(context, resource, objects);
             mContext = context;
             mResource = resource;
@@ -489,7 +508,7 @@ public class AddStatementFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parentGroup){
-            Utility.Friend currentItem = mObject.get(position);
+            Friend currentItem = mObject.get(position);
             final ViewHolder viewHolder;
             if(convertView == null){
                 convertView = parent.getLayoutInflater().inflate(mResource, parentGroup, false);

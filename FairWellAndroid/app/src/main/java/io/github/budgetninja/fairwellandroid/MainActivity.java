@@ -29,27 +29,14 @@ public class MainActivity extends AppCompatActivity {
 
         //show tutorial slide?
 
-        ParseUser user = ParseUser.getCurrentUser();
-        final ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         Intent intent;
 
-        if(user != null){               //Already logged in (current user exists)
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-                    if(networkInfo != null && networkInfo.isConnected()) {
-                        if(Utility.checkNewEntryField()){
-                            Utility.setChangedRecord();
-                            Utility.generateRawFriendList(ParseUser.getCurrentUser());
-                        }
-                    }
-                }
-            }).start();
+        if (ParseUser.getCurrentUser() != null) {                         //Already logged in
             intent = new Intent(MainActivity.this, ContentActivity.class);
-        } else {                            //Need to log in
+        } else {                                                        //Need to log in
             intent = new Intent(MainActivity.this, LoginActivity.class);
         }
+
         startActivity(intent);
     }
 
@@ -60,12 +47,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
         this.finish();
     }
 
-
+}
 
 
     // Never used, comment out for now  --- Tim
@@ -125,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
             return v;
         }
     }
-*/
 
 }
+
+*/

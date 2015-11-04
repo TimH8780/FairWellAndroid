@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -38,10 +39,13 @@ import com.parse.SaveCallback;
 
 import net.simonvt.menudrawer.MenuDrawer;
 
+import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContentActivity extends AppCompatActivity {
+public class ContentActivity extends AppCompatActivity implements
+        AddStatementFragment.ViewStatementSummaryListener{
 
     private static final String STATE_ACTIVE_POSITION = "net.simonvt.menudrawer.samples.ContentActivity.activePosition";
     private static final String STATE_CONTENT_TEXT = "net.simonvt.menudrawer.samples.ContentActivity.contentText";
@@ -56,11 +60,9 @@ public class ContentActivity extends AppCompatActivity {
     public static final int INDEX_VIEW_STATEMENT = 11;
     public static final int INDEX_ADD_STATEMENT = 12;
     public static final int INDEX_RESOLVE_STATEMENT = 13;
-    public static final int INDEX_ADD_STATEMENT_SUMMARY = 14;
+    public static final int INDEX_STATEMENT_SUMMARY = 14;
 
     protected MenuDrawer mMenuDrawer;
-    private MenuAdapter mAdapter;
-    private ListView mList;
     private int mActivePosition = -1;
     private String mContentText;
     boolean doubleBackToExitPressedOnce = false;
@@ -122,8 +124,8 @@ public class ContentActivity extends AppCompatActivity {
         items.add(new Item(getString(R.string.about_us), R.drawable.ic_action_select_all_dark));
         items.add(new Item(getString(R.string.logout), R.drawable.ic_action_select_all_dark));
 
-        mList = new ListView(this);
-        mAdapter = new MenuAdapter(items);
+        ListView mList = new ListView(this);
+        MenuAdapter mAdapter = new MenuAdapter(items);
         mList.setAdapter(mAdapter);
         mList.setOnItemClickListener(mItemClickListener);
         mMenuDrawer.setMenuView(mList);
@@ -143,6 +145,7 @@ public class ContentActivity extends AppCompatActivity {
             }
         }
 
+        checkForUpdate();
         layoutManage(POSITION_HOME);
     }
 
@@ -167,11 +170,11 @@ public class ContentActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         final int drawerState = mMenuDrawer.getDrawerState();
-        if (drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING) {
+        if(drawerState == MenuDrawer.STATE_OPEN || drawerState == MenuDrawer.STATE_OPENING) {
             mMenuDrawer.closeMenu();
             return;
         }
-        if (doubleBackToExitPressedOnce) {
+        if(doubleBackToExitPressedOnce) {
             // this is to close the app entirely, but it will still be in the stack
             Intent a = new Intent(Intent.ACTION_MAIN);
             a.addCategory(Intent.CATEGORY_HOME);
@@ -183,8 +186,7 @@ public class ContentActivity extends AppCompatActivity {
 
         new Handler().postDelayed(new Runnable() {
             @Override
-            public void run() {
-                doubleBackToExitPressedOnce = false;
+            public void run() { doubleBackToExitPressedOnce = false;
             }
         }, 2000);
     }
@@ -203,7 +205,6 @@ public class ContentActivity extends AppCompatActivity {
 
     protected void layoutManage(int index){
         fragTrans = fragMgr.beginTransaction();
-        checkForUpdate();
         Fragment fragment;
         switch (index) {
             case POSITION_HOME:
@@ -259,29 +260,45 @@ public class ContentActivity extends AppCompatActivity {
                 fragTrans.replace(R.id.container, new ResolveStatementsFragment(), "Resolve").addToBackStack("Resolve");
                 break;
 
-            case INDEX_ADD_STATEMENT_SUMMARY:
-                fragTrans.replace(R.id.container, new AddStatementSummaryFragment(), "Summary").addToBackStack("Summary");
+            case INDEX_STATEMENT_SUMMARY:
+                fragTrans.replace(R.id.container, new StatementSummaryFragment(), "Summary").addToBackStack("Summary");
                 break;
         }
         fragTrans.commit();
+        fragMgr.executePendingTransactions();
     }
+
+    public void statementData(String description, String category, String date, String deadline, int mode, int totalPeople,
+                              String amount, Friend payee, List<Friend> payer){
+
+        StatementSummaryFragment child;
+        child = (StatementSummaryFragment) getSupportFragmentManager().findFragmentByTag("Summary");
+        if(child != null) {
+            child.setData(description, category, date, deadline, mode, totalPeople, amount, payee, payer);
+        }
+    }
+
 
     protected boolean isNetworkConnected(){
         NetworkInfo networkInfo = connectMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
     }
 
-    protected void checkForUpdate(){        //Run by other Thread
+    private void checkForUpdate(){        //Run by other Thread, run every 20 seconds
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if(isNetworkConnected()) try {
-                    if (Utility.checkNewEntryField()) {
-                        Utility.generateRawFriendList(user);
-                        Utility.setChangedRecord();
+                while(true) try {
+                    SystemClock.sleep(20000);
+                    if(isNetworkConnected()) {
+                        if (Utility.checkNewEntryField()) {
+                            Utility.generateRawFriendList(user);
+                            Utility.setChangedRecord();
+                            Utility.generateFriendArray();
+                        }
                     }
                 } catch (NullPointerException e){
-                    Log.d("Thread", e.toString());
+                    return;
                 }
             }
         }).start();
@@ -293,8 +310,7 @@ public class ContentActivity extends AppCompatActivity {
         final TextView message = new TextView(ContentActivity.this);
         final EditText userInput = new EditText(ContentActivity.this);
         layout.setOrientation(LinearLayout.VERTICAL);
-        LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
+        LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         para.setMargins(20, 20, 20, 0);
         message.setText("An email address is required for some functionality. Please link your email address to the account.");
         message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
@@ -315,8 +331,7 @@ public class ContentActivity extends AppCompatActivity {
                     @Override
                     public void done(ParseException e) {
                         if(e == null){
-                            Toast.makeText(getApplicationContext(), "Success. A verification email was sent to " + email,
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Success. A verification email was sent to " + email, Toast.LENGTH_SHORT).show();
                             Utility.setNewEntryFieldForAllFriend();
                             return;
                         }
@@ -481,7 +496,6 @@ public class ContentActivity extends AppCompatActivity {
             }
 
             v.setTag(R.id.mdActiveViewPosition, position);
-
             if (position == mActivePosition) {
                 mMenuDrawer.setActiveView(v, position);
             }

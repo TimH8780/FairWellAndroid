@@ -103,6 +103,7 @@ public class HomepageFragment extends Fragment {
                 return bitmap.getByteCount() / 1024;
             }
         };
+
         // Initialize disk cache on background thread
         File cacheDir = getDiskCacheDir(parent.getApplicationContext(), DISK_CACHE_SUBDIR);
         new InitDiskCacheTask().execute(cacheDir);
@@ -435,7 +436,7 @@ public class HomepageFragment extends Fragment {
             synchronized (mDiskCacheLock) {
                 File cacheDir = params[0];
                 try {
-                    mDiskLruCache = DiskLruCache.open(cacheDir, FairWellApplication.APP_VERSION,DISK_CACHE_COUNT,DISK_CACHE_SIZE);
+                    mDiskLruCache = DiskLruCache.open(cacheDir, FairwellApplication.APP_VERSION,DISK_CACHE_COUNT,DISK_CACHE_SIZE);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

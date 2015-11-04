@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 /**
@@ -49,7 +50,7 @@ public class ResolveStatementsFragment extends Fragment {
         }
         parent.setTitle("Resolve Statement");
 
-        List<Utility.Friend> friendList;
+        List<Friend> friendList;
         if(parent.isNetworkConnected()) { friendList = Utility.generateFriendArray(); }
         else { friendList = Utility.generateFriendArrayOffline(); }
 
@@ -77,13 +78,13 @@ public class ResolveStatementsFragment extends Fragment {
         }
     }
 
-    public class ResolveStatementAdaptor extends ArrayAdapter<Utility.Friend> {
+    private class ResolveStatementAdaptor extends ArrayAdapter<Friend> {
 
         Context mContext;
         int mResource;
-        List<Utility.Friend> mObject;
+        List<Friend> mObject;
 
-        public ResolveStatementAdaptor(Context context, int resource, List<Utility.Friend> objects){
+        public ResolveStatementAdaptor(Context context, int resource, List<Friend> objects){
             super(context, resource, objects);
             mContext = context;
             mResource = resource;
@@ -98,7 +99,7 @@ public class ResolveStatementsFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parentGroup){
-            Utility.Friend currentItem = mObject.get(position);
+            Friend currentItem = mObject.get(position);
             ViewHolder viewHolder;
             if(convertView == null){
                 viewHolder = new ViewHolder();
@@ -134,7 +135,7 @@ public class ResolveStatementsFragment extends Fragment {
                         Toast.makeText(getActivity().getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    Utility.Friend currentItem = mObject.get((int)v.getTag());
+                    Friend currentItem = mObject.get((int)v.getTag());
                     final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     final ScrollView input = new ScrollView(getActivity());
                     final ListView container = new ListView(getActivity());
