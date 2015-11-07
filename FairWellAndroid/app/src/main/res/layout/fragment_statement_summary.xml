@@ -214,15 +214,20 @@
                     android:textColor="@color/purple"/>
             </TableRow>
 
+
+
+
         </TableLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:paddingBottom="50dp"
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/summary_cancelButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="4dp"
@@ -236,6 +241,7 @@
                 android:textSize="18sp" />
 
             <Button
+                android:id="@+id/summary_modifyButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="4dp"
@@ -249,6 +255,7 @@
                 android:textSize="18sp" />
 
             <Button
+                android:id="@+id/summary_submitButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="4dp"

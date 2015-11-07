@@ -11,7 +11,7 @@
 
         <EditText
             android:id="@+id/statement_description"
-            android:hint="Enter description"
+            android:hint="Description"
             android:inputType="text"
             android:maxLength="30"
             android:layout_width="match_parent"
@@ -98,6 +98,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="5dp"
             android:gravity="center"
+            android:text="Select Category"
             android:textSize="12sp"/>
 
         <LinearLayout
@@ -218,7 +219,7 @@
                     android:id="@+id/dateField"
                     android:background="@color/coolActionBar"
                     android:layout_gravity="center"
-                    android:hint="Pick a Date"
+                    android:hint="SELECT DATE"
                     android:gravity="center"
                     android:clickable="true"
                     android:layout_width="wrap_content"
@@ -253,7 +254,7 @@
                     android:id="@+id/deadlineField"
                     android:background="@color/coolActionBar"
                     android:layout_gravity="center"
-                    android:text="Pick a Date"
+                    android:text="SELECT DATE"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -286,7 +287,7 @@
                     android:id="@+id/addMemberButton"
                     android:background="@color/coolActionBar"
                     android:layout_gravity="center"
-                    android:text="Click to add"
+                    android:text="Add Member(s)"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="15sp"
@@ -326,7 +327,7 @@
                     android:id="@+id/addSnapshotButton"
                     android:background="@color/coolActionBar"
                     android:layout_gravity="center"
-                    android:text="Click to add"
+                    android:text="Add Snapshot"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textStyle="bold"

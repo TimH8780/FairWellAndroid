@@ -298,6 +298,7 @@ public class ContentActivity extends AppCompatActivity implements
                         }
                     }
                 } catch (NullPointerException e){
+                    Log.d("Thread", "Exit now");
                     return;
                 }
             }
