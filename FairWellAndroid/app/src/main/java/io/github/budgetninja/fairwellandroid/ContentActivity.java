@@ -39,13 +39,10 @@ import com.parse.SaveCallback;
 
 import net.simonvt.menudrawer.MenuDrawer;
 
-import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContentActivity extends AppCompatActivity implements
-        AddStatementFragment.ViewStatementSummaryListener{
+public class ContentActivity extends AppCompatActivity{
 
     private static final String STATE_ACTIVE_POSITION = "net.simonvt.menudrawer.samples.ContentActivity.activePosition";
     private static final String STATE_CONTENT_TEXT = "net.simonvt.menudrawer.samples.ContentActivity.contentText";
@@ -83,7 +80,9 @@ public class ContentActivity extends AppCompatActivity implements
             public void run() {
                 try {
                     if (isNetworkConnected()) {
+                        Utility.generateRawStatementList(user);
                         Utility.generateRawFriendList(user);
+                        Utility.generateStatementArray();
                         Utility.generateFriendArray();
                     } else {
                         Utility.generateFriendArrayOffline();
@@ -268,13 +267,10 @@ public class ContentActivity extends AppCompatActivity implements
         fragMgr.executePendingTransactions();
     }
 
-    public void statementData(String description, String category, String date, String deadline, int mode, int totalPeople,
-                              String amount, Friend payee, List<Friend> payer){
-
-        StatementSummaryFragment child;
-        child = (StatementSummaryFragment) getSupportFragmentManager().findFragmentByTag("Summary");
+    protected void setStatementData(StatementObject.SummaryStatement data){
+        StatementSummaryFragment child = (StatementSummaryFragment) getSupportFragmentManager().findFragmentByTag("Summary");
         if(child != null) {
-            child.setData(description, category, date, deadline, mode, totalPeople, amount, payee, payer);
+            child.setData(data);
         }
     }
 
@@ -292,8 +288,10 @@ public class ContentActivity extends AppCompatActivity implements
                     SystemClock.sleep(20000);
                     if(isNetworkConnected()) {
                         if (Utility.checkNewEntryField()) {
+                            Utility.generateRawStatementList(user);
                             Utility.generateRawFriendList(user);
                             Utility.setChangedRecord();
+                            Utility.generateStatementArray();
                             Utility.generateFriendArray();
                         }
                     }

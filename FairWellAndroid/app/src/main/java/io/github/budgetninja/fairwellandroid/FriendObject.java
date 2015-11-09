@@ -1,6 +1,7 @@
 package io.github.budgetninja.fairwellandroid;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.parse.GetCallback;
 import com.parse.GetDataCallback;
@@ -11,7 +12,9 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  *Created by Tim on 11/03/15.
@@ -21,28 +24,32 @@ public class FriendObject {
     public static class Friend implements Comparable<Friend>{
 
         private String parseObjectID;
+        private ParseObject friendRelationship;
         private ParseUser friend;
         private boolean reload;
         String name;
         String email;
+        boolean isPendingStatement;
         boolean confirm;
         boolean isUserOne;
         double currentUserOwed;
         double friendOwed;
         byte[] photo;
 
-        Friend(String parseObjectID, ParseUser friend, String name, String email, double currentUserOwed,
-               double friendOwed, boolean confirm, boolean isUserOne){
+        Friend(String parseObjectID, ParseObject friendRelation, ParseUser friend, String name, String email, double currentUserOwed,
+               double friendOwed, boolean isPendingStatement, boolean confirm, boolean isUserOne){
+            obtainPhoto();
             this.parseObjectID = parseObjectID;
+            this.friendRelationship = friendRelation;
             this.friend = friend;
             this.name = name;
             this.email = email;
+            this.isPendingStatement = isPendingStatement;
             this.confirm = confirm;
             this.currentUserOwed = currentUserOwed;
             this.friendOwed = friendOwed;
             this.isUserOne = isUserOne;
             reload = false;
-            obtainPhoto();
         }
 
         @Override
@@ -50,7 +57,7 @@ public class FriendObject {
             return name.compareToIgnoreCase(another.name);
         }
 
-        private void obtainPhoto(){         //Run by other thread
+        private void obtainPhoto(){
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -85,62 +92,62 @@ public class FriendObject {
             return false;
         }
 
-        public void generateFriendToFriendRelationship(final Friend another){
+        protected ParseObject insertParseUser(ParseObject object, String key){
+            object.put(key, friend);
+            return object;
+        }
+
+        protected ParseObject insertFriendship(ParseObject object, String key){
+            object.put(key, friendRelationship);
+            return object;
+        }
+
+        public ParseObject generateFriendToFriendRelationship(final Friend another){
             ParseQuery<ParseObject> query = ParseQuery.getQuery("FriendList");
             ParseUser[] list = {friend, another.friend};
             query.whereContainedIn("userOne", Arrays.asList(list));
             query.whereContainedIn("userTwo", Arrays.asList(list));
-            query.getFirstInBackground(new GetCallback<ParseObject>() {
-                @Override
-                public void done(ParseObject parseObject, ParseException e) {
-                    if(e != null){
-                        final ParseObject friendList = new ParseObject("FriendList");
-                        friendList.put("userOne", friend);
-                        friendList.put("userTwo", another.friend);
-                        friendList.put("confirmed", false);
-                        friendList.put("owedByOne", 0);
-                        friendList.put("owedByTwo", 0);
-                        friendList.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                Utility.editNewEntryField(friend, true);
-                                Utility.editNewEntryField(another.friend, true);
-                            }
-                        });
+            try {
+                return query.getFirst();
+            } catch (ParseException e) {
+                ParseObject friendList = new ParseObject("FriendList");
+                friendList.put("userOne", friend);
+                friendList.put("userTwo", another.friend);
+                friendList.put("confirmed", false);
+                friendList.put("owedByOne", 0);
+                friendList.put("owedByTwo", 0);
+                friendList.put("pendingStatement", true);
+                friendList.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        Utility.editNewEntryField(friend, true);
+                        Utility.editNewEntryField(another.friend, true);
                     }
-                }
-            });
+                });
+                return friendList;
+            }
         }
 
         public void setConfirm(){
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("FriendList");
-            query.getInBackground(parseObjectID, new GetCallback<ParseObject>() {
-                @Override
-                public void done(ParseObject parseObject, ParseException e) {
-                    if (e == null) {
-                        parseObject.put("confirmed", true);
-                        confirm = true;
-                        parseObject.saveInBackground();
-                        Utility.editNewEntryField(friend, true);
-                    }
-                }
-            });
+            friendRelationship.put("confirmed", true);
+            confirm = true;
+            friendRelationship.saveInBackground();
+            Utility.editNewEntryField(friend, true);
+        }
+
+        public void setPendingStatement(){
+            friendRelationship.put("pendingStatement", true);
+            isPendingStatement = true;
+            friendRelationship.saveInBackground();
+            Utility.editNewEntryField(friend, true);
         }
 
         public void deleteFriend(){
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("FriendList");
-            query.getInBackground(parseObjectID, new GetCallback<ParseObject>() {
-                @Override
-                public void done(ParseObject parseObject, ParseException e) {
-                    if (e == null) {
-                        ParseObject object = Utility.getRawListLocation();
-                        object.getList("list").remove(parseObject);
-                        object.pinInBackground();
-                        parseObject.deleteInBackground();
-                        Utility.editNewEntryField(friend, true);
-                    }
-                }
-            });
+            ParseObject object = Utility.getRawListLocation();
+            object.getList("list").remove(friendRelationship);
+            object.pinInBackground();
+            friendRelationship.deleteInBackground();
+            Utility.editNewEntryField(friend, true);
         }
 
         public void notifyChange(){ Utility.editNewEntryField(friend, true); }
@@ -158,7 +165,12 @@ public class FriendObject {
             builder.append(currentUserOwed).append(" | ");
             builder.append(friendOwed).append(" | ");
             builder.append(currentUserOwed - friendOwed).append(" | ");
+            builder.append(isPendingStatement).append(" | ");
             return builder.toString();
+        }
+
+        public boolean isEqual(Friend another){
+            return parseObjectID.equals(another.parseObjectID);
         }
     }
 

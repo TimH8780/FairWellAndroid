@@ -206,14 +206,15 @@ public class FriendsFragment extends Fragment{
             friendList.put("confirmed", false);
             friendList.put("owedByOne", 0);
             friendList.put("owedByTwo", 0);
+            friendList.put("pendingStatement", false);
             friendList.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
                     ParseObject temp = Utility.getRawListLocation();
                     temp.getList("list").add(friendList);
                     temp.pinInBackground();
-                    Friend newItem = new Friend(friendList.getObjectId(), friend,
-                            Utility.getUserName(friend), friend.getEmail(), 0, 0, false, true);
+                    Friend newItem = new Friend(friendList.getObjectId(), friendList, friend,
+                            Utility.getUserName(friend), friend.getEmail(), 0, 0, false, false, true);
                     Utility.addToExistingFriendList(newItem);
                     adapter.updateData(Utility.generateFriendArray());
 
@@ -368,8 +369,8 @@ public class FriendsFragment extends Fragment{
                     builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            if (currentItem.currentUserOwed > 0 || currentItem.friendOwed > 0) {
-                                Toast.makeText(mContext, "You can't delete friend with non-zero balance!", Toast.LENGTH_LONG).show();
+                            if (currentItem.currentUserOwed > 0 || currentItem.friendOwed > 0 || currentItem.isPendingStatement) {
+                                Toast.makeText(mContext, "You can't delete friend with non-zero balance/ pending statement!", Toast.LENGTH_LONG).show();
                             } else {
                                 currentItem.deleteFriend();
                                 Utility.removeFromExistingFriendList(currentItem);

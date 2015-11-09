@@ -12,9 +12,11 @@ import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
+import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
 
 /**
  *Created by Issac on 9/23/2015.
@@ -81,13 +83,12 @@ public class Utility {
     }
 
     private static List<Friend> pFriendList = null;
-    private static boolean changedRecord = true;
+    private static boolean changedRecordFriend = true;
 
     public static List<Friend> generateFriendArray(){
-        Log.d("Friend", "Start");
-        if(pFriendList == null || changedRecord) {
+        if(pFriendList == null || changedRecordFriend) {
+            Log.d("Friend", "Generating-Start");
             boolean isUserOne;
-            Log.d("Friend", "Generating");
             List<Friend> friendList = new ArrayList<>();
             List<String> offlineList = new ArrayList<>();
             List<ParseObject> rawList = getRawListLocation().getList("list");
@@ -108,8 +109,8 @@ public class Utility {
                         friendowed = object.getDouble("owedByOne");
                         isUserOne = false;
                     }
-                    Friend friendItem = new Friend(object.getObjectId(), user, Utility.getUserName(user),
-                            user.getString("email"), userowed, friendowed, object.getBoolean("confirmed"), isUserOne);
+                    Friend friendItem = new Friend(object.getObjectId(), object, user, Utility.getUserName(user), user.getString("email"),
+                            userowed, friendowed, object.getBoolean("pendingStatement"), object.getBoolean("confirmed"), isUserOne);
                     offlineList.add(friendItem.toStringAllData());
                     friendList.add(friendItem);
                 } catch (ParseException e) {
@@ -121,7 +122,8 @@ public class Utility {
             temp.pinInBackground();
             pFriendList = new ArrayList<>(friendList);
             Collections.sort(pFriendList);
-            changedRecord = false;
+            changedRecordFriend = false;
+            Log.d("Friend", "Generating-End");
         }
 
         return pFriendList;
@@ -133,7 +135,7 @@ public class Utility {
             List<String> offlineList = getRawListLocation().getList("offlineFriendList");
             int indexA, indexB;
             String name, email;
-            boolean confirm, isUserOne;
+            boolean confirm, isUserOne, isPendingStatement;
             double userOwed, friendOwed;
             for(int i = 0; i < offlineList.size(); i++){
                 String item = offlineList.get(i);
@@ -149,7 +151,9 @@ public class Utility {
                 userOwed = Double.parseDouble(item.substring(indexB + 3, indexA));
                 indexB = item.indexOf(" | ", indexA + 3);
                 friendOwed = Double.parseDouble(item.substring(indexA + 3, indexB));
-                offlineFriendList.add(new Friend(null, null, name, email, userOwed, friendOwed, confirm, isUserOne));
+                indexA = item.indexOf(" | ", indexB + 3);
+                isPendingStatement = Boolean.parseBoolean(item.substring(indexB + 3, indexA));
+                offlineFriendList.add(new Friend(null, null, null, name, email, userOwed, friendOwed, isPendingStatement, confirm, isUserOne));
             }
             pFriendList = new ArrayList<>(offlineFriendList);
             Collections.sort(pFriendList);
@@ -195,7 +199,10 @@ public class Utility {
 
     public static void resetExistingFriendList(){ pFriendList = null; }
 
-    public static void setChangedRecord(){ changedRecord = true; }
+    public static void setChangedRecord(){
+        changedRecordFriend = true;
+        changedRecordStatement = true;
+    }
 
     public static boolean checkNewEntryField(){
         try {
@@ -235,12 +242,13 @@ public class Utility {
                     Log.d("getRawListLocation", "Not exist! Generating now...");
                     ParseObject tempA = new ParseObject("Friend_update");
                     tempA.put("newEntry", false);
+                    tempA.put("list", new ArrayList<ParseObject>());
+                    tempA.put("offlineFriendList", new ArrayList<String>());
+                    tempA.put("statementList", new ArrayList<ParseObject>());
                     tempA.saveInBackground();
                     user.put("newEntry", tempA);
                     user.saveInBackground();
                     ParseObject tempB = user.getParseObject("newEntry");
-                    tempB.put("list", new ArrayList<ParseObject>());
-                    tempB.put("offlineFriendList", new ArrayList<String>());
                     tempB.pinInBackground();
                     return tempB;
                 }
@@ -258,6 +266,73 @@ public class Utility {
 
     public static int getDPI(Context ctx) {
         return (int)(ctx.getResources().getDisplayMetrics().density*160f);
+    }
+
+    public static void generateRawStatementList(ParseUser user){
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Statement");
+        query.whereEqualTo("payer", user);
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> list, ParseException e) {
+                List<ParseObject> result = new ArrayList<>();
+                ParseObject temp = getRawListLocation();
+                if(e == null) {
+                    ParseQuery<ParseObject> query;
+                    for (int i = 0; i < list.size(); i++) try{
+                        query = ParseQuery.getQuery("StatementGroup");
+                        query.whereEqualTo("payer", list.get(i));
+                        result.add(query.getFirst());
+                    } catch (ParseException e1){
+                        Log.d("RawStatementList", e1.toString());
+                    }
+                }
+                if(temp != null){
+                    temp.put("statementList", result);
+                    temp.pinInBackground();
+                }
+            }
+        });
+    }
+
+    private static List<Statement> pStatementList = null;
+    private static boolean changedRecordStatement = true;
+
+    public static List<Statement> generateStatementArray(){
+        if(pStatementList == null || changedRecordStatement){
+            Log.d("Statement", "Generating-Start");
+            List<Statement> statementList = new ArrayList<>();
+            List<ParseObject> rawList = getRawListLocation().getList("statementList");
+
+            String description, category, submitBy;
+            Date date, deadline;
+            int mode, unknown;
+            double unknownAmount, totalAmount;
+            List<ParseObject> list;
+            for (int i = 0; i < rawList.size(); i++) try{
+                ParseObject object = rawList.get(i).fetch();
+                description = object.getString("description");
+                category = object.getString("category");
+                submitBy = object.getString("submittedBy");
+                date = object.getDate("date");
+                deadline = object.getDate("deadline");
+                mode = object.getInt("mode");
+                unknown = object.getInt("unknown");
+                unknownAmount = object.getDouble("unknownAmount");
+                totalAmount = object.getDouble("paymentAmount");
+                list = object.getList("payer");
+
+                Statement statement = new Statement(description, category, date, deadline, mode, unknown, unknownAmount, totalAmount, submitBy,
+                        object.getParseUser("payee"), list);
+                statementList.add(statement);
+            } catch (ParseException e) {
+                Log.d("Fetch", e.getMessage());
+            }
+            pStatementList = new ArrayList<>(statementList);
+            Collections.sort(pStatementList);
+            changedRecordStatement = false;
+            Log.d("Statement", "Generating-End");
+        }
+        return pStatementList;
     }
 
 }

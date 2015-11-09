@@ -1,5 +1,6 @@
 package io.github.budgetninja.fairwellandroid;
 
+
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -16,6 +17,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -37,6 +39,7 @@ import android.widget.Toast;
 import com.parse.ParseUser;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +48,8 @@ import java.util.List;
 import java.util.Locale;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
+import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
+
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_STATEMENT_SUMMARY;
 
 /**
@@ -52,10 +57,13 @@ import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_STATEM
  */
 public class AddStatementFragment extends Fragment {
 
+    private View previousState;
+    private boolean pageCheck;
+    private boolean isAmountChanged;
     private TextView clickedText;
-    private TextView description;
     private TextView deadlineField;
     private TextView dateField;
+    private EditText description;
     private EditText moneyAmount;
     private LinearLayout layoutMemberDisplay;
     private DateFormat format;
@@ -70,8 +78,7 @@ public class AddStatementFragment extends Fragment {
     private int modePosition;
     private Boolean[] friendSelected;
     private List<Friend> friendList;
-    private List<Friend> selectedMember;
-    private ViewStatementSummaryListener callBack;
+    private List<Pair<Friend, Double>> selectedMember;
 
     private static final int DATE = 0;
     private static final int DEADLINE = 3;
@@ -89,6 +96,9 @@ public class AddStatementFragment extends Fragment {
         super.onCreate(bundle);
         setHasOptionsMenu(true);
 
+        pageCheck = false;
+        isAmountChanged = false;
+        previousState = null;
         maxCapacity = -1;
         counter = -1;
         parent = (ContentActivity)getActivity();
@@ -99,7 +109,7 @@ public class AddStatementFragment extends Fragment {
 
         if(parent.isNetworkConnected()) { friendList = new ArrayList<>(Utility.generateFriendArray()); }
         else { friendList = new ArrayList<>(Utility.generateFriendArrayOffline()); }
-        friendList.add(0, new Friend(null, user, "Self", null, -1, -1, true, true)); //user her/himself
+        friendList.add(0, new Friend(null, null, user, "Self", null, -1, -1, false, true, true)); //user her/himself
         friendSelected = new Boolean[friendList.size()];
 
         // An array used to record the date set by user for DATE and DEADLINE
@@ -114,20 +124,29 @@ public class AddStatementFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
             actionBar.setHomeAsUpIndicator(null);
         }
         parent.setTitle("Add Statement");
 
+        if(previousState != null && pageCheck){
+            pageCheck = false;
+            return previousState;
+        }
+        else if(previousState != null){
+            dateRecord.set(DATE + YEAR, 1899);
+            dateRecord.set(DEADLINE + YEAR, 2101);
+        }
+
+        View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
         Spinner paidBySpinner = (Spinner) rootView.findViewById(R.id.spinner);
         Spinner modeSpinner = (Spinner) rootView.findViewById(R.id.spinner2);
-        moneyAmount = (EditText) rootView.findViewById(R.id.moneyAmount);
         Button addMemberButton = (Button) rootView.findViewById(R.id.addMemberButton);
         Button addSnapshotButton = (Button) rootView.findViewById(R.id.addSnapshotButton);
         Button confirmButton = (Button) rootView.findViewById(R.id.confirmButton);
-        description = (TextView) rootView.findViewById(R.id.statement_description);
+        moneyAmount = (EditText) rootView.findViewById(R.id.moneyAmount);
+        description = (EditText) rootView.findViewById(R.id.statement_description);
         clickedText = (TextView) rootView.findViewById(R.id.clickText);
         dateField = (TextView) rootView.findViewById(R.id.dateField);
         deadlineField = (TextView) rootView.findViewById(R.id.deadlineField);
@@ -155,6 +174,7 @@ public class AddStatementFragment extends Fragment {
                 selectedMember = new ArrayList<>();
                 displayMemberSelected();
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) { /* do nothing */ }
         });
@@ -182,8 +202,7 @@ public class AddStatementFragment extends Fragment {
         });
         deadlineField.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                showDatePickerDialog(DEADLINE);
+            public void onClick(View v) {showDatePickerDialog(DEADLINE);
             }
         });
 
@@ -192,7 +211,7 @@ public class AddStatementFragment extends Fragment {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { /* do nothing */ }
 
             @Override
-            public void afterTextChanged(Editable s) { /* do nothing */ }
+            public void afterTextChanged(Editable s) { isAmountChanged = true; }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -223,6 +242,7 @@ public class AddStatementFragment extends Fragment {
             }
         });
 
+        previousState = rootView;
         return rootView;
     }
 
@@ -236,24 +256,6 @@ public class AddStatementFragment extends Fragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public void onAttach(Context context){
-        super.onAttach(context);
-
-        if(context instanceof ContentActivity) {
-            try {
-                callBack = (ViewStatementSummaryListener) context;
-            } catch (ClassCastException e) {
-                throw new ClassCastException(context.toString() + " must implement this listener");
-            }
-        }
-    }
-
-    public interface ViewStatementSummaryListener{
-        void statementData(String description, String category, String date, String deadline, int mode, int totalPeople,
-                           String amount, Friend payee, List<Friend> payer);
     }
 
     protected void setClickedIconText(String string) {
@@ -276,7 +278,7 @@ public class AddStatementFragment extends Fragment {
 
             StringBuilder data = new StringBuilder("");
             for (int i = 0; i < counter; i++) {
-                data.append(selectedMember.get(i).name).append("\n");
+                data.append(selectedMember.get(i).first.name).append("\n");
             }
             if(this.counter > 0){
                 text.setText("Selected Member [" + Integer.toString(counter) + "+" + Integer.toString(this.counter) + "]");
@@ -304,10 +306,30 @@ public class AddStatementFragment extends Fragment {
             String deadline = deadlineField.getText().toString();
             Boolean member = selectedMember.isEmpty();
 
-            if(!descr.equals("") && !categ.equals("") && !amount.equals("") && !date.equals("") && !deadline.equals("") && !member){
+            if(!descr.equals("") && !categ.equals("Select Category") && !amount.equals("") && !date.equals("") && !deadline.equals("") && !member){
                 parent.layoutManage(INDEX_STATEMENT_SUMMARY);
-                Friend payee = (paidByPosition == 0) ? null : friendList.get(paidByPosition);
-                callBack.statementData(descr, categ.substring(10), date, deadline, modePosition, maxCapacity, amount, payee, selectedMember);
+                pageCheck = true;
+                Friend payee = paidByPosition == 0 ? null : friendList.get(paidByPosition);
+                if(isAmountChanged){
+                    if(modePosition == SPLIT_EQUALLY){
+                        selectedMember = new ArrayList<>();
+                        double each = Double.valueOf(moneyAmount.getText().toString()) / maxCapacity;
+                        for (int i = 0; i < friendSelected.length; i++) {
+                            if (friendSelected[i] != null) {
+                                if (friendSelected[i]) {
+                                    selectedMember.add(new Pair<>(friendList.get(i), each));
+                                }
+                            }
+                        }
+                    }
+                }
+                try {
+                    SummaryStatement summaryStatement = new SummaryStatement(descr, categ.substring(10), format.parse(date), format.parse(deadline), modePosition, counter, 0.00,
+                            Double.valueOf(amount), Utility.getUserName(user), payee, selectedMember);
+                    parent.setStatementData(summaryStatement);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             } else {
                 Toast.makeText(getContext(), "Please fill in all information with SnapShot as optional", Toast.LENGTH_SHORT).show();
             }
@@ -361,7 +383,7 @@ public class AddStatementFragment extends Fragment {
                                             Toast.makeText(parent, "Please enter number greater than 0", Toast.LENGTH_SHORT).show();
                                         } else {
                                             dialog.dismiss();
-                                            showMemberSelectionList(num);
+                                            showMemberSelectionList(num, SPLIT_EQUALLY);
                                         }
                                     }
                                 }
@@ -372,17 +394,17 @@ public class AddStatementFragment extends Fragment {
                     break;
 
                 case BY_PERCENTAGE:
-                    showMemberSelectionList(-1);
+                    showMemberSelectionList(-1, BY_PERCENTAGE);
                     break;
 
                 case BY_RATIO:
-                    showMemberSelectionList(-1);
+                    showMemberSelectionList(-1, BY_RATIO);
                     break;
             }
         }
     };
 
-    private void showMemberSelectionList(final int capacity){
+    private void showMemberSelectionList(final int capacity, final int mode){
         final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
         final TextView capacityText = new TextView(parent);
         final Boolean[] result = new Boolean[friendList.size()];
@@ -435,15 +457,32 @@ public class AddStatementFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 friendSelected = Arrays.copyOf(result, result.length);
-                selectedMember = new ArrayList<>();
-                for (int i = 0; i < result.length; i++) {
-                    if (friendSelected[i] != null) {
-                        if (friendSelected[i]) {
-                            selectedMember.add(friendList.get(i));
+                isAmountChanged = false;
+                switch (mode) {
+                    case SPLIT_EQUALLY:
+                        selectedMember = new ArrayList<>();
+                        double each = 0.00;
+                        if(!moneyAmount.getText().toString().equals("")) {
+                            each = Double.valueOf(moneyAmount.getText().toString()) / capacity;
                         }
-                    }
+                        for (int i = 0; i < result.length; i++) {
+                            if (friendSelected[i] != null) {
+                                if (friendSelected[i]) {
+                                    selectedMember.add(new Pair<>(friendList.get(i), each));
+                                }
+                            }
+                        }
+                        displayMemberSelected();
+                        break;
+
+                    case BY_RATIO:
+                        Toast.makeText(parent, "Coming Soon", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case BY_PERCENTAGE:
+                        Toast.makeText(parent, "Coming Soon", Toast.LENGTH_SHORT).show();
+                        break;
                 }
-                displayMemberSelected();
             }
         });
         builder.setNegativeButton("Cancel", null);

@@ -88,6 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     tempA.put("newEntry", false);
                                     tempA.put("list", new ArrayList<ParseObject>());
                                     tempA.put("offlineFriendList", new ArrayList<String>());
+                                    tempA.put("statementList", new ArrayList<ParseObject>());
                                     tempA.saveInBackground();
                                     user.put("newEntry", tempA);
                                     user.saveInBackground();

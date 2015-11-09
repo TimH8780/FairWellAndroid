@@ -27,17 +27,17 @@
         android:title="Statement Notification"
         android:key="undecided yet">
 
-        <CheckBoxPreference android:title="Confirm statement"
-            android:summary="Receive notification when someone adds a statement"
+        <CheckBoxPreference android:title="Confirm summaryStatement"
+            android:summary="Receive notification when someone adds a summaryStatement"
             android:defaultValue="true"/>
 
-        <CheckBoxPreference android:title="Resolve statement"
-            android:summary="Receive notification when the statement is resolved"
+        <CheckBoxPreference android:title="Resolve summaryStatement"
+            android:summary="Receive notification when the summaryStatement is resolved"
             android:defaultValue="true"/>
 
         <ListPreference
             android:title="Statement due frequency"
-            android:summary="Select the notification frequency when a statement is due"
+            android:summary="Select the notification frequency when a summaryStatement is due"
             android:key="due"
             android:defaultValue="1"
             android:entries="@array/dueFrequency"
