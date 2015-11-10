@@ -50,7 +50,7 @@ import java.util.Locale;
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
 
-import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_STATEMENT_SUMMARY;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_SUBMIT_STATEMENT_SUMMARY;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -307,7 +307,7 @@ public class AddStatementFragment extends Fragment {
             Boolean member = selectedMember.isEmpty();
 
             if(!descr.equals("") && !categ.equals("Select Category") && !amount.equals("") && !date.equals("") && !deadline.equals("") && !member){
-                parent.layoutManage(INDEX_STATEMENT_SUMMARY);
+                parent.layoutManage(INDEX_SUBMIT_STATEMENT_SUMMARY);
                 pageCheck = true;
                 Friend payee = paidByPosition == 0 ? null : friendList.get(paidByPosition);
                 if(isAmountChanged){
@@ -324,9 +324,9 @@ public class AddStatementFragment extends Fragment {
                     }
                 }
                 try {
-                    SummaryStatement summaryStatement = new SummaryStatement(descr, categ.substring(10), format.parse(date), format.parse(deadline), modePosition, counter, 0.00,
-                            Double.valueOf(amount), Utility.getUserName(user), payee, selectedMember);
-                    parent.setStatementData(summaryStatement);
+                    SummaryStatement summaryStatement = new SummaryStatement(descr, categ.substring(10), format.parse(date), format.parse(deadline),
+                            modePosition, counter, Double.valueOf(amount), payee, selectedMember);
+                    parent.setSubmitStatementSummaryData(summaryStatement);
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }

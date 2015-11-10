@@ -10,6 +10,8 @@
         android:layout_height="wrap_content"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:background="#cfcfcf"
         android:orientation="horizontal">
 
@@ -21,7 +23,7 @@
             android:layout_weight="3"
             android:textSize="18sp"
             android:textColor="#0000FF"
-            android:text="Name" />
+            android:text="Payee" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -59,6 +61,8 @@
         android:id="@+id/viewStatementsListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:layout_below="@+id/layout1">
 
     </ListView>

@@ -4,26 +4,27 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
+import io.github.budgetninja.fairwellandroid.StatementObject.SubStatement;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_STATEMENT_SUMMARY;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -41,6 +42,16 @@ public class ViewStatementsFragment extends Fragment {
         setHasOptionsMenu(true);
         parent = (ContentActivity)getActivity();
         dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
+        statementList = new ArrayList<>();
+        List<Statement> temp = Utility.generateStatementArray();
+        //if(parent.isNetworkConnected()) { statementList = Utility.generateStatementArray(); }
+        //else { statementList = Utility.generateStatementArrayOffline(); }
+
+        for(int i = 0; i < temp.size(); i++){
+            if(temp.get(i).payeeConfirm || temp.get(i).payee == ParseUser.getCurrentUser()){
+                statementList.add(temp.get(i));
+            }
+        }
     }
 
     @Override
@@ -52,10 +63,6 @@ public class ViewStatementsFragment extends Fragment {
         }
         parent.setTitle("View Statement");
 
-        statementList = Utility.generateStatementArray();
-        //if(parent.isNetworkConnected()) { statementList = Utility.generateStatementArray(); }
-        //else { statementList = Utility.generateStatementArrayOffline(); }
-
         ListView view = (ListView) rootView.findViewById(R.id.viewStatementsListView);
         adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList);
         view.setAdapter(adapter);
@@ -64,6 +71,8 @@ public class ViewStatementsFragment extends Fragment {
         TextView text = (TextView)layout.findViewById(R.id.EmptyListViewText);
         text.setText("No Statement");
         view.setEmptyView(layout);
+
+        view.setOnItemClickListener(viewItemClickListener);
 
         return rootView;
     }
@@ -114,35 +123,35 @@ public class ViewStatementsFragment extends Fragment {
                 holder.amountText = (TextView) convertView.findViewById(R.id.amount);
                 holder.statusText = (TextView) convertView.findViewById(R.id.status);
                 convertView.setTag(holder);
-            }
-            else{
+            } else {
                 holder = (ViewHolder) convertView.getTag();
             }
 
-            ParseObject target = null;
-            List<ParseObject> payer = currentItem.payer;
-            for(int i = 0; i < payer.size(); i++) try{
-                if (payer.get(i).fetch().getParseUser("payer") == ParseUser.getCurrentUser()) {
-                    target = payer.get(i).fetch();
-                    break;
+            if(!currentItem.isPayee) {
+                SubStatement target = currentItem.findPayerStatement(ParseUser.getCurrentUser());
+                if(target != null) {
+                    holder.nameText.setText(Utility.getUserName(currentItem.payee));
+                    holder.dueDateText.setText(dateFormat.format(currentItem.deadline));
+                    holder.amountText.setText("$ " + String.format("%.2f", target.payerAmount));
+                    holder.statusText.setText(target.payerConfirm ? "      " : "Required");
                 }
-            } catch (ParseException e){
-                Log.d("Fetch", e.toString());
             }
-
-            holder.nameText.setText(Utility.getUserName(currentItem.payee));
-            holder.dueDateText.setText(dateFormat.format(currentItem.deadline));
-            if(target != null){
-                Double number = target.getDouble("amount");
-                holder.amountText.setText("$ " + String.format("%.2f", number));
-                if(target.getBoolean("payerConfirm")){
-                    holder.statusText.setText("");
-                } else {
-                    holder.statusText.setText("Required");
-                }
+            else{
+                holder.nameText.setText(String.format("%s", "N/A"));
+                holder.dueDateText.setText(dateFormat.format(currentItem.deadline));
+                holder.amountText.setText("$ " + String.format("%.2f", currentItem.totalAmount));
+                holder.statusText.setText(currentItem.payeeConfirm ? "      " : "Required");
             }
 
             return convertView;
         }
     }
+
+    private AdapterView.OnItemClickListener viewItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parentView, View view, int position, long id) {
+            parent.layoutManage(INDEX_STATEMENT_SUMMARY);
+            parent.setStatementSummaryData(statementList.get(position));
+        }
+    };
 }

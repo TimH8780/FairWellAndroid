@@ -60,7 +60,7 @@ public class ResolveStatementsFragment extends Fragment {
 
         LinearLayout layout = (LinearLayout)rootView.findViewById(R.id.EmptyListView_resolve);
         TextView text = (TextView)layout.findViewById(R.id.EmptyListViewText_resolve);
-        text.setText("No Resolvable SummaryStatement");
+        text.setText("No Resolvable Statement");
         view.setEmptyView(layout);
 
         return rootView;
@@ -140,7 +140,7 @@ public class ResolveStatementsFragment extends Fragment {
                     final ScrollView input = new ScrollView(getActivity());
                     final ListView container = new ListView(getActivity());
                     input.addView(container);
-                    builder.setTitle("Resolve SummaryStatement(s) with \n<" + currentItem.name + ">");
+                    builder.setTitle("Resolve Statement(s) with \n<" + currentItem.name + ">");
                     builder.setView(input);
                     builder.setPositiveButton("Select All", new DialogInterface.OnClickListener() {
                         @Override

@@ -1,9 +1,7 @@
 package io.github.budgetninja.fairwellandroid;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
-import com.parse.GetCallback;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -12,9 +10,8 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+
 
 /**
  *Created by Tim on 11/03/15.
@@ -55,6 +52,10 @@ public class FriendObject {
         @Override
         public int compareTo(@NonNull Friend another){
             return name.compareToIgnoreCase(another.name);
+        }
+
+        public double getNetBalance(){
+            return friendOwed - currentUserOwed;
         }
 
         private void obtainPhoto(){

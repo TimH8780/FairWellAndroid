@@ -47,12 +47,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.text.DecimalFormat;
 
 import static android.app.Activity.RESULT_OK;
 import static android.os.Environment.isExternalStorageRemovable;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_ADD_STATEMENT;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_RESOLVE_STATEMENT;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_VIEW_STATEMENT;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.BALANCE;
 import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 
@@ -70,8 +72,10 @@ public class HomepageFragment extends Fragment {
     private boolean mDiskCacheStarting = true;
     public static final String DISK_CACHE_SUBDIR = "images";
 
+    private TextView balanceView;
     private ParseUser user;
     private ContentActivity parent;
+    private DecimalFormat format;
     private Uri photoUri;
     private int DPI;
     private int PIXEL_PHOTO;
@@ -87,6 +91,7 @@ public class HomepageFragment extends Fragment {
         setHasOptionsMenu(true);
         user = ParseUser.getCurrentUser();
         parent = (ContentActivity)getActivity();
+        format = new DecimalFormat("$#,###,###,##0.00;- $#,###,###,##0.00");
 
         // Get max available VM memory, exceeding this capacity will throw an
         // OutOfMemory exception. Stored in kilobytes as LruCache takes an
@@ -119,6 +124,17 @@ public class HomepageFragment extends Fragment {
             actionBar.setHomeAsUpIndicator(R.drawable.nav_icon);
         }
         parent.setTitle("FairWell");
+
+/*        try {
+            TextView balanceView = (TextView) view.findViewById(R.id.homepage_balance);
+            double balance = user.getParseObject("newEntry").fetch().getDouble("balance");
+            balanceView.setText(format.format(balance));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }*/
+
+        balanceView = (TextView) view.findViewById(R.id.homepage_balance);
+        balanceView.setText(format.format(BALANCE));
 
         //3 Buttons Functions
         Button addStatementButton = (Button) view.findViewById(R.id.addStatementButton);
@@ -214,6 +230,10 @@ public class HomepageFragment extends Fragment {
                 }
             });
         }
+    }
+
+    protected void setBalance(){
+        balanceView.setText(format.format(BALANCE));
     }
 
     public static Bitmap bitmapCompress(Bitmap b, int rate){

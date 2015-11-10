@@ -1,6 +1,7 @@
 package io.github.budgetninja.fairwellandroid;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 
 import com.parse.FindCallback;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
@@ -125,7 +127,6 @@ public class Utility {
             changedRecordFriend = false;
             Log.d("Friend", "Generating-End");
         }
-
         return pFriendList;
     }
 
@@ -186,6 +187,17 @@ public class Utility {
         return searchPosition(pos, end, item);
     }
 
+    private static int searchPosition(int start, int end, Statement item){
+        int pos = (start + end)/2;
+        if(pos == start){
+            return item.compareTo(pStatementList.get(start)) < 0 ? start : end;
+        }
+        if(item.compareTo(pStatementList.get(pos)) < 0){
+            return searchPosition(start, pos, item);
+        }
+        return searchPosition(pos, end, item);
+    }
+
     public static void removeFromExistingFriendList(Friend item){
         if(pFriendList != null){
             ParseObject object = getRawListLocation();
@@ -197,7 +209,10 @@ public class Utility {
         }
     }
 
-    public static void resetExistingFriendList(){ pFriendList = null; }
+    public static void resetExistingList(){
+        pFriendList = null;
+        pStatementList = null;
+    }
 
     public static void setChangedRecord(){
         changedRecordFriend = true;
@@ -206,7 +221,7 @@ public class Utility {
 
     public static boolean checkNewEntryField(){
         try {
-            return ParseUser.getCurrentUser().fetch().getParseObject("newEntry").fetch().getBoolean("newEntry");
+            return ParseUser.getCurrentUser().getParseObject("newEntry").fetch().getBoolean("newEntry");
         }catch (ParseException|NullPointerException e) {
             Log.d("getRawListLocation", "Not exist");
             return true;
@@ -268,7 +283,12 @@ public class Utility {
         return (int)(ctx.getResources().getDisplayMetrics().density*160f);
     }
 
-    public static void generateRawStatementList(ParseUser user){
+    public static int getPixel(int desiredDp, Resources resources){
+        float scale = resources.getDisplayMetrics().density;
+        return  (int) (desiredDp * scale + 0.5f);
+    }
+
+    public static void generateRawStatementList(final ParseUser user){      //May have problem here,
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Statement");
         query.whereEqualTo("payer", user);
         query.findInBackground(new FindCallback<ParseObject>() {
@@ -276,15 +296,19 @@ public class Utility {
             public void done(List<ParseObject> list, ParseException e) {
                 List<ParseObject> result = new ArrayList<>();
                 ParseObject temp = getRawListLocation();
-                if(e == null) {
+                if(e == null) try{
                     ParseQuery<ParseObject> query;
-                    for (int i = 0; i < list.size(); i++) try{
+                    for (int i = 0; i < list.size(); i++){
                         query = ParseQuery.getQuery("StatementGroup");
                         query.whereEqualTo("payer", list.get(i));
                         result.add(query.getFirst());
-                    } catch (ParseException e1){
-                        Log.d("RawStatementList", e1.toString());
                     }
+                    query = ParseQuery.getQuery("StatementGroup");
+                    query.whereEqualTo("payee", user);
+                    result.addAll(query.find());
+                    editNewEntryField(ParseUser.getCurrentUser(), false);
+                } catch (ParseException e1){
+                    Log.d("RawStatementList", e1.toString());
                 }
                 if(temp != null){
                     temp.put("statementList", result);
@@ -303,6 +327,8 @@ public class Utility {
             List<Statement> statementList = new ArrayList<>();
             List<ParseObject> rawList = getRawListLocation().getList("statementList");
 
+            boolean isPayee = false;
+            boolean payeeConfirm;
             String description, category, submitBy;
             Date date, deadline;
             int mode, unknown;
@@ -310,6 +336,13 @@ public class Utility {
             List<ParseObject> list;
             for (int i = 0; i < rawList.size(); i++) try{
                 ParseObject object = rawList.get(i).fetch();
+                if(!isPayee) {
+                    if (object.getParseUser("payee") == ParseUser.getCurrentUser()) {
+                        Log.d("StatementArray", "Switch");
+                        isPayee = true;
+                    }
+                }
+                payeeConfirm = object.getBoolean("payeeConfirm");
                 description = object.getString("description");
                 category = object.getString("category");
                 submitBy = object.getString("submittedBy");
@@ -320,9 +353,8 @@ public class Utility {
                 unknownAmount = object.getDouble("unknownAmount");
                 totalAmount = object.getDouble("paymentAmount");
                 list = object.getList("payer");
-
-                Statement statement = new Statement(description, category, date, deadline, mode, unknown, unknownAmount, totalAmount, submitBy,
-                        object.getParseUser("payee"), list);
+                Statement statement = new Statement(object, payeeConfirm, description, category, date, deadline, mode, unknown, unknownAmount, totalAmount,
+                        submitBy, object.getParseUser("payee"), list, isPayee);
                 statementList.add(statement);
             } catch (ParseException e) {
                 Log.d("Fetch", e.getMessage());
@@ -333,6 +365,14 @@ public class Utility {
             Log.d("Statement", "Generating-End");
         }
         return pStatementList;
+    }
+
+    public static void addToExistingStatementList(Statement newItem){
+        if(pStatementList != null){
+            int pos = searchPosition(0, pStatementList.size(), newItem);
+            pStatementList.add(pos, newItem);
+            Log.d("SubmitStatement", "Add Statement: " + Integer.toString(pos));
+        }
     }
 
 }

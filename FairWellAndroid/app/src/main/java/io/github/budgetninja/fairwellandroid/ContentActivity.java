@@ -34,6 +34,7 @@ import android.widget.Toast;
 
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -41,6 +42,9 @@ import net.simonvt.menudrawer.MenuDrawer;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
+import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
 
 public class ContentActivity extends AppCompatActivity{
 
@@ -57,7 +61,9 @@ public class ContentActivity extends AppCompatActivity{
     public static final int INDEX_VIEW_STATEMENT = 11;
     public static final int INDEX_ADD_STATEMENT = 12;
     public static final int INDEX_RESOLVE_STATEMENT = 13;
-    public static final int INDEX_STATEMENT_SUMMARY = 14;
+    public static final int INDEX_SUBMIT_STATEMENT_SUMMARY = 14;
+    public static final int INDEX_STATEMENT_SUMMARY = 15;
+    public static double BALANCE = 0.00;
 
     protected MenuDrawer mMenuDrawer;
     private int mActivePosition = -1;
@@ -75,18 +81,33 @@ public class ContentActivity extends AppCompatActivity{
         connectMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         fragMgr = getSupportFragmentManager();
         user = ParseUser.getCurrentUser();
+
+        Toast.makeText(getApplicationContext(), "Loading Data...", Toast.LENGTH_LONG).show();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     if (isNetworkConnected()) {
-                        Utility.generateRawStatementList(user);
-                        Utility.generateRawFriendList(user);
                         Utility.generateStatementArray();
-                        Utility.generateFriendArray();
+                        List<FriendObject.Friend> temp = Utility.generateFriendArray();
+                        Double runningSum = 0.0;
+                        for(int i = 0; i < temp.size(); i++){
+                            runningSum += temp.get(i).getNetBalance();
+                        }
+                        BALANCE = runningSum;
                     } else {
                         Utility.generateFriendArrayOffline();
                     }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            HomepageFragment child = (HomepageFragment) getSupportFragmentManager().findFragmentByTag("Home");
+                            if(child != null) {
+                                child.setBalance();
+                            }
+                            Toast.makeText(getApplication().getApplicationContext(), "Data Loaded", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }catch (NullPointerException e){
                     Log.d("Thread", e.toString());
                 }
@@ -185,7 +206,8 @@ public class ContentActivity extends AppCompatActivity{
 
         new Handler().postDelayed(new Runnable() {
             @Override
-            public void run() { doubleBackToExitPressedOnce = false;
+            public void run() {
+                doubleBackToExitPressedOnce = false;
             }
         }, 2000);
     }
@@ -259,6 +281,10 @@ public class ContentActivity extends AppCompatActivity{
                 fragTrans.replace(R.id.container, new ResolveStatementsFragment(), "Resolve").addToBackStack("Resolve");
                 break;
 
+            case INDEX_SUBMIT_STATEMENT_SUMMARY:
+                fragTrans.replace(R.id.container, new SubmitStatementSummaryFragment(), "Summary").addToBackStack("Summary");
+                break;
+
             case INDEX_STATEMENT_SUMMARY:
                 fragTrans.replace(R.id.container, new StatementSummaryFragment(), "Summary").addToBackStack("Summary");
                 break;
@@ -267,13 +293,19 @@ public class ContentActivity extends AppCompatActivity{
         fragMgr.executePendingTransactions();
     }
 
-    protected void setStatementData(StatementObject.SummaryStatement data){
-        StatementSummaryFragment child = (StatementSummaryFragment) getSupportFragmentManager().findFragmentByTag("Summary");
+    protected void setSubmitStatementSummaryData(SummaryStatement data){
+        SubmitStatementSummaryFragment child = (SubmitStatementSummaryFragment) getSupportFragmentManager().findFragmentByTag("Summary");
         if(child != null) {
             child.setData(data);
         }
     }
 
+    protected void setStatementSummaryData(Statement data){
+        StatementSummaryFragment child = (StatementSummaryFragment) getSupportFragmentManager().findFragmentByTag("Summary");
+        if(child != null) {
+            child.setData(data);
+        }
+    }
 
     protected boolean isNetworkConnected(){
         NetworkInfo networkInfo = connectMgr.getActiveNetworkInfo();
@@ -287,12 +319,19 @@ public class ContentActivity extends AppCompatActivity{
                 while(true) try {
                     SystemClock.sleep(20000);
                     if(isNetworkConnected()) {
+                        Log.d("Run", "Start");
                         if (Utility.checkNewEntryField()) {
+                            Log.d("Run", "Update");
                             Utility.generateRawStatementList(user);
                             Utility.generateRawFriendList(user);
                             Utility.setChangedRecord();
                             Utility.generateStatementArray();
-                            Utility.generateFriendArray();
+                            List<FriendObject.Friend> temp = Utility.generateFriendArray();
+                            Double runningSum = 0.0;
+                            for(int i = 0; i < temp.size(); i++){
+                                runningSum += temp.get(i).getNetBalance();
+                            }
+                            BALANCE = runningSum;
                         }
                     }
                 } catch (NullPointerException e){
@@ -403,7 +442,7 @@ public class ContentActivity extends AppCompatActivity{
                             if (e == null) {
                                 Intent intent = new Intent(ContentActivity.this, MainActivity.class);
                                 ContentActivity.this.finish();
-                                Utility.resetExistingFriendList();
+                                Utility.resetExistingList();
                                 Utility.setChangedRecord();
                                 startActivity(intent);
                             } else {

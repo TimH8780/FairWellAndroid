@@ -1,10 +1,8 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
-import android.os.Bundle;
-import android.util.Log;
-import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -16,49 +14,42 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
-import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
-import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
-import static io.github.budgetninja.fairwellandroid.ContentActivity.POSITION_HOME;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Locale;
+
+import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
+import io.github.budgetninja.fairwellandroid.StatementObject.SubStatement;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_EQUALLY;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.BY_PERCENTAGE;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.BY_RATIO;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+/**
+ *Created by Tim on 11/09/15.
+ */
+public class StatementSummaryFragment extends Fragment{
 
-public class StatementSummaryFragment extends Fragment {
-
-    private View previousState;
+    private TextView descriptionView, categoryView, dateView, deadlineView, totalAmountView, modeView, sumbitByView;
+    private TextView payeeField, amountField;
+    private Button confirmButton;
+    private TableLayout layout;
     private DateFormat dateFormat;
+    private Statement data;
     private ParseUser user;
     private ContentActivity parent;
-    private String descriptionText, categoryText, dateText, deadlineText, sumbitByText;
-    private Date date, deadline;
-    private int mode, unknown;
-    private double amount, runningDif;
-    private Friend payee;
-    private List<Pair<Friend, Double>> payer;
-    private TextView descriptionView, categoryView, dateView, deadlineView, totalAmountView, modeView, sumbitByView;
-    private TableLayout layout;
+    private View previousState;
 
     @Override
     public void onCreate(Bundle bundle){
         super.onCreate(bundle);
         setHasOptionsMenu(true);
         parent = (ContentActivity)getActivity();
-        user = ParseUser.getCurrentUser();
         dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
+        user = ParseUser.getCurrentUser();
         previousState = null;
-        runningDif = 0.00;
     }
 
     @Override
@@ -68,7 +59,7 @@ public class StatementSummaryFragment extends Fragment {
             actionBar.setHomeAsUpIndicator(null);
         }
         parent.setTitle("Summary");
-        if(previousState != null){
+        if (previousState != null) {
             return previousState;
         }
 
@@ -80,27 +71,17 @@ public class StatementSummaryFragment extends Fragment {
         totalAmountView = (TextView) view.findViewById(R.id.summary_totalAmount);
         modeView = (TextView) view.findViewById(R.id.summary_mode);
         sumbitByView = (TextView) view.findViewById(R.id.summary_submitBy);
+        payeeField = (TextView) view.findViewById(R.id.summary_payee_subtitle);
+        amountField = (TextView) view.findViewById(R.id.summary_amount_subtitle);
         layout = (TableLayout) view.findViewById(R.id.summary_tableLayout);
+        confirmButton = (Button) view.findViewById(R.id.summary_confirmButton);
         Button cancelButton = (Button) view.findViewById(R.id.summary_cancelButton);
+        cancelButton.setVisibility(View.GONE);
         Button modifyButton = (Button) view.findViewById(R.id.summary_modifyButton);
+        modifyButton.setVisibility(View.GONE);
         Button submitButton = (Button) view.findViewById(R.id.summary_submitButton);
+        submitButton.setVisibility(View.GONE);
 
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                parent.layoutManage(POSITION_HOME);
-            }
-        });
-
-        modifyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                parent.mMenuDrawer.closeMenu(false);
-                parent.fragMgr.popBackStack();
-            }
-        });
-
-        submitButton.setOnClickListener(submitListener);
         previousState = view;
         return view;
     }
@@ -117,177 +98,136 @@ public class StatementSummaryFragment extends Fragment {
         }
     }
 
-    public void setData(SummaryStatement data){
-        descriptionText = data.description;
-        categoryText = data.category;
-        date = data.date;
-        dateText = dateFormat.format(date);
-        deadline = data.deadline;
-        deadlineText = dateFormat.format(deadline);
-        sumbitByText = data.submitBy;
-        mode = data.mode;
-        unknown = data.unknown;
-        amount = data.totalAmount;
-        this.payee = data.payee;
-        this.payer = data.payer;
+    public void setData(Statement data){
+        this.data = data;
         displayData();
     }
 
     private void displayData(){
-        descriptionView.setText(descriptionText);
-        categoryView.setText(categoryText);
-        dateView.setText(dateText);
-        deadlineView.setText(deadlineText);
-        totalAmountView.setText("$ " + String.format("%.2f", this.amount));
-        modeView.setText(Integer.toString(mode));
-        sumbitByView.setText(sumbitByText);
-        String payeeName;
-        if(this.payee == null){ payeeName = Utility.getUserName(ParseUser.getCurrentUser()); }
-        else { payeeName = this.payee.name; }
-
-        TableRow memberRow;
-        TextView payee, payer, amount;
-        runningDif = this.amount;
-        switch (mode){
+        descriptionView.setText(data.description);
+        categoryView.setText(data.category);
+        dateView.setText(dateFormat.format(data.date));
+        deadlineView.setText(dateFormat.format(data.deadline));
+        totalAmountView.setText("$ " + String.format("%.2f", data.totalAmount));
+        switch (data.mode){
             case SPLIT_EQUALLY:
                 modeView.setText("Split Equally");
-
-                for(int i = 0; i < this.payer.size(); i++){
-                    String payerName = this.payer.get(i).first.name;
-                    memberRow = new TableRow(parent);
-                    memberRow.setPadding(0, 0, 0, getPixel(2));
-
-                    payee = new TextView(parent);
-                    payee.setGravity(Gravity.CENTER);
-                    payee.setText(payeeName);
-
-                    payer = new TextView(parent);
-                    payer.setGravity(Gravity.CENTER);
-                    payer.setText(payerName.equals("Self") ? Utility.getUserName(user) : payerName);
-
-                    amount = new TextView(parent);
-                    amount.setGravity(Gravity.CENTER);
-                    amount.setText("$ " + String.format("%.2f", this.payer.get(i).second));
-                    runningDif -= this.payer.get(i).second;
-
-                    memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    memberRow.addView(payee, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    layout.addView(memberRow);
-                }
-                if(unknown > 0 && runningDif > 0.00){
-                    String entry = "(" + Integer.toString(unknown) + " Unknown)";
-                    memberRow = new TableRow(parent);
-                    memberRow.setPadding(0, 0, 0, getPixel(2));
-
-                    payee = new TextView(parent);
-                    payee.setGravity(Gravity.CENTER);
-                    payee.setText(payeeName);
-
-                    payer = new TextView(parent);
-                    payer.setGravity(Gravity.CENTER);
-                    payer.setText(entry);
-
-                    amount = new TextView(parent);
-                    amount.setGravity(Gravity.CENTER);
-                    amount.setText("$ " + String.format("%.2f", runningDif));
-
-                    memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    memberRow.addView(payee, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    layout.addView(memberRow);
-                }
                 break;
-
             case BY_PERCENTAGE:
                 modeView.setText("By Percentage");
-                Toast.makeText(parent, "Coming Soon! - Use Split Equally", Toast.LENGTH_SHORT).show();
                 break;
-
             case BY_RATIO:
                 modeView.setText("By Ratio");
-                Toast.makeText(parent, "Coming Soon! - Use Split Equally", Toast.LENGTH_SHORT).show();
                 break;
+        }
+        sumbitByView.setText(data.submitBy);
+        if(data.isPayee){
+            displayDataPayee();
+        } else {
+            displayDataPayer();
         }
     }
 
-    private int getPixel(int desiredDp){
-        float scale = getResources().getDisplayMetrics().density;
-        return  (int) (desiredDp * scale + 0.5f);
-    }
+    private void displayDataPayer(){
+        final SubStatement subStatement = data.findPayerStatement(user);
+        TableRow memberRow = new TableRow(parent);
+        memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
 
-    private View.OnClickListener submitListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            ParseObject object = new ParseObject("StatementGroup");
+        TextView payee = new TextView(parent);
+        payee.setGravity(Gravity.CENTER);
+        payee.setText(subStatement.payerName);
 
-            if(payee == null){      //submitter == payee
-                object.put("payee", user);
-                object.put("payeeConfirm", true);
-            } else {
-                object = payee.insertParseUser(object, "payee");
-                payee.notifyChange();
-                object.put("payeeConfirm", false);
-            }
-            object.put("description", descriptionText);
-            object.put("category", categoryText);
-            object.put("paymentAmount", amount);
-            object.put("submittedBy", sumbitByText);
-            object.put("mode", mode);
-            object.put("date", date);
-            object.put("deadline", deadline);
-            object.put("unknown", unknown);
-            object.put("unknownAmount", runningDif);
+        TextView payer = new TextView(parent);
+        payer.setGravity(Gravity.CENTER);
+        payer.setText(Utility.getUserName(data.payee));
 
-            ArrayList<ParseObject> statementArray = new ArrayList<>();
-            for(int i = 0; i < payer.size(); i++){
-                Pair<Friend, Double> item = payer.get(i);           //the Friend object of payer i
-                if(item.first.name.equals("Self") && payee == null) {
-                    continue;
-                }
-                else if(!item.first.name.equals("Self") && payee != null) {
-                    if(item.first.isEqual(payee)) { continue; }
-                }
+        TextView amount = new TextView(parent);
+        amount.setGravity(Gravity.CENTER);
+        amount.setText("$ " + String.format("%.2f", subStatement.payerAmount));
 
-                ParseObject statementObject = new ParseObject("Statement");
-                if(item.first.name.equals("Self") && payee != null) {
-                    statementObject = payee.insertFriendship(statementObject, "friendship");
-                    payee.setPendingStatement();
-                    Utility.editNewEntryField(user, true);
-                    statementObject.put("payer", user);
-                    statementObject.put("payerConfirm", false);
-                    statementObject.put("amount", item.second);
-                    statementArray.add(statementObject);
-                } else {
-                    if (payee != null) {
-                        ParseObject temp = payee.generateFriendToFriendRelationship(item.first);
-                        statementObject.put("friendship", temp);
-                    } else {
-                        statementObject = item.first.insertFriendship(statementObject, "friendship");
-                    }
-                    statementObject = item.first.insertParseUser(statementObject, "payer");
-                    item.first.notifyChange();
-                    item.first.setPendingStatement();
-                    statementObject.put("payerConfirm", false);
-                    statementObject.put("amount", item.second);
-                    statementArray.add(statementObject);
-                }
-            }
+        memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        memberRow.addView(payee, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layout.addView(memberRow);
 
-            object.put("payer", statementArray);
-            object.saveInBackground(new SaveCallback() {
+        if(subStatement.payerConfirm){
+            confirmButton.setVisibility(View.GONE);
+        } else {
+            confirmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void done(ParseException e) {
-                    if(e == null){
-                        Toast.makeText(parent, "Submitted", Toast.LENGTH_SHORT).show();
-                        parent.layoutManage(POSITION_HOME);
-                    } else {
-                        Toast.makeText(parent, "Submission Failed", Toast.LENGTH_SHORT).show();
-                        Log.d("Statement", e.toString());
-                    }
+                public void onClick(View v) {
+                    Toast.makeText(parent, "Processing...", Toast.LENGTH_SHORT).show();
+                    subStatement.setPayerConfirm(parent);
+                    confirmButton.setVisibility(View.GONE);
+                    parent.fragMgr.popBackStack();
                 }
             });
         }
-    };
+    }
 
+    private void displayDataPayee(){
+        payeeField.setText("Amount");
+        amountField.setText("Status");
+        TableRow memberRow;
+        TextView payer, amount, status;
+        for(int i = 0; i < data.payerList.size(); i++){
+            SubStatement item = data.payerList.get(i);
+            memberRow = new TableRow(parent);
+            memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
+
+            payer = new TextView(parent);
+            payer.setGravity(Gravity.CENTER);
+            payer.setText(item.payerName);
+
+            amount = new TextView(parent);
+            amount.setGravity(Gravity.CENTER);
+            amount.setText("$ " + String.format("%.2f", item.payerAmount));
+
+            status = new TextView(parent);
+            if(!item.payerConfirm){
+                status.setGravity(Gravity.CENTER);
+                status.setText("Pending");
+            }
+
+            memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            memberRow.addView(status, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layout.addView(memberRow);
+        }
+
+        if(data.unknown > 0){
+            memberRow = new TableRow(parent);
+            memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
+
+            payer = new TextView(parent);
+            payer.setGravity(Gravity.CENTER);
+            payer.setText("(" + Integer.toString(data.unknown) + " Unknown)");
+
+            amount = new TextView(parent);
+            amount.setGravity(Gravity.CENTER);
+            amount.setText("$ " + String.format("%.2f", data.unknownAmount));
+
+            status = new TextView(parent);
+            status.setGravity(Gravity.CENTER);
+            status.setText("N/A");
+
+            memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            memberRow.addView(status, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layout.addView(memberRow);
+        }
+
+        if(data.payeeConfirm){
+            confirmButton.setVisibility(View.GONE);
+        } else {
+            confirmButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    data.setPayeeConfirm();
+                    confirmButton.setVisibility(View.GONE);
+                    parent.fragMgr.popBackStack();
+                }
+            });
+        }
+    }
 }

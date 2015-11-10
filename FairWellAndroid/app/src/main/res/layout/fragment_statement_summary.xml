@@ -195,6 +195,7 @@
                     android:textStyle="bold"
                     android:textColor="@color/purple"/>
                 <TextView
+                    android:id="@+id/summary_payee_subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Payee"
@@ -204,6 +205,7 @@
                     android:textStyle="bold"
                     android:textColor="@color/purple"/>
                 <TextView
+                    android:id="@+id/summary_amount_subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Amount"
@@ -219,20 +221,20 @@
 
         </TableLayout>
 
-        <LinearLayout
+        <RelativeLayout
+            android:id="@+id/button_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:paddingBottom="50dp"
-            android:orientation="horizontal">
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="50dp">
 
             <Button
                 android:id="@+id/summary_cancelButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="4dp"
-                android:layout_marginLeft="4dp"
-                android:layout_weight="1"
+                android:layout_alignParentLeft="true"
                 android:backgroundTint="@color/buttonDark"
                 android:background="@color/buttonMedium"
                 android:textColor="@color/textLight"
@@ -244,9 +246,7 @@
                 android:id="@+id/summary_modifyButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="4dp"
-                android:layout_marginLeft="4dp"
-                android:layout_weight="1"
+                android:layout_centerInParent="true"
                 android:backgroundTint="@color/buttonDark"
                 android:background="@color/buttonMedium"
                 android:textColor="@color/textLight"
@@ -258,9 +258,7 @@
                 android:id="@+id/summary_submitButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="4dp"
-                android:layout_marginLeft="4dp"
-                android:layout_weight="1"
+                android:layout_alignParentRight="true"
                 android:backgroundTint="@color/buttonDark"
                 android:background="@color/buttonMedium"
                 android:textColor="@color/textLight"
@@ -268,7 +266,18 @@
                 android:textStyle="bold"
                 android:textSize="18sp" />
 
-        </LinearLayout>
+            <Button
+                android:id="@+id/summary_confirmButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/buttonDark"
+                android:background="@color/buttonMedium"
+                android:textColor="@color/textLight"
+                android:text="Confirm Statement"
+                android:textStyle="bold"
+                android:textSize="18sp" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 
