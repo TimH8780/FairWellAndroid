@@ -88,13 +88,15 @@ public class ContentActivity extends AppCompatActivity{
             public void run() {
                 try {
                     if (isNetworkConnected()) {
-                        Utility.generateStatementArray();
-                        List<FriendObject.Friend> temp = Utility.generateFriendArray();
-                        Double runningSum = 0.0;
-                        for(int i = 0; i < temp.size(); i++){
-                            runningSum += temp.get(i).getNetBalance();
-                        }
-                        BALANCE = runningSum;
+                        Utility.generateRawStatementList(user);
+                        Utility.generateRawFriendList(user);
+                        //Utility.generateStatementArray();
+                        //List<FriendObject.Friend> temp = Utility.generateFriendArray();
+                        //Double runningSum = 0.0;
+                        //for(int i = 0; i < temp.size(); i++){
+                        //    runningSum += temp.get(i).getNetBalance();
+                        //}
+                        //BALANCE = runningSum;
                     } else {
                         Utility.generateFriendArrayOffline();
                     }
@@ -312,26 +314,33 @@ public class ContentActivity extends AppCompatActivity{
         return (networkInfo != null && networkInfo.isConnected());
     }
 
-    private void checkForUpdate(){        //Run by other Thread, run every 20 seconds
+    private void checkForUpdate(){        //Run by other Thread, run every 15 seconds
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while(true) try {
-                    SystemClock.sleep(20000);
+                    SystemClock.sleep(15000);
                     if(isNetworkConnected()) {
                         Log.d("Run", "Start");
                         if (Utility.checkNewEntryField()) {
                             Log.d("Run", "Update");
                             Utility.generateRawStatementList(user);
                             Utility.generateRawFriendList(user);
-                            Utility.setChangedRecord();
-                            Utility.generateStatementArray();
-                            List<FriendObject.Friend> temp = Utility.generateFriendArray();
-                            Double runningSum = 0.0;
-                            for(int i = 0; i < temp.size(); i++){
-                                runningSum += temp.get(i).getNetBalance();
-                            }
-                            BALANCE = runningSum;
+                            //Utility.setChangedRecord();
+                            //Utility.generateStatementArray();
+                            //List<FriendObject.Friend> temp = Utility.generateFriendArray();
+                            //Double runningSum = 0.0;
+                            //for(int i = 0; i < temp.size(); i++){
+                            //    runningSum += temp.get(i).getNetBalance();
+                            //}
+                            //BALANCE = runningSum;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    HomepageFragment child = (HomepageFragment) getSupportFragmentManager().findFragmentByTag("Home");
+                                    if(child != null) { child.setBalance(); }
+                                }
+                            });
                         }
                     }
                 } catch (NullPointerException e){

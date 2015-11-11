@@ -34,7 +34,7 @@ public class StatementSummaryFragment extends Fragment{
 
     private TextView descriptionView, categoryView, dateView, deadlineView, totalAmountView, modeView, sumbitByView;
     private TextView payeeField, amountField;
-    private Button confirmButton;
+    private Button confirmButton, rejectButton;
     private TableLayout layout;
     private DateFormat dateFormat;
     private Statement data;
@@ -75,6 +75,7 @@ public class StatementSummaryFragment extends Fragment{
         amountField = (TextView) view.findViewById(R.id.summary_amount_subtitle);
         layout = (TableLayout) view.findViewById(R.id.summary_tableLayout);
         confirmButton = (Button) view.findViewById(R.id.summary_confirmButton);
+        rejectButton = (Button) view.findViewById(R.id.summary_rejectButton);
         Button cancelButton = (Button) view.findViewById(R.id.summary_cancelButton);
         cancelButton.setVisibility(View.GONE);
         Button modifyButton = (Button) view.findViewById(R.id.summary_modifyButton);
@@ -152,6 +153,7 @@ public class StatementSummaryFragment extends Fragment{
 
         if(subStatement.payerConfirm){
             confirmButton.setVisibility(View.GONE);
+            rejectButton.setVisibility(View.GONE);
         } else {
             confirmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -159,7 +161,15 @@ public class StatementSummaryFragment extends Fragment{
                     Toast.makeText(parent, "Processing...", Toast.LENGTH_SHORT).show();
                     subStatement.setPayerConfirm(parent);
                     confirmButton.setVisibility(View.GONE);
+                    rejectButton.setVisibility(View.GONE);
                     parent.fragMgr.popBackStack();
+                }
+            });
+
+            rejectButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(parent, "Not Function yet", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -184,9 +194,11 @@ public class StatementSummaryFragment extends Fragment{
             amount.setText("$ " + String.format("%.2f", item.payerAmount));
 
             status = new TextView(parent);
+            status.setGravity(Gravity.CENTER);
             if(!item.payerConfirm){
-                status.setGravity(Gravity.CENTER);
                 status.setText("Pending");
+            } else {
+                status.setText("Confirmed");
             }
 
             memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -219,13 +231,22 @@ public class StatementSummaryFragment extends Fragment{
 
         if(data.payeeConfirm){
             confirmButton.setVisibility(View.GONE);
+            rejectButton.setVisibility(View.GONE);
         } else {
             confirmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     data.setPayeeConfirm();
                     confirmButton.setVisibility(View.GONE);
+                    rejectButton.setVisibility(View.GONE);
                     parent.fragMgr.popBackStack();
+                }
+            });
+
+            rejectButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(parent, "Not Function yet", Toast.LENGTH_SHORT).show();
                 }
             });
         }

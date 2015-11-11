@@ -266,16 +266,38 @@
                 android:textStyle="bold"
                 android:textSize="18sp" />
 
-            <Button
-                android:id="@+id/summary_confirmButton"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/buttonDark"
-                android:background="@color/buttonMedium"
-                android:textColor="@color/textLight"
-                android:text="Confirm Statement"
-                android:textStyle="bold"
-                android:textSize="18sp" />
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/summary_confirmButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/buttonDark"
+                    android:background="@color/buttonMedium"
+                    android:textColor="@color/textLight"
+                    android:text="Confirm Statement"
+                    android:layout_marginRight="5dp"
+                    android:textStyle="bold"
+                    android:textSize="18sp" />
+
+                <Button
+                    android:id="@+id/summary_rejectButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/buttonDark"
+                    android:background="@color/buttonMedium"
+                    android:textColor="@color/textLight"
+                    android:text="Reject Statement"
+                    android:layout_marginLeft="5dp"
+                    android:textStyle="bold"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
 
         </RelativeLayout>
 

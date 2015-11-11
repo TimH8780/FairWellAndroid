@@ -89,6 +89,8 @@ public class SubmitStatementSummaryFragment extends Fragment {
         Button submitButton = (Button) view.findViewById(R.id.summary_submitButton);
         Button confirmButton = (Button) view.findViewById(R.id.summary_confirmButton);
         confirmButton.setVisibility(View.GONE);
+        Button rejectButton = (Button) view.findViewById(R.id.summary_rejectButton);
+        rejectButton.setVisibility(View.GONE);
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -286,6 +288,9 @@ public class SubmitStatementSummaryFragment extends Fragment {
                         parent.layoutManage(POSITION_HOME);
                         if(isCurrentUserInvolved.first){
                             Statement statement = new Statement(object, isCurrentUserInvolved.second);
+                            ParseObject temp = Utility.getRawListLocation();
+                            temp.getList("statementList").add(object);
+                            temp.pinInBackground();
                             Utility.addToExistingStatementList(statement);
                         }
                     } else {

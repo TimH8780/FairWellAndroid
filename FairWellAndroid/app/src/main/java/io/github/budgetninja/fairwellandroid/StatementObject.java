@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -83,6 +84,7 @@ public class StatementObject {
         }
 
         public Statement(ParseObject object, boolean isPayee){
+            this.object = object;
             payee = object.getParseUser("payee");
             payer = object.getList("payer");
             getPayer();
@@ -183,12 +185,20 @@ public class StatementObject {
                         Log.d("Balance", "Start");
                         object.put("payerConfirm", true);
                         object.saveInBackground();
-                        //payerRelation.put("pendingStatement", false);
-                        //payerRelation.saveInBackground();
-                        Log.d("Balance", "Continue");
+                        Log.d("Balance", "Continue_1");
 
+                        ParseQuery query = ParseQuery.getQuery("Statement");
+                        query.whereEqualTo("payerConfirm", false);
+                        query.whereEqualTo("friendship", payerRelation);
+                        int counter = query.count();
+                        if(counter == 0) {
+                            payerRelation.put("pendingStatement", false);
+                        }
+                        Log.d("Balance", "Continue_2");
+
+                        double currentBalance;
                         if (payerRelation.getParseUser("userOne") == payer) {
-                            double currentBalance = payerRelation.fetch().getDouble("owedByOne");
+                            currentBalance = payerRelation.fetch().getDouble("owedByOne");
                             currentBalance += payerAmount;
                             payerRelation.put("owedByOne", currentBalance);
                             payerRelation.saveInBackground(new SaveCallback() {
@@ -199,7 +209,7 @@ public class StatementObject {
                                 }
                             });
                         } else {
-                            double currentBalance = payerRelation.fetch().getDouble("owedByTwo");
+                            currentBalance = payerRelation.fetch().getDouble("owedByTwo");
                             currentBalance += payerAmount;
                             payerRelation.put("owedByTwo", currentBalance);
                             payerRelation.saveInBackground(new SaveCallback() {
@@ -210,10 +220,12 @@ public class StatementObject {
                                 }
                             });
                         }
+                        Log.d("Balance", "Continue_3");
 
                         BALANCE -= payerAmount;
+                        Utility.editNewEntryField(payee, true);
+                        Log.d("Balance", "End");
 
-                        Log.d("Balance", "Code End");
                         context.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

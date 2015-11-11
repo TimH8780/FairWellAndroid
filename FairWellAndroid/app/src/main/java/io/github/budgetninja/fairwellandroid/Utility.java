@@ -19,6 +19,7 @@ import java.util.Objects;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.BALANCE;
 
 /**
  *Created by Issac on 9/23/2015.
@@ -78,6 +79,14 @@ public class Utility {
                         temp.put("list", list);
                         temp.pinInBackground();
                         editNewEntryField(ParseUser.getCurrentUser(), false);
+
+                        Utility.setChangedRecord();
+                        List<FriendObject.Friend> tempB = Utility.generateFriendArray();
+                        Double runningSum = 0.0;
+                        for(int i = 0; i < tempB.size(); i++){
+                            runningSum += tempB.get(i).getNetBalance();
+                        }
+                        BALANCE = runningSum;
                     }
                 }
             }
@@ -177,6 +186,9 @@ public class Utility {
     }
 
     private static int searchPosition(int start, int end, Friend item){
+        if(end == 0){
+            return 0;
+        }
         int pos = (start + end)/2;
         if(pos == start){
             return item.compareTo(pFriendList.get(start)) < 0 ? start : end;
@@ -188,6 +200,9 @@ public class Utility {
     }
 
     private static int searchPosition(int start, int end, Statement item){
+        if(end == 0){
+            return 0;
+        }
         int pos = (start + end)/2;
         if(pos == start){
             return item.compareTo(pStatementList.get(start)) < 0 ? start : end;
@@ -229,13 +244,15 @@ public class Utility {
     }
 
     public static void editNewEntryField(ParseUser user, final boolean newResult){
-        user.getParseObject("newEntry").fetchIfNeededInBackground(new GetCallback<ParseObject>() {
-            @Override
-            public void done(ParseObject parseObject, ParseException e) {
-                parseObject.put("newEntry", newResult);
-                parseObject.saveInBackground();
-            }
-        });
+        if(user != null) {
+            user.getParseObject("newEntry").fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                @Override
+                public void done(ParseObject parseObject, ParseException e) {
+                    parseObject.put("newEntry", newResult);
+                    parseObject.saveInBackground();
+                }
+            });
+        }
     }
 
     public static ParseObject getRawListLocation(){
@@ -313,6 +330,8 @@ public class Utility {
                 if(temp != null){
                     temp.put("statementList", result);
                     temp.pinInBackground();
+                    Utility.setChangedRecord();
+                    Utility.generateStatementArray();
                 }
             }
         });

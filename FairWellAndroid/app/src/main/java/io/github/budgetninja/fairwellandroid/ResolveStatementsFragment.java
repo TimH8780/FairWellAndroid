@@ -21,6 +21,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
@@ -50,9 +51,17 @@ public class ResolveStatementsFragment extends Fragment {
         }
         parent.setTitle("Resolve Statement");
 
-        List<Friend> friendList;
-        if(parent.isNetworkConnected()) { friendList = Utility.generateFriendArray(); }
-        else { friendList = Utility.generateFriendArrayOffline(); }
+        List<Friend> friendList, temp;
+        friendList = new ArrayList<>();
+        if(parent.isNetworkConnected()) { temp = Utility.generateFriendArray(); }
+        else { temp = Utility.generateFriendArrayOffline(); }
+
+        for(int i = 0; i < temp.size(); i++){
+            Friend item = temp.get(i);
+            if(item.friendOwed > 0 || item.currentUserOwed > 0){
+                friendList.add(item);
+            }
+        }
 
         ListView view = (ListView) rootView.findViewById(R.id.ResolveStatementsListView);
         ResolveStatementAdaptor adapter = new ResolveStatementAdaptor(getActivity(), R.layout.item_resolve_statements, friendList);
