@@ -11,6 +11,7 @@
     <string name="home">Home</string>
     <string name="features">Features</string>
     <string name="friends">Friend List</string>
+    <string name="dashboard">Dashboard</string>
     <string name="add_friend">Add Friend</string>
     <string name="remove_friend">Remove Friend</string>
     <string name="smart_solve">Smart Solve!</string>
@@ -495,4 +496,7 @@
     <!-- The messsage shown on progress dialog when deleting images -->
     <string name="delete_images_message">Deleting images\u2026</string>
     <string name="summary"><u>Statement Summary</u></string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

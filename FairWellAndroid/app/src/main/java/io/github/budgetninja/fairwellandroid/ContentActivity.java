@@ -52,17 +52,18 @@ public class ContentActivity extends AppCompatActivity{
     private static final String STATE_CONTENT_TEXT = "net.simonvt.menudrawer.samples.ContentActivity.contentText";
     public static final int POSITION_HOME = 0;
     private static final int POSITION_FRIENDS = 2;
-    private static final int POSITION_SMART_SOLVE = 3;
-    private static final int POSITION_ACCOUNT_SETTING = 5;
-    private static final int POSITION_NOTIFICATION_SETTING = 6;
-    private static final int POSITION_RATE_THIS_APP = 8;
-    private static final int POSITION_ABOUT_US = 9;
-    private static final int POSITION_LOGOUT = 10;
-    public static final int INDEX_VIEW_STATEMENT = 11;
-    public static final int INDEX_ADD_STATEMENT = 12;
-    public static final int INDEX_RESOLVE_STATEMENT = 13;
-    public static final int INDEX_SUBMIT_STATEMENT_SUMMARY = 14;
-    public static final int INDEX_STATEMENT_SUMMARY = 15;
+    private static final int POSITION_DASHBOARD = 3;
+    private static final int POSITION_SMART_SOLVE = 4;
+    private static final int POSITION_ACCOUNT_SETTING = 6;
+    private static final int POSITION_NOTIFICATION_SETTING = 7;
+    private static final int POSITION_RATE_THIS_APP = 9;
+    private static final int POSITION_ABOUT_US = 10;
+    private static final int POSITION_LOGOUT = 11;
+    public static final int INDEX_VIEW_STATEMENT = 12;
+    public static final int INDEX_ADD_STATEMENT = 13;
+    public static final int INDEX_RESOLVE_STATEMENT = 14;
+    public static final int INDEX_SUBMIT_STATEMENT_SUMMARY = 15;
+    public static final int INDEX_STATEMENT_SUMMARY = 16;
     public static double BALANCE = 0.00;
 
     protected MenuDrawer mMenuDrawer;
@@ -137,6 +138,7 @@ public class ContentActivity extends AppCompatActivity{
         items.add(new Item(getString(R.string.home), R.drawable.ic_action_select_all_dark));
         items.add(new Category(getString(R.string.features)));
         items.add(new Item(getString(R.string.friends), R.drawable.ic_action_select_all_dark));
+        items.add(new Item(getString(R.string.dashboard), R.drawable.ic_action_select_all_dark));
         items.add(new Item(getString(R.string.smart_solve), R.drawable.ic_action_select_all_dark));
         items.add(new Category(getString(R.string.setting)));
         items.add(new Item(getString(R.string.account_setting), R.drawable.ic_action_select_all_dark));
@@ -237,6 +239,15 @@ public class ContentActivity extends AppCompatActivity{
                 }
                 fragMgr.popBackStack("Home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 fragTrans.replace(R.id.container, new HomepageFragment(), "Home").addToBackStack("Home");
+                break;
+
+            case POSITION_DASHBOARD:
+                fragment = fragMgr.findFragmentByTag("Dashboard");
+                if(fragment != null){
+                    if(fragment.isVisible()) { break; }
+                }
+                fragMgr.popBackStack("Dashboard", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                fragTrans.replace(R.id.container, new DashboardFragment(), "Dashboard").addToBackStack("Dashboard");
                 break;
 
             case POSITION_FRIENDS:
@@ -405,6 +416,10 @@ public class ContentActivity extends AppCompatActivity{
 
             switch(position) {
                 case POSITION_HOME:
+                    layoutManage(position);
+                    break;
+
+                case POSITION_DASHBOARD:
                     layoutManage(position);
                     break;
 
