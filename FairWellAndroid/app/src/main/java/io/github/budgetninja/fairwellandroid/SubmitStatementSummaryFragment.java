@@ -7,6 +7,8 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +41,14 @@ import java.util.Locale;
 public class SubmitStatementSummaryFragment extends Fragment {
 
     private View previousState;
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        MenuItem item = menu.findItem(R.id.action_refresh);
+        item.setVisible(false);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
     private DateFormat dateFormat;
     private ParseUser user;
     private ContentActivity parent;

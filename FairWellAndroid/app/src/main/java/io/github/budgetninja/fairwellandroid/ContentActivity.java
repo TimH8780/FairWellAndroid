@@ -2,12 +2,14 @@ package io.github.budgetninja.fairwellandroid;
 
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,13 +21,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
@@ -40,6 +46,8 @@ import com.parse.SaveCallback;
 
 import net.simonvt.menudrawer.MenuDrawer;
 
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,6 +138,9 @@ public class ContentActivity extends AppCompatActivity{
             mActivePosition = inState.getInt(STATE_ACTIVE_POSITION);
             mContentText = inState.getString(STATE_CONTENT_TEXT);
         }
+
+
+
         mMenuDrawer = MenuDrawer.attach(this, MenuDrawer.MENU_DRAG_CONTENT);
         mMenuDrawer.setContentView(R.layout.activity_container);
         mMenuDrawer.setTouchMode(MenuDrawer.TOUCH_MODE_FULLSCREEN);
@@ -182,12 +193,26 @@ public class ContentActivity extends AppCompatActivity{
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        return false;
+
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        // We should save our menu so we can use it to reset our updater.
+        //mymenu = menu;
+
+        //
+        return true;
     }
 
     //MUST not put anything function for id equal to android.R.id.home or R.id.action_add_friend,
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch(item.getItemId()) {
+            case R.id.action_refresh:
+                BackgroundTask task = new BackgroundTask(ContentActivity.this);
+                task.execute();
+                return true;
+        }
         return false;
     }
 
@@ -564,4 +589,46 @@ public class ContentActivity extends AppCompatActivity{
             return v;
         }
     }
+
+
+
+
+
+    private class BackgroundTask extends AsyncTask <Void, Void, Void> {
+        private ProgressDialog dialog;
+
+        public BackgroundTask(ContentActivity activity) {
+            dialog = new ProgressDialog(activity);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog.setMessage("Updating data, please wait...");
+            dialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+                Toast.makeText(getApplicationContext(), "Data is updated!", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+
+
+    }
+
+
 }

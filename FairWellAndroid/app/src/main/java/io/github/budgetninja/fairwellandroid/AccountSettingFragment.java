@@ -5,12 +5,21 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 
 public class AccountSettingFragment extends PreferenceFragmentCompat {
 
     private ContentActivity parent;
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        MenuItem item = menu.findItem(R.id.action_refresh);
+        item.setVisible(false);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
     @Override
     public void onCreatePreferences(Bundle bundle, String s) {

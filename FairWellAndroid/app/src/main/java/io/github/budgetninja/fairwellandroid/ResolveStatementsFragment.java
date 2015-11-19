@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,14 @@ public class ResolveStatementsFragment extends Fragment {
 
     private static final int IMAGE_WIDTH_HEIGHT = 90;
     private ContentActivity parent;
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        MenuItem item = menu.findItem(R.id.action_refresh);
+        item.setVisible(false);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
     @Override
     public void onCreate(Bundle bundle){

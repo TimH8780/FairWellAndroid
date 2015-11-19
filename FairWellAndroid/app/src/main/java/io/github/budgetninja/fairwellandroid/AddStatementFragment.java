@@ -21,6 +21,8 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,6 +92,13 @@ public class AddStatementFragment extends Fragment {
     public static final int BY_PERCENTAGE = 1;
     public static final int BY_RATIO = 2;
 
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        MenuItem item = menu.findItem(R.id.action_refresh);
+        item.setVisible(false);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
     @Override
     public void onCreate(Bundle bundle) {

@@ -5,6 +5,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +43,13 @@ public class StatementSummaryFragment extends Fragment{
     private ParseUser user;
     private ContentActivity parent;
     private View previousState;
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        MenuItem item = menu.findItem(R.id.action_refresh);
+        item.setVisible(false);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
     @Override
     public void onCreate(Bundle bundle){

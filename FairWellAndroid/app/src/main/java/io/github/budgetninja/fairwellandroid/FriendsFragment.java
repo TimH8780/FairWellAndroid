@@ -88,6 +88,12 @@ public class FriendsFragment extends Fragment{
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        //hide refresh button
+        MenuItem item = menu.findItem(R.id.action_refresh);
+        item.setVisible(false);
+
+
         inflater.inflate(R.menu.menu_friend, menu);
 
         // search box in friend activity's action bar

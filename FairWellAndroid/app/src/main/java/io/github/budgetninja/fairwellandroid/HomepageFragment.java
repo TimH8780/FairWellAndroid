@@ -123,7 +123,7 @@ public class HomepageFragment extends Fragment {
         if(actionBar != null) {
             actionBar.setHomeAsUpIndicator(R.drawable.nav_icon);
         }
-        parent.setTitle("FairWell");
+        parent.setTitle("Fairwell");
 
 /*        try {
             TextView balanceView = (TextView) view.findViewById(R.id.homepage_balance);

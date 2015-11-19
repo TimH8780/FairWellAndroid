@@ -3,6 +3,8 @@ package io.github.budgetninja.fairwellandroid;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 public class NotificationSettingFragment extends PreferenceFragmentCompat {
@@ -21,6 +23,13 @@ public class NotificationSettingFragment extends PreferenceFragmentCompat {
         }
         parent.setTitle("Notification Setting");
 
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        MenuItem item = menu.findItem(R.id.action_refresh);
+        item.setVisible(false);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
