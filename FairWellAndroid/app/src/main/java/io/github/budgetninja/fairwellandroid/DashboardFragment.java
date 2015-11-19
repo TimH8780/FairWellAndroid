@@ -7,8 +7,10 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
 import android.util.Pair;
@@ -39,6 +41,7 @@ import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 public class DashboardFragment extends Fragment {
 
+    private SwipeRefreshLayout swipeContainer;
     private ListView listView;
     private ParseUser user;
     private ContentActivity parent;
@@ -50,6 +53,7 @@ public class DashboardFragment extends Fragment {
         setHasOptionsMenu(true);
         user = ParseUser.getCurrentUser();
         parent = (ContentActivity)getActivity();
+
     }
 
     @Override
@@ -60,6 +64,38 @@ public class DashboardFragment extends Fragment {
             actionBar.setHomeAsUpIndicator(null);
         }
         parent.setTitle("Dashboard Activity");
+
+        swipeContainer = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeContainer);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+
+
+                swipeContainer.setRefreshing(true);
+                ( new Handler()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        swipeContainer.setRefreshing(false);
+                        Toast.makeText(getContext(), "List has been refreshed!", Toast.LENGTH_SHORT).show();
+                    }
+                }, 3000);
+
+
+
+
+
+            }
+        });
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
+
 
         listView = (ListView) rootView.findViewById(R.id.dashboardlistview);
 
@@ -98,6 +134,8 @@ public class DashboardFragment extends Fragment {
 
         return rootView;
     }
+
+
 
 
 
