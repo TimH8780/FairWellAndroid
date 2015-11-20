@@ -1,42 +1,23 @@
 package io.github.budgetninja.fairwellandroid;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.SearchView;
-import android.util.Pair;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Filter;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.ParseUser;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
+import io.github.budgetninja.fairwellandroid.ContentActivity.UpdateInBackground;
 
 
 public class DashboardFragment extends Fragment {
@@ -73,7 +54,6 @@ public class DashboardFragment extends Fragment {
                 // Make sure you call swipeContainer.setRefreshing(false)
                 // once the network request has completed successfully.
 
-
                 swipeContainer.setRefreshing(true);
                 ( new Handler()).postDelayed(new Runnable() {
                     @Override
@@ -82,20 +62,14 @@ public class DashboardFragment extends Fragment {
                         Toast.makeText(getContext(), "List has been refreshed!", Toast.LENGTH_SHORT).show();
                     }
                 }, 3000);
-
-
-
-
-
             }
         });
+
         // Configure the refreshing colors
         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-
-
 
         listView = (ListView) rootView.findViewById(R.id.dashboardlistview);
 
@@ -135,11 +109,6 @@ public class DashboardFragment extends Fragment {
         return rootView;
     }
 
-
-
-
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -149,6 +118,11 @@ public class DashboardFragment extends Fragment {
             parent.fragMgr.popBackStack();
             return true;
         }
+        if(id == R.id.action_refresh){
+            Toast.makeText(parent,"Not functional yet", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

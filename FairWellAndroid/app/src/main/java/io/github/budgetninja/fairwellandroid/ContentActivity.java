@@ -21,35 +21,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.camera.Util;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import net.simonvt.menudrawer.MenuDrawer;
 
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
@@ -78,6 +74,7 @@ public class ContentActivity extends AppCompatActivity{
     private int mActivePosition = -1;
     private String mContentText;
     boolean doubleBackToExitPressedOnce = false;
+    CheckForUpdate checkForUpdate;
 
     protected ConnectivityManager connectMgr;
     protected FragmentManager fragMgr;
@@ -90,53 +87,6 @@ public class ContentActivity extends AppCompatActivity{
         connectMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         fragMgr = getSupportFragmentManager();
         user = ParseUser.getCurrentUser();
-
-
-        // ISSAC - use Asyntask to accomplish the work?
-
-
-        Toast.makeText(getApplicationContext(), "Loading Data...", Toast.LENGTH_LONG).show();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-
-
-                    if (isNetworkConnected()) {
-                        Utility.generateRawStatementList(user);
-                        Utility.generateRawFriendList(user);
-                        //Utility.generateStatementArray();
-                        //List<FriendObject.Friend> temp = Utility.generateFriendArray();
-                        //Double runningSum = 0.0;
-                        //for(int i = 0; i < temp.size(); i++){
-                        //    runningSum += temp.get(i).getNetBalance();
-                        //}
-                        //BALANCE = runningSum;
-                    } else {
-                        Utility.generateFriendArrayOffline();
-                    }
-
-
-                    //TIM : What is this for?
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            HomepageFragment child = (HomepageFragment) getSupportFragmentManager().findFragmentByTag("Home");
-                            if(child != null) {
-                                child.setBalance();
-                            }
-                            Toast.makeText(getApplication().getApplicationContext(), "Data Loaded", Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-                }catch (NullPointerException e){
-                    Log.d("Thread", e.toString());
-                }
-            }
-        }).start();
-
-
 
         //ActionBar
         if(getSupportActionBar() != null) {
@@ -151,8 +101,6 @@ public class ContentActivity extends AppCompatActivity{
             mActivePosition = inState.getInt(STATE_ACTIVE_POSITION);
             mContentText = inState.getString(STATE_CONTENT_TEXT);
         }
-
-
 
         mMenuDrawer = MenuDrawer.attach(this, MenuDrawer.MENU_DRAG_CONTENT);
         mMenuDrawer.setContentView(R.layout.activity_container);
@@ -193,8 +141,12 @@ public class ContentActivity extends AppCompatActivity{
             }
         }
 
-        checkForUpdate();
         layoutManage(POSITION_HOME);
+
+        checkForUpdate = new CheckForUpdate();
+        UpdateInBackground task = new UpdateInBackground(ContentActivity.this);
+        task.execute();
+        new Thread(checkForUpdate).start();
     }
 
     @Override
@@ -206,26 +158,17 @@ public class ContentActivity extends AppCompatActivity{
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         // We should save our menu so we can use it to reset our updater.
-        //mymenu = menu;
+        // mymenu = menu;
 
-        //
         return true;
     }
 
     //MUST not put anything function for id equal to android.R.id.home or R.id.action_add_friend,
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch(item.getItemId()) {
-            case R.id.action_refresh:
-                BackgroundTask task = new BackgroundTask(ContentActivity.this);
-                task.execute();
-                return true;
-        }
         return false;
     }
 
@@ -244,7 +187,7 @@ public class ContentActivity extends AppCompatActivity{
             startActivity(a);
         }
         this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Click BACK again to exit", Toast.LENGTH_SHORT).show();
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -361,43 +304,6 @@ public class ContentActivity extends AppCompatActivity{
     protected boolean isNetworkConnected(){
         NetworkInfo networkInfo = connectMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
-    }
-
-    private void checkForUpdate(){        //Run by other Thread, run every 15 seconds
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true) try {
-                    SystemClock.sleep(15000);
-                    if(isNetworkConnected()) {
-                        Log.d("Run", "Start");
-                        if (Utility.checkNewEntryField()) {
-                            Log.d("Run", "Update");
-                            Utility.generateRawStatementList(user);
-                            Utility.generateRawFriendList(user);
-                            //Utility.setChangedRecord();
-                            //Utility.generateStatementArray();
-                            //List<FriendObject.Friend> temp = Utility.generateFriendArray();
-                            //Double runningSum = 0.0;
-                            //for(int i = 0; i < temp.size(); i++){
-                            //    runningSum += temp.get(i).getNetBalance();
-                            //}
-                            //BALANCE = runningSum;
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    HomepageFragment child = (HomepageFragment) getSupportFragmentManager().findFragmentByTag("Home");
-                                    if(child != null) { child.setBalance(); }
-                                }
-                            });
-                        }
-                    }
-                } catch (NullPointerException e){
-                    Log.d("Thread", "Exit now");
-                    return;
-                }
-            }
-        }).start();
     }
 
     private void setEmailFacebookTwitterUser(){
@@ -603,47 +509,101 @@ public class ContentActivity extends AppCompatActivity{
         }
     }
 
-
-
-
-
-    private class BackgroundTask extends AsyncTask <Void, Void, Void> {
+    protected class UpdateInBackground extends AsyncTask <Void, Void, Void> {
         private ProgressDialog dialog;
 
-        public BackgroundTask(ContentActivity activity) {
+        public UpdateInBackground(ContentActivity activity) {
             dialog = new ProgressDialog(activity);
         }
 
         @Override
         protected void onPreExecute() {
-            dialog.setMessage("Updating data, please wait...");
+            dialog.setMessage("Loading Data... Please Wait...");
             dialog.show();
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            if (dialog.isShowing()) {
-                dialog.dismiss();
-                Toast.makeText(getApplicationContext(), "Data is updated!", Toast.LENGTH_SHORT).show();
-            }
+            checkForUpdate.pause();
         }
 
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
+                if (isNetworkConnected()) {
+                    Utility.generateRawStatementList(user);
+                    Utility.generateRawFriendList(user);
+                } else{
+                    Utility.generateFriendArrayOffline();
+                }
+            } catch (NullPointerException e) {
                 e.printStackTrace();
             }
-
             return null;
         }
 
-
-
+        @Override
+        protected void onPostExecute(Void result) {
+            HomepageFragment child = (HomepageFragment) getSupportFragmentManager().findFragmentByTag("Home");
+            if(child != null) {
+                child.setBalance();
+            }
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+                Toast.makeText(getApplicationContext(), "Data is updated!", Toast.LENGTH_SHORT).show();
+            }
+            checkForUpdate.resume();
+        }
     }
 
+    private class CheckForUpdate implements Runnable{
+        private Object pauseLock;
+        private boolean paused;
 
+        public CheckForUpdate() {
+            pauseLock = new Object();
+            paused = false;
+        }
 
+        @Override
+        public void run() {
+           while(true) try{
+               SystemClock.sleep(60000);
+               Log.d("Update", "Start");
+               if(Utility.checkNewEntryField()){
+                   isOnPause();
+                   Utility.generateRawStatementList(user);
+                   isOnPause();
+                   Utility.generateRawFriendList(user);
+               }
+           } catch (NullPointerException e){
+               e.getStackTrace();
+               break;
+           }
+        }
 
+        public void pause(){
+            synchronized (pauseLock) {
+                Log.d("Update", "Paused");
+                paused = true;
+            }
+        }
+
+        public void resume(){
+            synchronized (pauseLock) {
+                Log.d("Update", "Resumed");
+                paused = false;
+                pauseLock.notifyAll();
+            }
+        }
+
+        private void isOnPause(){
+            synchronized (pauseLock) {
+                while (paused) {
+                    try {
+                        pauseLock.wait();
+                    } catch (InterruptedException e) {
+                        e.getStackTrace();
+                    }
+                }
+            }
+        }
+
+    }
 }

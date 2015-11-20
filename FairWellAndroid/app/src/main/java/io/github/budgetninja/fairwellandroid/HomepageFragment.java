@@ -187,6 +187,12 @@ public class HomepageFragment extends Fragment {
             case android.R.id.home:
                 parent.mMenuDrawer.toggleMenu();
                 return true;
+
+            case R.id.action_refresh:
+                ContentActivity.UpdateInBackground task = parent.new UpdateInBackground(parent);
+                task.execute();
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

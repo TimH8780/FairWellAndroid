@@ -70,27 +70,25 @@ public class Utility {
         List<ParseQuery<ParseObject>> list = new ArrayList<>();
         list.add(queryA);
         list.add(queryB);
-        ParseQuery.or(list).findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> list, ParseException e) {
-                if (e == null) {
-                    ParseObject temp = getRawListLocation();
-                    if(temp != null) {
-                        temp.put("list", list);
-                        temp.pinInBackground();
-                        editNewEntryField(ParseUser.getCurrentUser(), false);
+        try{
+            List<ParseObject> rawList = ParseQuery.or(list).find();
+            ParseObject temp = getRawListLocation();
+            if (temp != null) {
+                temp.put("list", rawList);
+                temp.pinInBackground();
+                editNewEntryField(ParseUser.getCurrentUser(), false);
 
-                        Utility.setChangedRecord();
-                        List<FriendObject.Friend> tempB = Utility.generateFriendArray();
-                        Double runningSum = 0.0;
-                        for(int i = 0; i < tempB.size(); i++){
-                            runningSum += tempB.get(i).getNetBalance();
-                        }
-                        BALANCE = runningSum;
-                    }
+                Utility.setChangedRecord();
+                List<FriendObject.Friend> tempB = Utility.generateFriendArray();
+                Double runningSum = 0.0;
+                for (int i = 0; i < tempB.size(); i++) {
+                    runningSum += tempB.get(i).getNetBalance();
                 }
+                BALANCE = runningSum;
             }
-        });
+        } catch (ParseException e){
+            Log.d("RawFriendList", e.getMessage());
+        }
     }
 
     private static List<Friend> pFriendList = null;
@@ -305,36 +303,36 @@ public class Utility {
         return  (int) (desiredDp * scale + 0.5f);
     }
 
-    public static void generateRawStatementList(final ParseUser user){      //May have problem here,
+    public static void generateRawStatementList(final ParseUser user){
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Statement");
         query.whereEqualTo("payer", user);
-        query.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> list, ParseException e) {
-                List<ParseObject> result = new ArrayList<>();
-                ParseObject temp = getRawListLocation();
-                if(e == null) try{
-                    ParseQuery<ParseObject> query;
-                    for (int i = 0; i < list.size(); i++){
-                        query = ParseQuery.getQuery("StatementGroup");
-                        query.whereEqualTo("payer", list.get(i));
-                        result.add(query.getFirst());
-                    }
-                    query = ParseQuery.getQuery("StatementGroup");
-                    query.whereEqualTo("payee", user);
-                    result.addAll(query.find());
-                    editNewEntryField(ParseUser.getCurrentUser(), false);
-                } catch (ParseException e1){
-                    Log.d("RawStatementList", e1.toString());
+        try{
+            List<ParseObject> list = query.find();
+            List<ParseObject> result = new ArrayList<>();
+            ParseObject temp = getRawListLocation();
+            try{
+                ParseQuery<ParseObject> queryB;
+                for (int i = 0; i < list.size(); i++){
+                    queryB = ParseQuery.getQuery("StatementGroup");
+                    queryB.whereEqualTo("payer", list.get(i));
+                    result.add(queryB.getFirst());
                 }
-                if(temp != null){
-                    temp.put("statementList", result);
-                    temp.pinInBackground();
-                    Utility.setChangedRecord();
-                    Utility.generateStatementArray();
-                }
+                queryB = ParseQuery.getQuery("StatementGroup");
+                queryB.whereEqualTo("payee", user);
+                result.addAll(queryB.find());
+                editNewEntryField(ParseUser.getCurrentUser(), false);
+            } catch (ParseException e1){
+                Log.d("RawStatementList", e1.toString());
             }
-        });
+            if(temp != null){
+                temp.put("statementList", result);
+                temp.pinInBackground();
+                Utility.setChangedRecord();
+                Utility.generateStatementArray();
+            }
+        } catch (ParseException e){
+            Log.d("RawStatementList", e.toString());
+        }
     }
 
     private static List<Statement> pStatementList = null;
