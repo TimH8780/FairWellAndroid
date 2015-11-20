@@ -66,7 +66,7 @@ public class FriendsFragment extends Fragment{
         View rootView = inflater.inflate(R.layout.fragment_friend, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
-            actionBar.setHomeAsUpIndicator(null);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
         }
         parent.setTitle("Friend");
 
@@ -131,7 +131,7 @@ public class FriendsFragment extends Fragment{
         SearchView mSearchView = (SearchView) MenuItemCompat.getActionView(searchViewMenuItem);
         int searchImgId = android.support.v7.appcompat.R.id.search_button;
         ImageView v = (ImageView) mSearchView.findViewById(searchImgId);
-        v.setImageResource(R.drawable.search_small);
+        v.setImageResource(R.drawable.ic_search_white);
     }
 
     @Override

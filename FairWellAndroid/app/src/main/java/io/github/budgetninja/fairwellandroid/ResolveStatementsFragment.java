@@ -57,7 +57,7 @@ public class ResolveStatementsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_resolve_statements, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
-            actionBar.setHomeAsUpIndicator(null);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
         }
         parent.setTitle("Resolve Statement");
 

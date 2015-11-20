@@ -65,7 +65,7 @@ public class StatementSummaryFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ActionBar actionBar = parent.getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(null);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
         }
         parent.setTitle("Summary");
         if (previousState != null) {

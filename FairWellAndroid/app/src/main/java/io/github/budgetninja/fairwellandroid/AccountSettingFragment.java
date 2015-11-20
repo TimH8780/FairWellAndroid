@@ -3,43 +3,53 @@ package io.github.budgetninja.fairwellandroid;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.parse.ParseUser;
 
 
-public class AccountSettingFragment extends PreferenceFragmentCompat {
+public class AccountSettingFragment extends Fragment {
 
+    private ParseUser user;
     private ContentActivity parent;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        user = ParseUser.getCurrentUser();
+        parent = (ContentActivity)getActivity();
+        setHasOptionsMenu(true);
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         MenuItem item = menu.findItem(R.id.action_refresh);
         item.setVisible(false);
+        inflater.inflate(R.menu.menu_setting, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    @Override
-    public void onCreatePreferences(Bundle bundle, String s) {
-        addPreferencesFromResource(R.xml.activity_account_setting);
-        setHasOptionsMenu(true);
 
-        parent = (ContentActivity)getActivity();
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        View rootView = inflater.inflate(R.layout.fragment_account_setting, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
-            actionBar.setHomeAsUpIndicator(null);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
         }
         parent.setTitle("Account Setting");
 
-        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(parent.getBaseContext());
-
-        String strUserName = SP.getString("username", "NA");
-        String strPassword = SP.getString("password", "NA");
-        boolean notification = SP.getBoolean("notification", false);
-        String ringtone = SP.getString("ringtone", "1");
-
+        return rootView;
     }
 
     @Override

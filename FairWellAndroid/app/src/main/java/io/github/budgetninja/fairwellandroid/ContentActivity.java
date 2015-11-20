@@ -91,11 +91,18 @@ public class ContentActivity extends AppCompatActivity{
         fragMgr = getSupportFragmentManager();
         user = ParseUser.getCurrentUser();
 
+
+        // ISSAC - use Asyntask to accomplish the work?
+
+
         Toast.makeText(getApplicationContext(), "Loading Data...", Toast.LENGTH_LONG).show();
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+
+
                     if (isNetworkConnected()) {
                         Utility.generateRawStatementList(user);
                         Utility.generateRawFriendList(user);
@@ -109,6 +116,9 @@ public class ContentActivity extends AppCompatActivity{
                     } else {
                         Utility.generateFriendArrayOffline();
                     }
+
+
+                    //TIM : What is this for?
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -117,6 +127,7 @@ public class ContentActivity extends AppCompatActivity{
                                 child.setBalance();
                             }
                             Toast.makeText(getApplication().getApplicationContext(), "Data Loaded", Toast.LENGTH_SHORT).show();
+
                         }
                     });
                 }catch (NullPointerException e){
@@ -124,6 +135,8 @@ public class ContentActivity extends AppCompatActivity{
                 }
             }
         }).start();
+
+
 
         //ActionBar
         if(getSupportActionBar() != null) {
@@ -146,18 +159,18 @@ public class ContentActivity extends AppCompatActivity{
         mMenuDrawer.setTouchMode(MenuDrawer.TOUCH_MODE_FULLSCREEN);
 
         List<Object> items = new ArrayList<>();
-        items.add(new Item(getString(R.string.home), R.drawable.ic_action_select_all_dark));
+        items.add(new Item(getString(R.string.home), R.drawable.ic_home_small));
         items.add(new Category(getString(R.string.features)));
-        items.add(new Item(getString(R.string.friends), R.drawable.ic_action_select_all_dark));
-        items.add(new Item(getString(R.string.dashboard), R.drawable.ic_action_select_all_dark));
-        items.add(new Item(getString(R.string.smart_solve), R.drawable.ic_action_select_all_dark));
+        items.add(new Item(getString(R.string.friends), R.drawable.ic_people_small));
+        items.add(new Item(getString(R.string.dashboard), R.drawable.ic_dashboard_small));
+        items.add(new Item(getString(R.string.smart_solve), R.drawable.ic_smart_small));
         items.add(new Category(getString(R.string.setting)));
-        items.add(new Item(getString(R.string.account_setting), R.drawable.ic_action_select_all_dark));
-        items.add(new Item(getString(R.string.notification_setting), R.drawable.ic_action_select_all_dark));
+        items.add(new Item(getString(R.string.account_setting), R.drawable.ic_settings_small));
+        items.add(new Item(getString(R.string.notification_setting), R.drawable.ic_notifications_small));
         items.add(new Category(getString(R.string.others)));
-        items.add(new Item(getString(R.string.rate_this_app), R.drawable.ic_action_select_all_dark));
-        items.add(new Item(getString(R.string.about_us), R.drawable.ic_action_select_all_dark));
-        items.add(new Item(getString(R.string.logout), R.drawable.ic_action_select_all_dark));
+        items.add(new Item(getString(R.string.rate_this_app), R.drawable.ic_thumb_up_small));
+        items.add(new Item(getString(R.string.about_us), R.drawable.ic_face_small));
+        items.add(new Item(getString(R.string.logout), R.drawable.ic_exit_small));
 
         ListView mList = new ListView(this);
         MenuAdapter mAdapter = new MenuAdapter(items);
@@ -629,6 +642,8 @@ public class ContentActivity extends AppCompatActivity{
 
 
     }
+
+
 
 
 }

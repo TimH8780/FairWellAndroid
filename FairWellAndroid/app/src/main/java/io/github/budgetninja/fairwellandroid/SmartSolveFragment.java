@@ -26,7 +26,7 @@ public class SmartSolveFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_smart_solve, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(null);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
         }
         parent.setTitle("Smart Solve");
 
