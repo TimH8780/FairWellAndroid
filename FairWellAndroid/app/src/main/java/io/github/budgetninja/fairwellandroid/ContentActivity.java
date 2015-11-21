@@ -384,10 +384,8 @@ public class ContentActivity extends AppCompatActivity{
                     break;
 
                 case POSITION_RATE_THIS_APP:
-                    Toast.makeText(getApplicationContext(), "Coming soon!", Toast.LENGTH_SHORT).show();
-                    break;
 
-                case POSITION_ABOUT_US:
+
                     if(!isNetworkConnected()) {
                         Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                         break;
@@ -395,8 +393,22 @@ public class ContentActivity extends AppCompatActivity{
                     Intent i = new Intent();
                     i.setAction(Intent.ACTION_VIEW);
                     i.addCategory(Intent.CATEGORY_BROWSABLE);
-                    i.setData(Uri.parse("http://budgetninja.github.io"));
+                    i.setData(Uri.parse("https://play.google.com/apps/testing/io.github.budgetninja.fairwellandroid"));
                     startActivity(i);
+
+
+                    break;
+
+                case POSITION_ABOUT_US:
+                    if(!isNetworkConnected()) {
+                        Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    Intent i2 = new Intent();
+                    i2.setAction(Intent.ACTION_VIEW);
+                    i2.addCategory(Intent.CATEGORY_BROWSABLE);
+                    i2.setData(Uri.parse("http://budgetninja.github.io"));
+                    startActivity(i2);
                     break;
 
                 case POSITION_LOGOUT:
