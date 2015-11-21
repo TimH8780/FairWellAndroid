@@ -53,7 +53,7 @@ public class LoginActivity extends Activity {
         connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
         Button loginBut = (Button) findViewById(R.id.loginButton);
-        Button registerBut = (Button) findViewById(R.id.registerButton);
+        TextView registerText = (TextView) findViewById(R.id.registerButton);
         Button facebookLoginBut = (Button) findViewById(R.id.facebookButton);
         Button twitterLoginBut = (Button) findViewById(R.id.twitterButton);
         username = (EditText) findViewById(R.id.loginUsername);
@@ -73,7 +73,7 @@ public class LoginActivity extends Activity {
         });
 
         //Register Button
-        registerBut.setOnClickListener(new View.OnClickListener() {
+        registerText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 goToRegisterPage();
