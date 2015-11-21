@@ -499,4 +499,130 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+
+
+
+
+
+
+
+<string name="eula_string"> Last updated: November 21, 2015
+
+
+
+    \n\nPlease read these Terms carefully before using Fairwell (the \"Service\" or \"Software\") operated
+    by Budget Ninja™ (\"us\", \"we\", or \"our\").
+
+    \n\nYour access to and use of the Service is conditioned on your acceptance of and compliance with these Terms.
+    These Terms apply to all users and others who access or use the Service. By accessing or using the Service you
+    agree to be bound by these Terms. If you disagree with any part of the terms then you may not access the Service.
+
+    \n\nDESCRIPTION
+
+    \n\nFairwell is a free software created to help users handle their debts with friends and family. We help to keep
+    track of your informal debts and statements by allowing users to enter the amount money they owe, the description
+    of statements and the statement\'s due date. We keep all the data on a database server and the service is provided
+    AS-IS and on an AS AVAILABLE basis.
+
+    \n\nCONDITIONS OF USE
+
+    \n\nWhile using the software provided by Budget Ninja™, you are agreed not to use it in an abused, manipulated,
+    disrupted or any other inappropriate way which is against its intended purpose, and we reserve the right to investigate
+    and let the authority get involved in such case, in compliance with laws and regulation in United States.
+
+
+    \n\nPRIVACY POLICY
+
+    \n\nWe use your Personal Information for providing and improving the Service. By using the Service, you agree to the
+    collection and use of information in accordance with this policy.
+    While using our Service, we may ask you to provide us with certain personally identifiable information that can be
+    used to contact or identify you. Personally identifiable information may include, but is not limited to, your name,
+    phone number, postal address and other information (\"Personal Information\").
+
+    We may employ third party companies and individuals to facilitate our Service, to provide the Service on our behalf,
+    to perform Service-related services or to assist us in analyzing how our Service is used.
+    These third parties have access to your Personal Information only to perform these tasks on our behalf and are obligated
+    not to disclose or use it for any other purpose.
+
+    \n\nSECURITY
+
+    \n\nThe security of your Personal Information is important to us, but remember that no method of transmission over the
+    Internet, or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect
+    your Personal Information, we cannot guarantee its absolute security.
+
+    \n\nPAYMENT OPTIONS
+
+    \n\nAt this point, we do not have payment options implemented for any of the platforms yet. In the future, we would have
+    such option and we will be updating the Terms regarding to payment options and such.
+
+    \n\nLINKS TO OTHER WEBSITES
+
+    \n\nOur software may contain links to third-party web sites or services that are not owned or controlled by Budget Ninja™.
+
+    \n\nWARRANTY
+
+    \n\nBudget Ninja™ does not guarantee that the service provided is absolute error-free. The service is provided AS IS and
+    AS AVAILABLE with no warranty and whatsoever, we disclaims any warranty and that you are using the service at your own risk.
+
+    \n\nLIABILITY
+
+    \n\nBudget Ninja™ has no control over, and assumes no responsibility for, the content, privacy policies, or practices of
+    any third party web sites or services. You further acknowledge and agree that Budget Ninja shall not be responsible or liable,
+    directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with use of or reliance
+    on any such content, goods or services available on or through any such web sites or services.
+
+    \nWe strongly advise you to read the terms of use and privacy policies of any third-party web sites or services that you use.
+
+
+
+    \n\nGOVERNING LAW
+
+    \n\nThese Terms shall be governed and construed in accordance with the laws of New York, United States, without regard to its conflict
+    of law provisions.
+    Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights. If any provision of
+    these Terms is held to be invalid or unenforceable by a court, the remaining provisions of these Terms will remain in effect. These Terms
+    constitute the entire agreement between us regarding our Service, and supersede and replace any prior agreements we might have between us
+    regarding the Service.
+
+    \n\nCHANGES
+
+    \n\nWe reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material we will try to
+    provide at least 30 days notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole
+    discretion.
+    \nBy continuing to access or use our Service after those revisions become effective, you agree to be bound by the revised terms.
+    If you do not agree to the new terms, please stop using the Service.
+
+
+
+    \n\nSPECIFIC RESTRICTIONS
+
+    \n\nThis software may not, in whole or in any part, be copied, reproduced, transmitted, translated (into any
+    language, natural or computer), stored in a retrieval system, reduced to any electronic medium or machine readable
+    format, or by any other form or means without prior consent, in writing, from Budget Ninja™.
+
+    \n\nYou are granted a limited license to use this software. The software may be used or copied only in accordance
+    with the terms of that license, which is described in the following paragraphs.
+
+    \n\nIn accordance with the COMPUTER SOFTWARE RENTAL ACT OF 1990, this software may not be rented, lent or leased.
+    \n\nThe software and accompanying documentation may not be provided by a \"Backup Service\" or any other vendor
+    which does not provide an original package as composed of Fairwell, including but not limited to all original
+    distribution media, documentation, registration cards, and insertions.
+
+    \n\nCONTACT US
+
+    \n\nIf you have any questions about these Terms, please contact us.
+
+    \n\n\nCopyright © Budget Ninja™ 2015. All rights reserved.
+
+</string>
+
+
+
+
+
+
+
+
 </resources>

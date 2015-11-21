@@ -1,11 +1,21 @@
 package io.github.budgetninja.fairwellandroid;
 
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -35,9 +45,7 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(bundle);
         setContentView(R.layout.activity_register);
 
-        Button cancelButton = (Button) findViewById(R.id.cancelRegistrationButton);
         Button confirmRegButton = (Button) findViewById(R.id.confirmRegistrationButton);
-        Button uploadButton = (Button) findViewById(R.id.uploadPic);
         firstN = (EditText) findViewById(R.id.firstName);
         lastN = (EditText) findViewById(R.id.lastName);
         userN = (EditText) findViewById(R.id.username);
@@ -48,18 +56,12 @@ public class RegisterActivity extends AppCompatActivity {
         agreement = (CheckBox) findViewById(R.id.agreeCheckBox);
         connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        if(getSupportActionBar()!=null){
-            getSupportActionBar().setTitle("Register");
+        if (getSupportActionBar()!=null){
+            getSupportActionBar().setTitle("Registration");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
         }
 
-        //Cancel Button
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
 
         //Confirm Registration Button
         confirmRegButton.setOnClickListener(new View.OnClickListener() {
@@ -118,19 +120,35 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        //Upload Photo
-        uploadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Unavailable now", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         //Term and Condition
         termCondition.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Unavailable now", Toast.LENGTH_SHORT).show();
+
+                    // EULA title
+                    String title = getString(R.string.app_name) + " Terms and Privacy";
+
+                    // EULA text
+                    String message = getString(R.string.eula_string);
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this)
+                            .setTitle(title)
+                            .setMessage(message)
+                            .setCancelable(false)
+                            .setNegativeButton("OK",null);
+
+                    builder.create().show();
+
+
+
+
+
+
+
+
+
+
             }
         });
 

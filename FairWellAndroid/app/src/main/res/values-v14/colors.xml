@@ -5,7 +5,7 @@
     <color name="coolActionBar">#4DB6AC</color>
     <color name="buttonDark">#004D40</color>
     <color name="buttonMedium">#00796B</color>
-    <color name="buttonLightMedium">#A7FFEB</color>
+    <color name="buttonLightMedium">#72d4bd</color>
     <color name="textLight">#FAFAFA</color>
 
 </resources>
