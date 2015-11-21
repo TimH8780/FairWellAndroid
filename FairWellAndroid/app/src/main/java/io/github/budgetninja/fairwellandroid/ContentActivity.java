@@ -393,7 +393,7 @@ public class ContentActivity extends AppCompatActivity{
                     Intent i = new Intent();
                     i.setAction(Intent.ACTION_VIEW);
                     i.addCategory(Intent.CATEGORY_BROWSABLE);
-                    i.setData(Uri.parse("https://play.google.com/apps/testing/io.github.budgetninja.fairwellandroid"));
+                    i.setData(Uri.parse("https://play.google.com/store/apps/details?id=io.github.budgetninja.fairwellandroid&ah=kmmwX-tUpzW2NWz-3BPS18Orv4c&hl=en-GB"));
                     startActivity(i);
 
 
