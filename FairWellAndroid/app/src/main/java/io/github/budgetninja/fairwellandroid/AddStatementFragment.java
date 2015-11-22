@@ -301,6 +301,8 @@ public class AddStatementFragment extends Fragment {
         }
     }
 
+
+
     private View.OnClickListener confirmButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {

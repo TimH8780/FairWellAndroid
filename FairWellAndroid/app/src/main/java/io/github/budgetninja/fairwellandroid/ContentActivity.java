@@ -197,17 +197,17 @@ public class ContentActivity extends AppCompatActivity{
         }, 2000);
     }
 
-//    public void iconClick(View view){
-//        String clicked = "";
-//        if(view == findViewById(R.id.icon_1)){ clicked = "Food"; }
-//        else if(view == findViewById(R.id.icon_2)){ clicked = "Movie"; }
-//        else if(view == findViewById(R.id.icon_3)){ clicked = "Travel"; }
-//        else if(view == findViewById(R.id.icon_4)){ clicked = "Grocery"; }
-//        else if(view == findViewById(R.id.icon_5)){ clicked = "Utility"; }
-//        else if(view == findViewById(R.id.icon_6)){ clicked = "Entertainment"; }
-//        else if(view == findViewById(R.id.icon_7)){ clicked = "Other"; }
-//        ((AddStatementFragment)getSupportFragmentManager().findFragmentByTag("Add")).setClickedIconText(clicked);
-//    }
+    public void iconClick(View view){
+        String clicked = "";
+        if(view == findViewById(R.id.icon_1)){ clicked = "Food"; }
+        else if(view == findViewById(R.id.icon_2)){ clicked = "Movie"; }
+        else if(view == findViewById(R.id.icon_3)){ clicked = "Travel"; }
+        else if(view == findViewById(R.id.icon_4)){ clicked = "Grocery"; }
+        else if(view == findViewById(R.id.icon_5)){ clicked = "Utility"; }
+        else if(view == findViewById(R.id.icon_6)){ clicked = "Entertainment"; }
+        else if(view == findViewById(R.id.icon_7)){ clicked = "Other"; }
+        ((AddStatementFragment)getSupportFragmentManager().findFragmentByTag("Add")).setClickedIconText(clicked);
+    }
 
     protected void layoutManage(int index){
         fragTrans = fragMgr.beginTransaction();
