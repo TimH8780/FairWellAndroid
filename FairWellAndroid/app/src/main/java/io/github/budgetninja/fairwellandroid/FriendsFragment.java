@@ -5,7 +5,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
@@ -19,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -52,6 +56,8 @@ public class FriendsFragment extends Fragment{
     private ParseUser user;
     private ContentActivity parent;
     private FriendAdaptor adapter;
+    protected FragmentManager fragMgr;
+    protected FragmentTransaction fragTrans;
 
     @Override
     public void onCreate(Bundle bundle){
@@ -59,6 +65,8 @@ public class FriendsFragment extends Fragment{
         setHasOptionsMenu(true);
         user = ParseUser.getCurrentUser();
         parent = (ContentActivity)getActivity();
+        fragMgr = getFragmentManager();
+
     }
 
     @Override
@@ -70,13 +78,35 @@ public class FriendsFragment extends Fragment{
         }
         parent.setTitle("Friend");
 
-        List<Friend> friendList;
+        final List<Friend> friendList;
         if(parent.isNetworkConnected()) { friendList = Utility.generateFriendArray(); }
         else { friendList = Utility.generateFriendArrayOffline(); }
 
         ListView view = (ListView) rootView.findViewById(R.id.friendlistview);
         adapter = new FriendAdaptor(parent, R.layout.item_friend, friendList);
         view.setAdapter(adapter);
+        view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                Toast.makeText(getContext(), friendList.get(i).name, Toast.LENGTH_SHORT).show();
+//
+                fragTrans = fragMgr.beginTransaction();
+                Fragment fragment;
+                fragment = fragMgr.findFragmentByTag("Friend_Detail");
+
+                if(fragment != null){
+                    if(fragment.isVisible()) { return; }
+                }
+
+                fragMgr.popBackStack("Friend_Detail", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                fragTrans.replace(R.id.container, new FriendDetailFragment(), "Friend_Detail").addToBackStack("Friend_Detail");
+
+                fragTrans.commit();
+                fragMgr.executePendingTransactions();
+            }
+        });
 
         LinearLayout layout = (LinearLayout) rootView.findViewById(R.id.EmptyListView);
         TextView text = (TextView)layout.findViewById(R.id.EmptyListViewText);
@@ -425,5 +455,55 @@ public class FriendsFragment extends Fragment{
                 }
             };
         }
+    }
+
+    public static class FriendDetailFragment extends Fragment {
+
+        private ParseUser user;
+        private ContentActivity parent;
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+            final View rootView = inflater.inflate(R.layout.fragment_friend_detail, container, false);
+            ActionBar actionBar = parent.getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
+            }
+            parent.setTitle("Friend Detail");
+
+            return rootView;
+
+
+        }
+
+        @Override
+        public void onCreate( Bundle savedInstanceState) {
+            user = ParseUser.getCurrentUser();
+            parent = (ContentActivity)getActivity();
+            setHasOptionsMenu(true);
+            super.onCreate(savedInstanceState);
+        }
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            MenuItem item = menu.findItem(R.id.action_refresh);
+            item.setVisible(false);
+           // inflater.inflate(R.menu.menu_setting, menu);
+            super.onCreateOptionsMenu(menu, inflater);
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            switch (item.getItemId()) {
+                case android.R.id.home:
+                    parent.mMenuDrawer.closeMenu(false);
+                    parent.fragMgr.popBackStack();
+                    return true;
+                default:
+                    return super.onOptionsItemSelected(item);
+            }
+        }
+
     }
 }

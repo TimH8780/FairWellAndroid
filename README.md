@@ -6,7 +6,7 @@ Zhen Rong Huang <zhenrong@buffalo.edu>
 <return>
 <return>
 
-###### To-do Lists for the project *(Updated on 11/20)*
+###### To-do Lists for the project *(Updated on 11/21)*
 * **Tutorial Page**
 * ~~**Login Page**~~
   * ~~Login (normal)~~
@@ -14,8 +14,8 @@ Zhen Rong Huang <zhenrong@buffalo.edu>
   * ~~Login (via Twitter)~~
   * ~~Forget password~~
 * **Registration Page**
-  * Image upload
-  * Term and conditions
+  * ~~Image upload~~ (removed)
+  * ~~Term and conditions~~
   * ~~Register~~
 * **Home Page**
   * ~~Balance Update~~
@@ -31,12 +31,13 @@ Zhen Rong Huang <zhenrong@buffalo.edu>
   * ~~Confirm firend request~~
   * ~~Reject firend request~~
   * ~~Friend info display~~
+  * Friend profile when clicked
 * **Smart Solve Page**
   * *Unknown (if time permits)*
 * **Account Setting Page**
 * **Notification Setting Page**
 * **Rate This App**
-  * Redirect to Google Play
+  * ~~Redirect to Google Play~~
 * ~~**About us**~~
   * ~~Redirect to BudgetNinja website~~
 * ~~**Logout**~~

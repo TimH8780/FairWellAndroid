@@ -8,6 +8,7 @@
     tools:context="io.github.budgetninja.fairwellandroid.ResolveStatementsFragment">
 
     <ListView
+        android:descendantFocusability="blocksDescendants"
         android:id="@+id/friendlistview"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
