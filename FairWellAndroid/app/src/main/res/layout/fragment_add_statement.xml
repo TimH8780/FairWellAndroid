@@ -154,7 +154,7 @@
                     android:layout_marginBottom="10dp"
                     android:textColor="@color/coolBackground"
                     android:drawableLeft="@drawable/ic_call_split_white_24dp"
-                    android:background="#41AAC4"
+                    android:background="@color/buttonMedium"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="PAYER AND SPLIT MODE"
@@ -207,7 +207,7 @@
                     android:textColor="@color/coolBackground"
                     android:drawableLeft="@drawable/ic_date_range_white_24dp"
 
-                    android:background="#80CEB9"
+                    android:background="@color/buttonDark"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="EVENT DATE AND DUE "
@@ -377,7 +377,7 @@
             android:id="@+id/confirmButton"
 
             android:textColor="@color/coolBackground"
-            android:background="#fca503"
+            android:background="@color/buttonLight"
             android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

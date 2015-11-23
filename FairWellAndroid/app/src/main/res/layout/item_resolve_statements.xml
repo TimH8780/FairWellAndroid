@@ -22,8 +22,8 @@
         android:textStyle="bold"
         android:background="#BDBDBD"
         android:layout_marginTop="5dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
+        android:layout_marginLeft="10dp"
+
         android:layout_toRightOf="@+id/pic_resolve"
         android:layout_below="@+id/netBalanceText_resolve" />
 

@@ -540,6 +540,7 @@ public class ContentActivity extends AppCompatActivity{
         protected void onPreExecute() {
             dialog.setMessage("Loading Data... Please Wait...");
             dialog.show();
+            //dialog.setCancelable(false);
             checkForUpdate.pause();
         }
 
