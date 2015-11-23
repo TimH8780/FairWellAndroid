@@ -6,8 +6,8 @@ Chern Yee Chua <chernyee@buffalo.edu>
 <return>
 <return>
 
-###### To-do Lists for the project *(Updated on 11/21)*
-* **Tutorial Page** https://github.com/PaoloRotolo/AppIntro
+###### To-do Lists for the project *(Updated on 11/23)*
+* **Tutorial Page** https://github.com/PaoloRotolo/AppIntro (Issac will do it)
 * ~~**Login Page**~~
   * ~~Login (normal)~~
   * ~~Login (via Facebook)~~
