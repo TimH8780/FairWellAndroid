@@ -9,11 +9,11 @@
     <color name="textLight">#FAFAFA</color>
 
     <color name="loginButton">#5016da19</color>
-    <color name="loginButtonPressed">#9916da19</color>
+    <color name="loginButtonPressed">#9016da19</color>
     <color name="facebookButton">#501633da</color>
-    <color name="facebookButtonPressed">#991633da</color>
+    <color name="facebookButtonPressed">#901633da</color>
 
     <color name="twitterButton">#50707490</color>
-    <color name="twitterButtonPressed">#99707490</color>
+    <color name="twitterButtonPressed">#90707490</color>
 
 </resources>

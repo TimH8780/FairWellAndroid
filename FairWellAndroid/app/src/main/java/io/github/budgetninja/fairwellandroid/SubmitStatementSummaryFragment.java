@@ -1,5 +1,7 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -28,7 +30,7 @@ import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.POSITION_HOME;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_EQUALLY;
-import static io.github.budgetninja.fairwellandroid.AddStatementFragment.BY_PERCENTAGE;
+import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_UNEQUALLY;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.BY_RATIO;
 
 import java.text.DateFormat;
@@ -78,7 +80,9 @@ public class SubmitStatementSummaryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ActionBar actionBar = parent.getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
+            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Summary");
         if(previousState != null){
@@ -214,13 +218,13 @@ public class SubmitStatementSummaryFragment extends Fragment {
                 }
                 break;
 
-            case BY_PERCENTAGE:
-                modeView.setText("By Percentage");
+            case SPLIT_UNEQUALLY:
+                modeView.setText("Split Unequally");
                 Toast.makeText(parent, "Coming Soon! - Use Split Equally", Toast.LENGTH_SHORT).show();
                 break;
 
             case BY_RATIO:
-                modeView.setText("By Ratio");
+                modeView.setText("Split by Ratio");
                 Toast.makeText(parent, "Coming Soon! - Use Split Equally", Toast.LENGTH_SHORT).show();
                 break;
         }

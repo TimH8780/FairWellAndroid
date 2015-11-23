@@ -1,6 +1,8 @@
 package io.github.budgetninja.fairwellandroid;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -68,7 +70,9 @@ public class ViewStatementsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_view_statements, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
+            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("View Statement");
 

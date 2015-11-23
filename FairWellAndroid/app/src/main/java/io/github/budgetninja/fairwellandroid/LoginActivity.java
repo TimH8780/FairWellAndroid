@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -59,6 +60,21 @@ public class LoginActivity extends Activity {
         username = (EditText) findViewById(R.id.loginUsername);
         password = (EditText) findViewById(R.id.loginPassword);
         TextView forgetPass = (TextView) findViewById(R.id.forgetPassword);
+
+
+        Drawable img = getApplicationContext().getResources().getDrawable( R.drawable.ic_lock_outline_white_24dp );
+        img.setBounds( 0, 0, 75, 75 );
+        password.setCompoundDrawables( img, null, null, null );
+        Drawable img2 = getApplicationContext().getResources().getDrawable( R.drawable.ic_account_circle_white_24dp );
+        img2.setBounds( 0, 0, 75, 75 );
+        username.setCompoundDrawables( img2, null, null, null );
+        Drawable img3 = getApplicationContext().getResources().getDrawable( R.drawable.ic_facebook );
+        img3.setBounds( 0, 0, 75, 75 );
+        facebookLoginBut.setCompoundDrawables( img3, null, null, null );
+        Drawable img4 = getApplicationContext().getResources().getDrawable( R.drawable.ic_twitter );
+        img4.setBounds( 0, 0, 75, 58 ); //twitter has different size
+        twitterLoginBut.setCompoundDrawables( img4, null, null, null );
+
 
         //Login Button
         loginBut.setOnClickListener(new View.OnClickListener() {

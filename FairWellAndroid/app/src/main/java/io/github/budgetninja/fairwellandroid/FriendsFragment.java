@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -74,7 +76,9 @@ public class FriendsFragment extends Fragment{
         View rootView = inflater.inflate(R.layout.fragment_friend, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
+            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Friend");
 
@@ -468,7 +472,9 @@ public class FriendsFragment extends Fragment{
             final View rootView = inflater.inflate(R.layout.fragment_friend_detail, container, false);
             ActionBar actionBar = parent.getSupportActionBar();
             if (actionBar != null) {
-                actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
+                final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+                upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+                actionBar.setHomeAsUpIndicator(upArrow);
             }
             parent.setTitle("Friend Detail");
 

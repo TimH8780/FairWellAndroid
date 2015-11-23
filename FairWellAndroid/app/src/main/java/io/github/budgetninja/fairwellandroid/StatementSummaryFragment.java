@@ -1,5 +1,7 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -26,7 +28,7 @@ import java.util.Locale;
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
 import io.github.budgetninja.fairwellandroid.StatementObject.SubStatement;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_EQUALLY;
-import static io.github.budgetninja.fairwellandroid.AddStatementFragment.BY_PERCENTAGE;
+import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_UNEQUALLY;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.BY_RATIO;
 
 /**
@@ -65,7 +67,9 @@ public class StatementSummaryFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ActionBar actionBar = parent.getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
+            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Summary");
         if (previousState != null) {
@@ -123,11 +127,11 @@ public class StatementSummaryFragment extends Fragment{
             case SPLIT_EQUALLY:
                 modeView.setText("Split Equally");
                 break;
-            case BY_PERCENTAGE:
-                modeView.setText("By Percentage");
+            case SPLIT_UNEQUALLY:
+                modeView.setText("Split Unequally");
                 break;
             case BY_RATIO:
-                modeView.setText("By Ratio");
+                modeView.setText("Split by Ratio");
                 break;
         }
         sumbitByView.setText(data.submitBy);

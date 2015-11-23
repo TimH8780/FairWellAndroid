@@ -63,7 +63,7 @@
                 android:layout_gravity="center"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:src="@drawable/ic_profile"/>
+                android:src="@drawable/ic_picture_in_picture_black_24dp"/>
 
             <TextView
                 android:textSize="18dp"
@@ -84,7 +84,7 @@
                 android:layout_gravity="center"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:src="@drawable/ic_account_circle"/>
+                android:src="@drawable/ic_account_box_black_24dp"/>
 
             <TextView
                 android:textSize="18dp"
@@ -108,7 +108,7 @@
                 android:layout_gravity="center"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:src="@drawable/ic_phone"/>
+                android:src="@drawable/ic_phone_black_24dp"/>
 
             <TextView
                 android:textSize="18dp"
@@ -130,7 +130,7 @@
                 android:layout_gravity="center"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:src="@drawable/ic_home"/>
+                android:src="@drawable/ic_home_black_24dp"/>
 
             <TextView
                 android:textSize="18dp"
@@ -154,7 +154,7 @@
                 android:layout_gravity="top"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:src="@drawable/ic_description"
+                android:src="@drawable/ic_description_black_24dp"
 
                 />
 

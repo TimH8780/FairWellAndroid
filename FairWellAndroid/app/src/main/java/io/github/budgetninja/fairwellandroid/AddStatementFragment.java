@@ -7,7 +7,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -48,6 +50,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
@@ -89,8 +92,14 @@ public class AddStatementFragment extends Fragment {
     private static final int DAY = 2;
     private static final int SELF = 0;
     public static final int SPLIT_EQUALLY = 0;
-    public static final int BY_PERCENTAGE = 1;
+    public static final int SPLIT_UNEQUALLY = 1;
     public static final int BY_RATIO = 2;
+
+    private TextView text1;
+    private TextView text2;
+    private TextView text3;
+    private TextView text4;
+
 
 
     @Override
@@ -118,7 +127,14 @@ public class AddStatementFragment extends Fragment {
 
         if(parent.isNetworkConnected()) { friendList = new ArrayList<>(Utility.generateFriendArray()); }
         else { friendList = new ArrayList<>(Utility.generateFriendArrayOffline()); }
+
+
+
         friendList.add(0, new Friend(null, null, user, "Self", null, -1, -1, false, true, true)); //user her/himself
+
+        // this very last item is used for the spinner's hint, check it yourself
+        friendList.add(friendList.size(),new Friend(null, null, user, "Select Payer", null, -1, -1, false, true, true));
+
         friendSelected = new Boolean[friendList.size()];
 
         // An array used to record the date set by user for DATE and DEADLINE
@@ -129,13 +145,18 @@ public class AddStatementFragment extends Fragment {
         dateRecord.add(DEADLINE + YEAR, 2101);
         dateRecord.add(DEADLINE + MONTH, 12);
         dateRecord.add(DEADLINE + DAY, 31);
+
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_keyboard_arrow_left);
+            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Add Statement");
 
@@ -153,6 +174,7 @@ public class AddStatementFragment extends Fragment {
         Spinner modeSpinner = (Spinner) rootView.findViewById(R.id.spinner2);
         Button addMemberButton = (Button) rootView.findViewById(R.id.addMemberButton);
         Button addSnapshotButton = (Button) rootView.findViewById(R.id.addSnapshotButton);
+        Button addNoteButton = (Button) rootView.findViewById(R.id.addNoteButton);
         Button confirmButton = (Button) rootView.findViewById(R.id.confirmButton);
         moneyAmount = (EditText) rootView.findViewById(R.id.moneyAmount);
         description = (EditText) rootView.findViewById(R.id.statement_description);
@@ -162,18 +184,80 @@ public class AddStatementFragment extends Fragment {
         layoutMemberDisplay = (LinearLayout) rootView.findViewById(R.id.layout_member_display);
 
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<Friend> paidByAdapter = new ArrayAdapter<>(getContext(),
-                android.R.layout.simple_spinner_item, friendList);
-        ArrayAdapter<CharSequence> modeAdapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.mode_array, android.R.layout.simple_spinner_item);
-
-        // Specify the layout to use when the list of choices appears
-        paidByAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        ArrayAdapter<Friend> paidByAdapter = new ArrayAdapter<>(getContext(),
+//                android.R.layout.simple_spinner_item, friendList);
 
         // Apply the adapter to the spinner
+//        paidBySpinner.setAdapter(paidByAdapter);
+
+
+        // Specify the layout to use when the list of choices appears
+//        paidByAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+//        ArrayAdapter<CharSequence> modeAdapter = ArrayAdapter.createFromResource(getContext(),
+//                R.array.mode_array, android.R.layout.simple_spinner_item);
+//        modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        modeSpinner.setAdapter(modeAdapter);
+
+
+        //Tim : I change it to this way (test it your own to see what) , hope this won't be causing any issue
+        // if no issues, feel free to remove those commented lines
+
+
+        ArrayAdapter<Friend> paidByAdapter = new ArrayAdapter<Friend>(getActivity(), android.R.layout.simple_spinner_dropdown_item) {
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+
+                View v = super.getView(position, convertView, parent);
+                if (position == getCount()) {
+                    ((TextView)v.findViewById(android.R.id.text1)).setText(getItem(getCount()).name); //"Hint to be displayed"
+                }
+
+                return v;
+            }
+
+            @Override
+            public int getCount() {
+                return super.getCount()-1; // you dont display last item. It is used as hint.
+            }
+
+        };
+
+        paidByAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        paidByAdapter.addAll(friendList);
+
         paidBySpinner.setAdapter(paidByAdapter);
+        paidBySpinner.setSelection(paidByAdapter.getCount());
+
+        ArrayAdapter<String> modeAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item) {
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+
+                View v = super.getView(position, convertView, parent);
+                if (position == getCount()) {
+                    ((TextView)v.findViewById(android.R.id.text1)).setText(getItem(getCount())); //"Hint to be displayed"
+                }
+
+                return v;
+            }
+
+            @Override
+            public int getCount() {
+                return super.getCount()-1; // you dont display last item. It is used as hint.
+            }
+
+        };
+
+        modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        modeAdapter.add("Split Equally");
+        modeAdapter.add("Split Unequally");
+        modeAdapter.add("Split by Ratio");
+        modeAdapter.add("Select mode");
+
         modeSpinner.setAdapter(modeAdapter);
+        modeSpinner.setSelection(modeAdapter.getCount());
 
         paidBySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -211,7 +295,8 @@ public class AddStatementFragment extends Fragment {
         });
         deadlineField.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {showDatePickerDialog(DEADLINE);
+            public void onClick(View v) {
+                showDatePickerDialog(DEADLINE);
             }
         });
 
@@ -220,7 +305,9 @@ public class AddStatementFragment extends Fragment {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { /* do nothing */ }
 
             @Override
-            public void afterTextChanged(Editable s) { isAmountChanged = true; }
+            public void afterTextChanged(Editable s) {
+                isAmountChanged = true;
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -250,6 +337,35 @@ public class AddStatementFragment extends Fragment {
                 Toast.makeText(parent, "Unavailable now", Toast.LENGTH_SHORT).show();
             }
         });
+
+        addNoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(parent, "Unavailable now", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        text1 = (TextView) rootView.findViewById(R.id.text1);
+        text2 = (TextView) rootView.findViewById(R.id.text2);
+        text3 = (TextView) rootView.findViewById(R.id.text3);
+        text4 = (TextView) rootView.findViewById(R.id.text4);
+
+
+        Drawable img = getContext().getResources().getDrawable( R.drawable.ic_call_split_white_24dp );
+        img.setBounds(0, 0, 75, 75);
+        text1.setCompoundDrawables(img, null, null, null);
+        img = getContext().getResources().getDrawable( R.drawable.ic_date_range_white_24dp );
+        img.setBounds(0, 0, 75, 75);
+        text2.setCompoundDrawables(img, null, null, null);
+        img = getContext().getResources().getDrawable( R.drawable.ic_wc_white_24dp );
+        img.setBounds(0, 0, 75, 75);
+        text3.setCompoundDrawables(img, null, null, null);
+        img = getContext().getResources().getDrawable( R.drawable.ic_info_outline_white_24dp );
+        img.setBounds(0, 0, 75, 75);
+        text4.setCompoundDrawables(img, null, null, null);
+
+
 
         previousState = rootView;
         return rootView;
@@ -291,7 +407,12 @@ public class AddStatementFragment extends Fragment {
             }
             if(this.counter > 0){
                 text.setText("Selected Member [" + Integer.toString(counter) + "+" + Integer.toString(this.counter) + "]");
-                data.append("(").append(this.counter).append(" Unknown People)").append("\n");
+                if(this.counter == 1){
+                    data.append("(").append(this.counter).append(" non-Fairwell user)").append("\n");
+                }else{
+                    data.append("(").append(this.counter).append(" non-Fairwell users)").append("\n");
+                }
+
             } else{
                 text.setText("Selected Member [" + Integer.toString(counter) + "]");
             }
@@ -404,13 +525,16 @@ public class AddStatementFragment extends Fragment {
                     dialog.show();
                     break;
 
-                case BY_PERCENTAGE:
-                    showMemberSelectionList(-1, BY_PERCENTAGE);
+                case SPLIT_UNEQUALLY:
+                    showMemberSelectionList(-1, SPLIT_UNEQUALLY);
                     break;
 
                 case BY_RATIO:
                     showMemberSelectionList(-1, BY_RATIO);
                     break;
+
+                default:
+                    Toast.makeText(parent, "Please select mode", Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -442,7 +566,8 @@ public class AddStatementFragment extends Fragment {
         } else {
             builder.setView(container);
         }
-        MemberSelectionAdaptor memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.item_add_member, friendList);
+        //TIM: issac edit this
+        MemberSelectionAdaptor memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.item_add_member, friendList.subList(0,friendList.size()-1));
         container.setAdapter(memberAdaptor);
         container.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -476,6 +601,7 @@ public class AddStatementFragment extends Fragment {
                         if(!moneyAmount.getText().toString().equals("")) {
                             each = Double.valueOf(moneyAmount.getText().toString()) / capacity;
                         }
+
                         for (int i = 0; i < result.length; i++) {
                             if (friendSelected[i] != null) {
                                 if (friendSelected[i]) {
@@ -490,7 +616,7 @@ public class AddStatementFragment extends Fragment {
                         Toast.makeText(parent, "Coming Soon", Toast.LENGTH_SHORT).show();
                         break;
 
-                    case BY_PERCENTAGE:
+                    case SPLIT_UNEQUALLY:
                         Toast.makeText(parent, "Coming Soon", Toast.LENGTH_SHORT).show();
                         break;
                 }
@@ -604,5 +730,8 @@ public class AddStatementFragment extends Fragment {
             ((AddStatementFragment)getActivity().getSupportFragmentManager().findFragmentByTag("Add")).setDate(year, month, day, viewIndex);
         }
     }
+
+
+
 
 }

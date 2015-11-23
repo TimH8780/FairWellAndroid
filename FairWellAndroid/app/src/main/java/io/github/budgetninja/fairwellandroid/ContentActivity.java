@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -106,19 +107,21 @@ public class ContentActivity extends AppCompatActivity{
         mMenuDrawer.setContentView(R.layout.activity_container);
         mMenuDrawer.setTouchMode(MenuDrawer.TOUCH_MODE_FULLSCREEN);
 
+
+
         List<Object> items = new ArrayList<>();
-        items.add(new Item(getString(R.string.home), R.drawable.ic_home_small));
+        items.add(new Item(getString(R.string.home), R.drawable.ic_home_white_24dp));
         items.add(new Category(getString(R.string.features)));
-        items.add(new Item(getString(R.string.friends), R.drawable.ic_people_small));
-        items.add(new Item(getString(R.string.dashboard), R.drawable.ic_dashboard_small));
-        items.add(new Item(getString(R.string.smart_solve), R.drawable.ic_smart_small));
+        items.add(new Item(getString(R.string.friends), R.drawable.ic_people_white_24dp));
+        items.add(new Item(getString(R.string.dashboard), R.drawable.ic_dashboard_white_24dp));
+        items.add(new Item(getString(R.string.smart_solve), R.drawable.ic_gavel_white_24dp));
         items.add(new Category(getString(R.string.setting)));
-        items.add(new Item(getString(R.string.account_setting), R.drawable.ic_settings_small));
-        items.add(new Item(getString(R.string.notification_setting), R.drawable.ic_notifications_small));
+        items.add(new Item(getString(R.string.account_setting), R.drawable.ic_settings_white_24dp));
+        items.add(new Item(getString(R.string.notification_setting), R.drawable.ic_notifications_active_white_24dp));
         items.add(new Category(getString(R.string.others)));
-        items.add(new Item(getString(R.string.rate_this_app), R.drawable.ic_thumb_up_small));
-        items.add(new Item(getString(R.string.about_us), R.drawable.ic_face_small));
-        items.add(new Item(getString(R.string.logout), R.drawable.ic_exit_small));
+        items.add(new Item(getString(R.string.rate_this_app), R.drawable.ic_thumb_up_white_24dp));
+        items.add(new Item(getString(R.string.about_us), R.drawable.ic_face_white_24dp));
+        items.add(new Item(getString(R.string.logout), R.drawable.ic_exit_to_app_white_24dp));
 
         ListView mList = new ListView(this);
         MenuAdapter mAdapter = new MenuAdapter(items);
@@ -511,6 +514,11 @@ public class ContentActivity extends AppCompatActivity{
                 TextView tv = (TextView) v;
                 tv.setText(((Item) item).mTitle);
                 tv.setCompoundDrawablesWithIntrinsicBounds(((Item) item).mIconRes, 0, 0, 0);
+
+                Drawable img = getApplicationContext().getResources().getDrawable(((Item) item).mIconRes);
+                img.setBounds(0, 0, 75, 75);
+                tv.setCompoundDrawables(img, null, null, null);
+
             }
 
             v.setTag(R.id.mdActiveViewPosition, position);

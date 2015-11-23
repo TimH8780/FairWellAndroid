@@ -9,7 +9,7 @@
         android:id="@+id/action_save"
         android:title="Save"
         app:showAsAction="ifRoom|withText"
-        android:icon="@drawable/ic_save"
+        android:icon="@drawable/ic_save_white_24dp"
         >
 
     </item>

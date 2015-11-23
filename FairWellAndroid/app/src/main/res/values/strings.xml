@@ -38,8 +38,10 @@
 
     <string-array name="mode_array">
         <item>Split Equally</item>
-        <item>By Percentage</item>
-        <item>By Ratio</item>
+        <item>Split Unequally</item>
+        <item>Split by Ratio</item>
+        <item>Please select a mode</item>
+
     </string-array>
 
     <string name="action_settings" > Action Settings </string>
