@@ -3,6 +3,7 @@ package io.github.budgetninja.fairwellandroid;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -374,13 +375,21 @@ public class DashboardFragment extends ListFragment {
             }
         }
 
+
+
         @Override public View getView(int position, View convertView, ViewGroup parent) {
             TextView view = (TextView) super.getView(position, convertView, parent);
             view.setTextColor(Color.DKGRAY);
+
             view.setTag("" + position);
             Item item = getItem(position);
             if (item.type == Item.SECTION) {
 
+                Drawable img = getContext().getResources().getDrawable( R.drawable.ic_date_range_black_24dp );
+                img.setBounds(0, 0, 75, 75);
+                view.setCompoundDrawablePadding(10);
+                view.setCompoundDrawables(img, null, null, null);
+                view.setTypeface(null, Typeface.BOLD);
                 view.setBackgroundColor(parent.getResources().getColor(COLORS[item.sectionPosition % COLORS.length]));
             }
             return view;

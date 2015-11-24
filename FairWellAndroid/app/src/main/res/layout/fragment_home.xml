@@ -46,31 +46,34 @@
             android:layout_marginBottom="10dp"/>
 
         <Button
+            style="?android:attr/borderlessButtonStyle"
             android:layout_gravity="center"
             android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:background="@drawable/button_custom_1"
-            android:textColor="@color/textLight"
+            android:textColor="@color/white"
             android:text="View Statements"
             android:layout_marginBottom="4dp"
             android:id="@+id/viewStatementButton"/>
 
         <Button
+            style="?android:attr/borderlessButtonStyle"
             android:layout_gravity="center"
             android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:background="@drawable/button_custom_2"
-            android:textColor="@color/textLight"
+            android:textColor="@color/white"
             android:text="Add Statement"
             android:id="@+id/addStatementButton"
             android:layout_marginBottom="4dp"/>
 
         <Button
+            style="?android:attr/borderlessButtonStyle"
             android:layout_gravity="center"
             android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:background="@drawable/button_custom_3"
-            android:textColor="@color/textLight"
+            android:textColor="@color/white"
             android:text="Resolve Statements"
             android:id="@+id/resolveStatementButton"
             android:layout_marginBottom="4dp"/>

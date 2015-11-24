@@ -66,8 +66,8 @@ public class AddStatementFragment extends Fragment {
     private boolean pageCheck;
     private boolean isAmountChanged;
     private TextView clickedText;
-    private TextView deadlineField;
-    private TextView dateField;
+    private Button deadlineFieldButton;
+    private Button dateFieldButton;
     private EditText description;
     private EditText moneyAmount;
     private LinearLayout layoutMemberDisplay;
@@ -95,6 +95,7 @@ public class AddStatementFragment extends Fragment {
     public static final int SPLIT_UNEQUALLY = 1;
     public static final int BY_RATIO = 2;
 
+    private TextView text0;
     private TextView text1;
     private TextView text2;
     private TextView text3;
@@ -179,8 +180,8 @@ public class AddStatementFragment extends Fragment {
         moneyAmount = (EditText) rootView.findViewById(R.id.moneyAmount);
         description = (EditText) rootView.findViewById(R.id.statement_description);
         clickedText = (TextView) rootView.findViewById(R.id.clickText);
-        dateField = (TextView) rootView.findViewById(R.id.dateField);
-        deadlineField = (TextView) rootView.findViewById(R.id.deadlineField);
+        dateFieldButton = (Button) rootView.findViewById(R.id.dateFieldButton);
+        deadlineFieldButton = (Button) rootView.findViewById(R.id.deadlineFieldButton);
         layoutMemberDisplay = (LinearLayout) rootView.findViewById(R.id.layout_member_display);
 
         // Create an ArrayAdapter using the string array and a default spinner layout
@@ -287,13 +288,13 @@ public class AddStatementFragment extends Fragment {
 
         confirmButton.setOnClickListener(confirmButtonListener);
         addMemberButton.setOnClickListener(addMemberButtonListener);
-        dateField.setOnClickListener(new View.OnClickListener() {
+        dateFieldButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showDatePickerDialog(DATE);
             }
         });
-        deadlineField.setOnClickListener(new View.OnClickListener() {
+        deadlineFieldButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showDatePickerDialog(DEADLINE);
@@ -345,14 +346,16 @@ public class AddStatementFragment extends Fragment {
             }
         });
 
-
+        text0 = (TextView) rootView.findViewById(R.id.text0);
         text1 = (TextView) rootView.findViewById(R.id.text1);
         text2 = (TextView) rootView.findViewById(R.id.text2);
         text3 = (TextView) rootView.findViewById(R.id.text3);
         text4 = (TextView) rootView.findViewById(R.id.text4);
 
-
-        Drawable img = getContext().getResources().getDrawable( R.drawable.ic_call_split_white_24dp );
+        Drawable img = getContext().getResources().getDrawable( R.drawable.ic_label_outline_white_24dp );
+        img.setBounds(0, 0, 75, 75);
+        text0.setCompoundDrawables(img, null, null, null);
+        img = getContext().getResources().getDrawable( R.drawable.ic_call_split_white_24dp );
         img.setBounds(0, 0, 75, 75);
         text1.setCompoundDrawables(img, null, null, null);
         img = getContext().getResources().getDrawable( R.drawable.ic_date_range_white_24dp );
@@ -364,7 +367,9 @@ public class AddStatementFragment extends Fragment {
         img = getContext().getResources().getDrawable( R.drawable.ic_info_outline_white_24dp );
         img.setBounds(0, 0, 75, 75);
         text4.setCompoundDrawables(img, null, null, null);
-
+        img = getContext().getResources().getDrawable( R.drawable.ic_description_black_24dp );
+        img.setBounds(0, 0, 75, 75);
+        description.setCompoundDrawables(img, null, null, null);
 
 
         previousState = rootView;
@@ -434,8 +439,8 @@ public class AddStatementFragment extends Fragment {
             String descr = description.getText().toString();
             String categ = clickedText.getText().toString();
             String amount = moneyAmount.getText().toString();
-            String date = dateField.getText().toString();
-            String deadline = deadlineField.getText().toString();
+            String date = dateFieldButton.getText().toString();
+            String deadline = deadlineFieldButton.getText().toString();
             Boolean member = selectedMember.isEmpty();
 
             if(!descr.equals("") && !categ.equals("Select Category") && !amount.equals("") && !date.equals("") && !deadline.equals("") && !member){
@@ -643,9 +648,9 @@ public class AddStatementFragment extends Fragment {
             data.append(String.format("%02d",month + 1)).append("/").append(String.format("%02d", day)).append("/").append(year);
 
             if (viewSel == DATE) {
-                dateField.setText(data.toString());
+                dateFieldButton.setText(data.toString());
             } else {
-                deadlineField.setText(data.toString());
+                deadlineFieldButton.setText(data.toString());
             }
             return;
         }
