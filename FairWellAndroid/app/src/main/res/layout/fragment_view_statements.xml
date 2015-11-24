@@ -10,47 +10,43 @@
         android:layout_height="wrap_content"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
-        android:background="#cfcfcf"
+        android:background="@color/windowBackground"
         android:orientation="horizontal">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:textStyle="bold"
-            android:layout_weight="3"
+            android:layout_weight="1"
             android:textSize="18sp"
-            android:textColor="@color/buttonDark"
+            android:textColor="@color/blue_dark"
             android:text="Payee" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:textStyle="bold"
-            android:layout_weight="3"
+            android:layout_weight="1"
             android:textSize="18sp"
-            android:textColor="@color/buttonDark"
+            android:textColor="@color/blue_dark"
             android:text="Due Date" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:textStyle="bold"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:textSize="18sp"
-            android:textColor="@color/buttonDark"
+            android:textColor="@color/blue_dark"
             android:text="Amount" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:textStyle="bold"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:textSize="18sp"
-            android:textColor="@color/buttonDark"
+            android:textColor="@color/blue_dark"
             android:text="Action" />
 
     </LinearLayout>
