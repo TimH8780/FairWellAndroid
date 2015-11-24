@@ -18,7 +18,8 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Register~~
 * **Home Page**
   * ~~Balance Update~~
-  * Change the three button layout (if possible) - Issac  https://github.com/ogaclejapan/SmartTabLayout
+  * Change balance layout
+  * Change buttons layout (if possible) - Issac  https://github.com/ogaclejapan/SmartTabLayout
   * Name display (if profile name is empty, use First and Last Name) - Tim
   * ~~Image upload/ display~~
   * ~~Buttons~~
@@ -31,7 +32,8 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Confirm firend request~~
   * ~~Reject firend request~~
   * ~~Friend info display~~
-  * Friend profile when clicked (remove friend button in friend profile)
+  * Progress bar when adding friend - Tim
+  * Friend profile when clicked (remove friend button in friend profile) - Tim
   * Get the info from Parse for friend profile (Should be straightforward)
 * **Smart Solve Page**
   * *Unknown (if time permits)*
@@ -41,7 +43,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
 * **Notification Setting Page**
   * Use sharedpreference to store the settings locally
   * Work together with push notification and email notification
-* **Rate This App**
+* ~~**Rate This App**~~
   * ~~Redirect to Google Play~~
 * ~~**About us**~~
   * ~~Redirect to BudgetNinja website~~
@@ -50,8 +52,10 @@ Chern Yee Chua <chernyee@buffalo.edu>
 * **View Statement Page**
   * ~~View Statement~~
   * ~~Comfirm Statement Request~~
+  * Change Wording (i.e. N/A to Yourself) - Tim
   * Reject Statement Request - Tim
 * **Add Statement Page**
+  * ~~Design~~
   * ~~Info input~~
   * Icon - Issac
   * Add Snapshot
