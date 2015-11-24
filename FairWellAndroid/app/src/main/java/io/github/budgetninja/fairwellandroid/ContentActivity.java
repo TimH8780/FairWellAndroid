@@ -63,12 +63,13 @@ public class ContentActivity extends AppCompatActivity{
     private static final int POSITION_NOTIFICATION_SETTING = 7;
     private static final int POSITION_RATE_THIS_APP = 9;
     private static final int POSITION_ABOUT_US = 10;
-    private static final int POSITION_LOGOUT = 11;
-    public static final int INDEX_VIEW_STATEMENT = 12;
-    public static final int INDEX_ADD_STATEMENT = 13;
-    public static final int INDEX_RESOLVE_STATEMENT = 14;
-    public static final int INDEX_SUBMIT_STATEMENT_SUMMARY = 15;
-    public static final int INDEX_STATEMENT_SUMMARY = 16;
+    private static final int POSITION_TUTORIAL = 11;
+    private static final int POSITION_LOGOUT = 12;
+    public static final int INDEX_VIEW_STATEMENT = 13;
+    public static final int INDEX_ADD_STATEMENT = 14;
+    public static final int INDEX_RESOLVE_STATEMENT = 15;
+    public static final int INDEX_SUBMIT_STATEMENT_SUMMARY = 16;
+    public static final int INDEX_STATEMENT_SUMMARY = 17;
     public static double BALANCE = 0.00;
 
     protected MenuDrawer mMenuDrawer;
@@ -121,6 +122,7 @@ public class ContentActivity extends AppCompatActivity{
         items.add(new Category(getString(R.string.others)));
         items.add(new Item(getString(R.string.rate_this_app), R.drawable.ic_thumb_up_white_24dp));
         items.add(new Item(getString(R.string.about_us), R.drawable.ic_face_white_24dp));
+        items.add(new Item(getString(R.string.tutorial), R.drawable.ic_library_books_white_24dp));
         items.add(new Item(getString(R.string.logout), R.drawable.ic_exit_to_app_white_24dp));
 
         ListView mList = new ListView(this);
@@ -403,6 +405,7 @@ public class ContentActivity extends AppCompatActivity{
                     break;
 
                 case POSITION_ABOUT_US:
+
                     if(!isNetworkConnected()) {
                         Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                         break;
@@ -412,6 +415,13 @@ public class ContentActivity extends AppCompatActivity{
                     i2.addCategory(Intent.CATEGORY_BROWSABLE);
                     i2.setData(Uri.parse("http://budgetninja.github.io"));
                     startActivity(i2);
+                    break;
+
+                case POSITION_TUTORIAL:
+
+                    Intent tutorial = new Intent(ContentActivity.this, MyIntro.class);
+                    startActivity(tutorial);
+
                     break;
 
                 case POSITION_LOGOUT:

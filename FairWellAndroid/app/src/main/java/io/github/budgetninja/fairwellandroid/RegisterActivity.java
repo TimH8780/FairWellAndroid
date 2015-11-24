@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
+import android.text.Html;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -140,7 +141,7 @@ public class RegisterActivity extends AppCompatActivity {
                             .setTitle(title)
                             .setMessage(message)
                             .setCancelable(false)
-                            .setNegativeButton("OK",null);
+                            .setNegativeButton("OK", null);
 
                     builder.create().show();
 

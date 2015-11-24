@@ -20,6 +20,7 @@
     <string name="notification_setting">Notification Setting</string>
     <string name="others">Others</string>
     <string name="rate_this_app">Rate This App</string>
+    <string name="tutorial">Show tutorial</string>
     <string name="about_us">About us</string>
     <string name="logout">Logout</string>
     <string name="logout_failed">Logout Failed</string>
@@ -511,7 +512,6 @@
 
 
 <string name="eula_string"> Last updated: November 21, 2015
-
 
 
     \n\nPlease read these Terms carefully before using Fairwell (the \"Service\" or \"Software\") operated
