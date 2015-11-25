@@ -167,7 +167,7 @@
 
             <TextView
                 android:layout_marginTop="25dp"
-                android:textColor="@color/buttonMedium"
+                android:textColor="@color/primary_dark"
                 android:onClick="true"
                 android:id="@+id/conditionTerm"
                 android:gravity="center"
@@ -193,7 +193,7 @@
                 android:padding="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:background="@drawable/button_custom_3"
+                android:background="@drawable/button_custom_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Finish Registration"

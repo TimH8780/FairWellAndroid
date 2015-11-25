@@ -24,10 +24,10 @@ proguard/
 # Log Files
 *.log
 
-*.iml
+#*.iml
 .idea/
 
 # Gradle prop files
-*.properties
+#*.properties
 
 info.txt
