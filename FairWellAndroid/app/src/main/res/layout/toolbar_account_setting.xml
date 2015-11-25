@@ -11,5 +11,4 @@
     android:background="?attr/colorPrimary"
     app:navigationIcon="?attr/homeAsUpIndicator"
     app:title="Account setting"
-    app:titleTextColor="#FAFAFA"
-    />
+    app:titleTextColor="#FAFAFA"/>

@@ -1,98 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <LinearLayout
-        android:padding="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/profilepic"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-
-            <TextView
-                android:paddingTop="20dp"
-                android:paddingLeft="10dp"
-                android:textSize="25dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Issac Chern"/>
-
-            <TextView
-                android:paddingLeft="10dp"
-                android:textSize="18dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="issacchern@gmail.com"/>
-
-
-
-
-
-        </LinearLayout>
-
-
-
-
-
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Change username"/>
-
-        <Button
-            android:text="Change password"
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
 
         <LinearLayout
+            android:padding="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_gravity="center"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_picture_in_picture_black_24dp"/>
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/profilepic"/>
 
-            <EditText
-                android:singleLine="true"
-                android:paddingLeft="10dp"
-                android:hint="Profile name"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:paddingTop="20dp"
+                    android:paddingLeft="10dp"
+                    android:textSize="25dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Issac Chern"/>
+
+                <TextView
+                    android:paddingLeft="10dp"
+                    android:textSize="18dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="issacchern@gmail.com"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -101,134 +49,166 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <ImageView
-                android:layout_gravity="center"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_account_box_black_24dp"/>
+            <Button
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Change username"/>
+
+            <Button
+                android:text="Change password"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <EditText
-                    android:singleLine="true"
-                    android:layout_weight="1"
-                    android:paddingLeft="10dp"
-                    android:hint="First name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_picture_in_picture_black_24dp"/>
 
                 <EditText
                     android:singleLine="true"
-                    android:layout_weight="1"
                     android:paddingLeft="10dp"
-                    android:hint="Last name"
+                    android:hint="Profile name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_account_box_black_24dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:singleLine="true"
+                        android:layout_weight="1"
+                        android:paddingLeft="10dp"
+                        android:hint="First name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <EditText
+                        android:singleLine="true"
+                        android:layout_weight="1"
+                        android:paddingLeft="10dp"
+                        android:hint="Last name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_phone_black_24dp"/>
+
+                <EditText
+                    android:singleLine="true"
+                    android:paddingLeft="10dp"
+                    android:hint="Phone number"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
             </LinearLayout>
 
-
-
-        </LinearLayout>
-
-
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_gravity="center"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_phone_black_24dp"/>
-
-            <EditText
-                android:singleLine="true"
-                android:paddingLeft="10dp"
-                android:hint="Phone number"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        </LinearLayout>
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_home_black_24dp"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+                <EditText
+                    android:singleLine="true"
+                    android:paddingLeft="10dp"
+                    android:hint="Address line 1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-            <ImageView
-                android:layout_gravity="center"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_home_black_24dp"/>
+            </LinearLayout>
 
-            <EditText
-                android:singleLine="true"
-                android:paddingLeft="10dp"
-                android:hint="Address line 1"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-        </LinearLayout>
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+                <EditText
+                    android:singleLine="true"
+                    android:paddingLeft="10dp"
+                    android:hint="Address line 2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
 
-            <ImageView
-                android:layout_gravity="center"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                />
+            </LinearLayout>
 
-            <EditText
-                android:singleLine="true"
-                android:paddingLeft="10dp"
-                android:hint="Address line 2"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_gravity="top"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_description_black_24dp"/>
+
+                <EditText
+                    android:gravity="top"
+                    android:singleLine="false"
+                    android:minLines="4"
+                    android:maxLines="4"
+                    android:paddingLeft="10dp"
+                    android:hint="Something about yourself"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
 
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-
-                android:layout_gravity="top"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_description_black_24dp"
-
-                />
-
-            <EditText
-                android:gravity="top"
-                android:singleLine="false"
-                android:minLines="4"
-                android:maxLines="4"
-                android:paddingLeft="10dp"
-                android:hint="Something about yourself"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-
 
     </LinearLayout>
 
-
-
-
-
-
-</LinearLayout>
+</ScrollView>

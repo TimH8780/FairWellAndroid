@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -41,7 +42,6 @@ public class ResolveStatementsFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         MenuItem item = menu.findItem(R.id.action_refresh);
         item.setVisible(false);
         super.onCreateOptionsMenu(menu, inflater);
@@ -59,8 +59,8 @@ public class ResolveStatementsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_resolve_statements, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
-            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            final Drawable upArrow = ContextCompat.getDrawable(getContext(), R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(ContextCompat.getColor(getContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Resolve Statement");

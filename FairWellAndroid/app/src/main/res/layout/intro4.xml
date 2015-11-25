@@ -33,7 +33,9 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:src="@drawable/ic_slide4"/>
+
     </LinearLayout>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="0dp"
@@ -47,7 +49,9 @@
         android:textStyle="bold"
         android:onClick="getStarted"
         android:text="GET STARTED"/>
+
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="64dp" />
+
 </LinearLayout>

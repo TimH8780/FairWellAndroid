@@ -61,15 +61,15 @@ public class ContentActivity extends AppCompatActivity{
     private static final int POSITION_SMART_SOLVE = 4;
     private static final int POSITION_ACCOUNT_SETTING = 6;
     private static final int POSITION_NOTIFICATION_SETTING = 7;
-    private static final int POSITION_RATE_THIS_APP = 9;
-    private static final int POSITION_ABOUT_US = 10;
-    private static final int POSITION_TUTORIAL = 11;
+    private static final int POSITION_TUTORIAL = 9;
+    private static final int POSITION_RATE_THIS_APP = 10;
+    private static final int POSITION_ABOUT_US = 11;
     private static final int POSITION_LOGOUT = 12;
-    public static final int INDEX_VIEW_STATEMENT = 13;
-    public static final int INDEX_ADD_STATEMENT = 14;
-    public static final int INDEX_RESOLVE_STATEMENT = 15;
-    public static final int INDEX_SUBMIT_STATEMENT_SUMMARY = 16;
-    public static final int INDEX_STATEMENT_SUMMARY = 17;
+    public static final int INDEX_VIEW_STATEMENT = 14;
+    public static final int INDEX_ADD_STATEMENT = 15;
+    public static final int INDEX_RESOLVE_STATEMENT = 16;
+    public static final int INDEX_SUBMIT_STATEMENT_SUMMARY = 17;
+    public static final int INDEX_STATEMENT_SUMMARY = 18;
     public static double BALANCE = 0.00;
 
     protected MenuDrawer mMenuDrawer;
@@ -108,8 +108,6 @@ public class ContentActivity extends AppCompatActivity{
         mMenuDrawer.setContentView(R.layout.activity_container);
         mMenuDrawer.setTouchMode(MenuDrawer.TOUCH_MODE_FULLSCREEN);
 
-
-
         List<Object> items = new ArrayList<>();
         items.add(new Item(getString(R.string.home), R.drawable.ic_home_white_24dp));
         items.add(new Category(getString(R.string.features)));
@@ -120,9 +118,9 @@ public class ContentActivity extends AppCompatActivity{
         items.add(new Item(getString(R.string.account_setting), R.drawable.ic_settings_white_24dp));
         items.add(new Item(getString(R.string.notification_setting), R.drawable.ic_notifications_active_white_24dp));
         items.add(new Category(getString(R.string.others)));
+        items.add(new Item(getString(R.string.tutorial), R.drawable.ic_library_books_white_24dp));
         items.add(new Item(getString(R.string.rate_this_app), R.drawable.ic_thumb_up_white_24dp));
         items.add(new Item(getString(R.string.about_us), R.drawable.ic_face_white_24dp));
-        items.add(new Item(getString(R.string.tutorial), R.drawable.ic_library_books_white_24dp));
         items.add(new Item(getString(R.string.logout), R.drawable.ic_exit_to_app_white_24dp));
 
         ListView mList = new ListView(this);
@@ -389,8 +387,6 @@ public class ContentActivity extends AppCompatActivity{
                     break;
 
                 case POSITION_RATE_THIS_APP:
-
-
                     if(!isNetworkConnected()) {
                         Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                         break;
@@ -400,12 +396,9 @@ public class ContentActivity extends AppCompatActivity{
                     i.addCategory(Intent.CATEGORY_BROWSABLE);
                     i.setData(Uri.parse("https://play.google.com/store/apps/details?id=io.github.budgetninja.fairwellandroid&ah=kmmwX-tUpzW2NWz-3BPS18Orv4c&hl=en-GB"));
                     startActivity(i);
-
-
                     break;
 
                 case POSITION_ABOUT_US:
-
                     if(!isNetworkConnected()) {
                         Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
                         break;
@@ -418,10 +411,8 @@ public class ContentActivity extends AppCompatActivity{
                     break;
 
                 case POSITION_TUTORIAL:
-
                     Intent tutorial = new Intent(ContentActivity.this, MyIntro.class);
                     startActivity(tutorial);
-
                     break;
 
                 case POSITION_LOGOUT:
@@ -528,7 +519,6 @@ public class ContentActivity extends AppCompatActivity{
                 Drawable img = getApplicationContext().getResources().getDrawable(((Item) item).mIconRes);
                 img.setBounds(0, 0, 75, 75);
                 tv.setCompoundDrawables(img, null, null, null);
-
             }
 
             v.setTag(R.id.mdActiveViewPosition, position);
@@ -596,11 +586,12 @@ public class ContentActivity extends AppCompatActivity{
         public void run() {
            while(true) try{
                SystemClock.sleep(60000);
-               Log.d("Update", "Start");
+               if(paused){ continue; }
+               Log.d("Update", "Check");
                if(Utility.checkNewEntryField()){
-                   isOnPause();
+                   if(paused){ continue; }
                    Utility.generateRawStatementList(user);
-                   isOnPause();
+                   if(paused){ continue; }
                    Utility.generateRawFriendList(user);
                }
            } catch (NullPointerException e){
@@ -623,18 +614,5 @@ public class ContentActivity extends AppCompatActivity{
                 pauseLock.notifyAll();
             }
         }
-
-        private void isOnPause(){
-            synchronized (pauseLock) {
-                while (paused) {
-                    try {
-                        pauseLock.wait();
-                    } catch (InterruptedException e) {
-                        e.getStackTrace();
-                    }
-                }
-            }
-        }
-
     }
 }

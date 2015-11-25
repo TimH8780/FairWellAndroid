@@ -1,179 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
-        android:padding="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
-
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/profilepic"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-
-            <TextView
-                android:paddingTop="20dp"
-                android:paddingLeft="10dp"
-                android:textSize="25dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Issac Chern"/>
-
-            <TextView
-                android:paddingLeft="10dp"
-                android:textSize="18dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="issacchern@gmail.com"/>
-
-
-        </LinearLayout>
-
-
-    </LinearLayout>
-
-
-
-
-    <LinearLayout
-        android:background="@color/windowBackground"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
 
         <LinearLayout
             android:padding="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
 
             <ImageView
-                android:layout_gravity="center"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_picture_in_picture_black_24dp"/>
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/profilepic"/>
 
-            <TextView
-                android:textSize="18dp"
-                android:paddingLeft="10dp"
-                android:text="Too much awesomeness"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:paddingTop="20dp"
+                    android:paddingLeft="10dp"
+                    android:textSize="25dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Issac Chern"/>
+
+                <TextView
+                    android:paddingLeft="10dp"
+                    android:textSize="18dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="issacchern@gmail.com"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 
         <LinearLayout
-            android:padding="10dp"
+            android:background="@color/windowBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:padding="10dp">
 
-            <ImageView
-                android:layout_gravity="center"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_account_box_black_24dp"/>
-
-            <TextView
-                android:textSize="18dp"
-                android:paddingLeft="10dp"
-                android:text="Issac Chern"
+            <LinearLayout
+                android:padding="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_picture_in_picture_black_24dp"/>
+
+                <TextView
+                    android:textSize="18dp"
+                    android:paddingLeft="10dp"
+                    android:text="Too much awesomeness"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:padding="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_account_box_black_24dp"/>
+
+                <TextView
+                    android:textSize="18dp"
+                    android:paddingLeft="10dp"
+                    android:text="Issac Chern"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:padding="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_phone_black_24dp"/>
+
+                <TextView
+                    android:textSize="18dp"
+                    android:singleLine="true"
+                    android:paddingLeft="10dp"
+                    android:text="716-380-6601"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:padding="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_home_black_24dp"/>
+
+                <TextView
+                    android:textSize="18dp"
+                    android:text="1525 Amherst Manor Dr \nBuffalo NY, 14221"
+                    android:paddingLeft="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:padding="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_gravity="top"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_description_black_24dp"/>
+
+                <TextView
+                    android:text="I am awesome, you see me. I am cool like shit. Hit me up yo. Later bro!"
+                    android:textSize="18dp"
+                    android:gravity="top"
+                    android:paddingLeft="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
 
         </LinearLayout>
-
-
-
-
-        <LinearLayout
-            android:padding="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_gravity="center"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_phone_black_24dp"/>
-
-            <TextView
-                android:textSize="18dp"
-                android:singleLine="true"
-                android:paddingLeft="10dp"
-                android:text="716-380-6601"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:padding="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:layout_gravity="center"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_home_black_24dp"/>
-
-            <TextView
-                android:textSize="18dp"
-                android:text="1525 Amherst Manor Dr \nBuffalo NY, 14221"
-                android:paddingLeft="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-
-
-
-        <LinearLayout
-            android:padding="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <ImageView
-
-                android:layout_gravity="top"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/ic_description_black_24dp"
-
-                />
-
-            <TextView
-                android:text="I am awesome, you see me. I am cool like shit. Hit me up yo. Later bro!"
-                android:textSize="18dp"
-                android:gravity="top"
-                android:paddingLeft="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-
 
     </LinearLayout>
 
-
-
-
-
-
-</LinearLayout>
+</ScrollView>

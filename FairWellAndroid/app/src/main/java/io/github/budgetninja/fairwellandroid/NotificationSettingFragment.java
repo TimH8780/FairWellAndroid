@@ -22,7 +22,6 @@ public class NotificationSettingFragment extends Fragment {
     private ParseUser user;
     private ContentActivity parent;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         user = ParseUser.getCurrentUser();
@@ -30,7 +29,6 @@ public class NotificationSettingFragment extends Fragment {
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,9 +41,6 @@ public class NotificationSettingFragment extends Fragment {
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Notification Setting");
-
-
-
 
         final CheckedTextView ctv = (CheckedTextView) rootView.findViewById(R.id.checkedTextView0);
         ctv.setOnClickListener(new View.OnClickListener() {
@@ -71,8 +66,6 @@ public class NotificationSettingFragment extends Fragment {
                     ((CheckedTextView) rootView.findViewById(R.id.checkedTextView77)).setChecked(false);
                     ((CheckedTextView) rootView.findViewById(R.id.checkedTextView88)).setChecked(false);
                     ((CheckedTextView) rootView.findViewById(R.id.checkedTextView99)).setChecked(false);
-
-
                 } else {
                     ctv.setChecked(true);
                     ((CheckedTextView) rootView.findViewById(R.id.checkedTextView1)).setChecked(true);
@@ -93,7 +86,6 @@ public class NotificationSettingFragment extends Fragment {
                     ((CheckedTextView) rootView.findViewById(R.id.checkedTextView77)).setChecked(true);
                     ((CheckedTextView) rootView.findViewById(R.id.checkedTextView88)).setChecked(true);
                     ((CheckedTextView) rootView.findViewById(R.id.checkedTextView99)).setChecked(true);
-
                 }
             }
         });
@@ -162,7 +154,6 @@ public class NotificationSettingFragment extends Fragment {
                 }
             }
         });
-
 
         final CheckedTextView ctv6 = (CheckedTextView) rootView.findViewById(R.id.checkedTextView6);
         ctv6.setOnClickListener(new View.OnClickListener() {
@@ -281,7 +272,6 @@ public class NotificationSettingFragment extends Fragment {
             }
         });
 
-
         final CheckedTextView ctv66 = (CheckedTextView) rootView.findViewById(R.id.checkedTextView66);
         ctv66.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -336,12 +326,6 @@ public class NotificationSettingFragment extends Fragment {
 
         return rootView;
     }
-
-
-
-
-
-
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

@@ -3,6 +3,7 @@ package io.github.budgetninja.fairwellandroid;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -28,8 +29,8 @@ public class SmartSolveFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_smart_solve, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if (actionBar != null) {
-            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            final Drawable upArrow = ContextCompat.getDrawable(getContext(), R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(ContextCompat.getColor(getContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Smart Solve");

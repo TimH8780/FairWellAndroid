@@ -13,30 +13,17 @@ import com.parse.ParseUser;
 
 public class MainActivity extends AppCompatActivity {
 
-    /* TODO:
-    Check if the user is first time fragment_login or not. My idea is to have a counter store
-    locally on the phone (probably using SQLite) and increments it as soon as the
-    user finishes the tutorial. Decrement if the user logout.
-
-    Mengpei and Tim, if you guys have better solution. Please use whichever way you
-    feel easier and more feasible.
-     */
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_container);
 
-        //show tutorial slide?
-
         Intent intent;
-
         if (ParseUser.getCurrentUser() != null) {                         //Already logged in
             intent = new Intent(MainActivity.this, ContentActivity.class);
         } else {                                                        //Need to log in
             intent = new Intent(MainActivity.this, LoginActivity.class);
         }
-
         startActivity(intent);
     }
 

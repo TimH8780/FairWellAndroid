@@ -1,14 +1,7 @@
 package io.github.budgetninja.fairwellandroid;
 
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -17,8 +10,6 @@ import android.os.Bundle;
 
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceManager;
-import android.text.Html;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -34,9 +25,6 @@ import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText firstN, lastN, userN, email, pass, ConfirmPass;
@@ -66,7 +54,6 @@ public class RegisterActivity extends AppCompatActivity {
             upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             getSupportActionBar().setHomeAsUpIndicator(upArrow);
         }
-
 
         //Confirm Registration Button
         confirmRegButton.setOnClickListener(new View.OnClickListener() {
@@ -125,15 +112,12 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-
         //Term and Condition
         termCondition.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                     // EULA title
                     String title = getString(R.string.app_name) + " Terms and Privacy";
-
                     // EULA text
                     String message = getString(R.string.eula_string);
 
@@ -142,18 +126,7 @@ public class RegisterActivity extends AppCompatActivity {
                             .setMessage(message)
                             .setCancelable(false)
                             .setNegativeButton("OK", null);
-
                     builder.create().show();
-
-
-
-
-
-
-
-
-
-
             }
         });
 

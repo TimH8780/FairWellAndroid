@@ -145,8 +145,6 @@ public class StatementObject {
         }
     }
 
-
-
     public static class SubStatement {
 
         private ParseObject object;
