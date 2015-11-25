@@ -38,7 +38,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
 * **Smart Solve Page**
   * *Unknown (if time permits)*
 * **Account Setting Page**
-  * Pull information from Parse 
+  * Pull information from Parse
   * Save data to database when save button is clicked
 * **Notification Setting Page**
   * Use sharedpreference to store the settings locally
@@ -74,5 +74,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
 * **Other**
   * Check email-verify (before they can use this app) Not for FB and TW login right? - Tim
   * Check friend-verify (before they can add statement related to him/her) Can be done in email or phone way - Tim
+  * Adjust images in Login-Page and AddStatement-Page based on device resolution
   * Notification
   * *Payment Option (if time permits)*
+  * Move 'Text' in xml to String.xml
