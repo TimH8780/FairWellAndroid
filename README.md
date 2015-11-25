@@ -6,7 +6,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
 <return>
 <return>
 
-###### To-do Lists for the project *(Updated on 11/23)*
+###### To-do Lists for the project *(Updated on 11/25)*
 * **Tutorial Page** - Issac https://github.com/PaoloRotolo/AppIntro
 * ~~**Login Page**~~
   * ~~Login (normal)~~
@@ -62,7 +62,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * Add Note
   * ~~Add statement under split Equally mode~~
   * Add statement under split Unequally mode - Tim
-  * *Add statement under ratio mode (if time permits)* - Tim
+  * *Add statement under ratio mode (if time permits)*
 * ~~**View Statement Summary Page**~~
   * Design - Issac
   * ~~Cancel statement~~
@@ -75,6 +75,6 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * Check email-verify (before they can use this app) Not for FB and TW login right? - Tim
   * Check friend-verify (before they can add statement related to him/her) Can be done in email or phone way - Tim
   * Adjust images in Login-Page and AddStatement-Page based on device resolution
-  * Notification
+  * Notification - Mengpei
   * *Payment Option (if time permits)*
   * Move 'Text' in xml to String.xml
