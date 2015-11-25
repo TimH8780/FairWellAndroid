@@ -28,6 +28,6 @@ proguard/
 .idea/
 
 # Gradle prop files
-*.properties
+#*.properties
 
 info.txt
