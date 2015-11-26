@@ -35,7 +35,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.camera.Util;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -45,11 +44,9 @@ import net.simonvt.menudrawer.MenuDrawer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
+import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
 
 public class ContentActivity extends AppCompatActivity{
 
@@ -153,6 +150,12 @@ public class ContentActivity extends AppCompatActivity{
         UpdateInBackground task = new UpdateInBackground(this);
         task.execute();
         new Thread(checkForUpdate).start();
+        String notificationKey = getIntent().getStringExtra("notificationKey");
+        if(notificationKey!=null){
+            if(notificationKey.equals("FRIEND_REQUEST")||notificationKey.equals("FRIEND_REQUEST_ACCEPTED")){
+                switchFriends();
+            }
+        }
     }
 
     @Override
@@ -214,83 +217,163 @@ public class ContentActivity extends AppCompatActivity{
         else if(view == findViewById(R.id.icon_7)){ clicked = "Other"; }
         ((AddStatementFragment)getSupportFragmentManager().findFragmentByTag("Add")).setClickedIconText(clicked);
     }
+    private void switchHome(){
 
-    protected void layoutManage(int index){
         fragTrans = fragMgr.beginTransaction();
         Fragment fragment;
+        fragment = fragMgr.findFragmentByTag("Home");
+        if(fragment != null){
+            if(fragment.isVisible()) { return; }
+        }
+        fragMgr.popBackStack("Home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        fragTrans.replace(R.id.container, new HomepageFragment(), "Home").addToBackStack("Home");
+        fragTrans.commit();
+        fragMgr.executePendingTransactions();
+    }
+    private void switchDashBoard(){
+
+
+        fragTrans = fragMgr.beginTransaction();
+        Fragment fragment;
+
+        fragment = fragMgr.findFragmentByTag("Dashboard");
+        if(fragment != null){
+            if(fragment.isVisible()) { return; }
+        }
+        fragMgr.popBackStack("Dashboard", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        fragTrans.replace(R.id.container, new DashboardFragment(), "Dashboard").addToBackStack("Dashboard");
+        fragTrans.commit();
+        fragMgr.executePendingTransactions();
+    }
+    private void switchFriends(){
+
+        fragTrans = fragMgr.beginTransaction();
+        Fragment fragment;
+        fragment = fragMgr.findFragmentByTag("Friend");
+        if(fragment != null){
+            if(fragment.isVisible()) { return; }
+        }
+        fragTrans.replace(R.id.container, new FriendsFragment(), "Friend").addToBackStack("Friend");
+        fragTrans.commit();
+        fragMgr.executePendingTransactions();
+    }
+    private void switchSmartSolve(){
+
+        fragTrans = fragMgr.beginTransaction();
+        Fragment fragment;
+        fragment = fragMgr.findFragmentByTag("Solve");
+        if(fragment != null){
+            if(fragment.isVisible()) { return; }
+        }
+        fragTrans.replace(R.id.container, new SmartSolveFragment(), "Solve").addToBackStack("Solve");
+        fragTrans.commit();
+        fragMgr.executePendingTransactions();
+    }
+    private void switchAccountSetting(){
+
+        fragTrans = fragMgr.beginTransaction();
+        Fragment fragment;
+        fragment = fragMgr.findFragmentByTag("Account");
+        if(fragment != null){
+            if(fragment.isVisible()) { return; }
+        }
+        fragTrans.replace(R.id.container, new AccountSettingFragment(), "Account").addToBackStack("Account");
+        fragTrans.commit();
+        fragMgr.executePendingTransactions();
+    }
+    private void switchNotificationSetting(){
+
+        fragTrans = fragMgr.beginTransaction();
+        Fragment fragment;
+        fragment = fragMgr.findFragmentByTag("Notification");
+        if(fragment != null){
+            if(fragment.isVisible()) { return; }
+        }
+        fragTrans.replace(R.id.container, new NotificationSettingFragment(), "Notification").addToBackStack("Notification");
+        fragTrans.commit();
+        fragMgr.executePendingTransactions();
+    }
+    private void switchViewStatement(){
+
+        fragTrans = fragMgr.beginTransaction();
+        fragTrans.replace(R.id.container, new ViewStatementsFragment(), "View").addToBackStack("View");
+        fragTrans.commit();
+        fragMgr.executePendingTransactions();
+    }
+    private void switchAddStatement(){
+
+        fragTrans = fragMgr.beginTransaction();
+        fragTrans.replace(R.id.container, new AddStatementFragment(), "Add").addToBackStack("Add");
+        fragTrans.commit();
+        fragMgr.executePendingTransactions();
+    }
+    private void switchResolveStatement(){
+
+        fragTrans = fragMgr.beginTransaction();
+        fragTrans.replace(R.id.container, new ResolveStatementsFragment(), "Resolve").addToBackStack("Resolve");
+        fragTrans.commit();
+        fragMgr.executePendingTransactions();
+    }
+    private void switchSubmitStatementSummary(){
+
+        fragTrans = fragMgr.beginTransaction();
+        fragTrans.replace(R.id.container, new SubmitStatementSummaryFragment(), "Summary").addToBackStack("Summary");
+        fragTrans.commit();
+        fragMgr.executePendingTransactions();
+    }
+    private void switchStatementSummary(){
+
+        fragTrans = fragMgr.beginTransaction();
+        fragTrans.replace(R.id.container, new StatementSummaryFragment(), "Summary").addToBackStack("Summary");
+        fragTrans.commit();
+        fragMgr.executePendingTransactions();
+    }
+    protected void layoutManage(int index){
         switch (index) {
             case POSITION_HOME:
-                fragment = fragMgr.findFragmentByTag("Home");
-                if(fragment != null){
-                    if(fragment.isVisible()) { break; }
-                }
-                fragMgr.popBackStack("Home", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                fragTrans.replace(R.id.container, new HomepageFragment(), "Home").addToBackStack("Home");
+                switchHome();
                 break;
 
             case POSITION_DASHBOARD:
-                fragment = fragMgr.findFragmentByTag("Dashboard");
-                if(fragment != null){
-                    if(fragment.isVisible()) { break; }
-                }
-                fragMgr.popBackStack("Dashboard", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                fragTrans.replace(R.id.container, new DashboardFragment(), "Dashboard").addToBackStack("Dashboard");
+                switchDashBoard();
                 break;
 
             case POSITION_FRIENDS:
-                fragment = fragMgr.findFragmentByTag("Friend");
-                if(fragment != null){
-                    if(fragment.isVisible()) { break; }
-                }
-                fragTrans.replace(R.id.container, new FriendsFragment(), "Friend").addToBackStack("Friend");
+                switchFriends();
                 break;
 
             case POSITION_SMART_SOLVE:
-                fragment = fragMgr.findFragmentByTag("Solve");
-                if(fragment != null){
-                    if(fragment.isVisible()) { break; }
-                }
-                fragTrans.replace(R.id.container, new SmartSolveFragment(), "Solve").addToBackStack("Solve");
+                switchSmartSolve();
                 break;
 
             case POSITION_ACCOUNT_SETTING:
-                fragment = fragMgr.findFragmentByTag("Account");
-                if(fragment != null){
-                    if(fragment.isVisible()) { break; }
-                }
-                fragTrans.replace(R.id.container, new AccountSettingFragment(), "Account").addToBackStack("Account");
+                switchAccountSetting();
                 break;
 
             case POSITION_NOTIFICATION_SETTING:
-                fragment = fragMgr.findFragmentByTag("Notification");
-                if(fragment != null){
-                    if(fragment.isVisible()) { break; }
-                }
-                fragTrans.replace(R.id.container, new NotificationSettingFragment(), "Notification").addToBackStack("Notification");
+                switchNotificationSetting();
                 break;
 
             case INDEX_VIEW_STATEMENT:
-                fragTrans.replace(R.id.container, new ViewStatementsFragment(), "View").addToBackStack("View");
+                switchViewStatement();
                 break;
 
             case INDEX_ADD_STATEMENT:
-                fragTrans.replace(R.id.container, new AddStatementFragment(), "Add").addToBackStack("Add");
+                switchAddStatement();
                 break;
 
             case INDEX_RESOLVE_STATEMENT:
-                fragTrans.replace(R.id.container, new ResolveStatementsFragment(), "Resolve").addToBackStack("Resolve");
+                switchResolveStatement();
                 break;
 
             case INDEX_SUBMIT_STATEMENT_SUMMARY:
-                fragTrans.replace(R.id.container, new SubmitStatementSummaryFragment(), "Summary").addToBackStack("Summary");
+                switchSubmitStatementSummary();
                 break;
 
             case INDEX_STATEMENT_SUMMARY:
-                fragTrans.replace(R.id.container, new StatementSummaryFragment(), "Summary").addToBackStack("Summary");
+                switchStatementSummary();
                 break;
         }
-        fragTrans.commit();
-        fragMgr.executePendingTransactions();
     }
 
     protected void setSubmitStatementSummaryData(SummaryStatement data){

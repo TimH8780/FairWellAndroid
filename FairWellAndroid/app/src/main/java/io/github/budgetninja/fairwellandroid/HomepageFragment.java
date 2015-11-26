@@ -239,7 +239,9 @@ public class HomepageFragment extends Fragment {
     }
 
     protected void setBalance(){
-        balanceView.setText(format.format(BALANCE));
+        if(balanceView!=null) {
+            balanceView.setText(format.format(BALANCE));
+        }
     }
 
     public static Bitmap bitmapCompress(Bitmap b, int rate){
