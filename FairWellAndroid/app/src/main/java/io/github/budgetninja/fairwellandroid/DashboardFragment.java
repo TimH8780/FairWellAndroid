@@ -275,7 +275,7 @@ public class DashboardFragment extends ListFragment {
             upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             actionBar.setHomeAsUpIndicator(upArrow);
         }
-        parent.setTitle("Dashboard Activity");
+        parent.setTitle("Dashboard");
 
         return rootView;
 

@@ -13,8 +13,7 @@
             android:padding="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="20dp">
+            android:orientation="horizontal">
 
             <ImageView
                 android:layout_width="100dp"
@@ -27,29 +26,64 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/friend_detail_name"
                     android:paddingTop="20dp"
                     android:paddingLeft="10dp"
                     android:textSize="25dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Issac Chern"/>
+                    android:text="Name"/>
 
                 <TextView
+                    android:id="@+id/friend_detail_email"
                     android:paddingLeft="10dp"
                     android:textSize="18dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="issacchern@gmail.com"/>
+                    android:text="Email Address"/>
 
             </LinearLayout>
 
         </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/friend_detail_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confirm Friendship"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_toLeftOf="@+id/friend_detail_reject"/>
+
+            <Button
+                android:id="@+id/friend_detail_reject"
+                android:text="Reject Friendship"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true" />
+
+            <Button
+                android:id="@+id/friend_detail_delete"
+                android:text="Delete Friendship"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"/>
+
+        </RelativeLayout>
 
         <LinearLayout
             android:background="@color/windowBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_marginTop="10dp"
             android:padding="10dp">
 
             <LinearLayout

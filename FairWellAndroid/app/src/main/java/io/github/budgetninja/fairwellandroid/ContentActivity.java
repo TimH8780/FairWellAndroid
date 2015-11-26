@@ -150,6 +150,7 @@ public class ContentActivity extends AppCompatActivity{
         UpdateInBackground task = new UpdateInBackground(this);
         task.execute();
         new Thread(checkForUpdate).start();
+
         String notificationKey = getIntent().getStringExtra("notificationKey");
         if(notificationKey!=null){
             if(notificationKey.equals("FRIEND_REQUEST")||notificationKey.equals("FRIEND_REQUEST_ACCEPTED")){
@@ -217,11 +218,10 @@ public class ContentActivity extends AppCompatActivity{
         else if(view == findViewById(R.id.icon_7)){ clicked = "Other"; }
         ((AddStatementFragment)getSupportFragmentManager().findFragmentByTag("Add")).setClickedIconText(clicked);
     }
-    private void switchHome(){
 
+    private void switchHome(){
         fragTrans = fragMgr.beginTransaction();
-        Fragment fragment;
-        fragment = fragMgr.findFragmentByTag("Home");
+        Fragment fragment = fragMgr.findFragmentByTag("Home");
         if(fragment != null){
             if(fragment.isVisible()) { return; }
         }
@@ -230,26 +230,21 @@ public class ContentActivity extends AppCompatActivity{
         fragTrans.commit();
         fragMgr.executePendingTransactions();
     }
+
     private void switchDashBoard(){
-
-
         fragTrans = fragMgr.beginTransaction();
-        Fragment fragment;
-
-        fragment = fragMgr.findFragmentByTag("Dashboard");
+        Fragment fragment = fragMgr.findFragmentByTag("Dashboard");
         if(fragment != null){
             if(fragment.isVisible()) { return; }
         }
-        fragMgr.popBackStack("Dashboard", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         fragTrans.replace(R.id.container, new DashboardFragment(), "Dashboard").addToBackStack("Dashboard");
         fragTrans.commit();
         fragMgr.executePendingTransactions();
     }
-    private void switchFriends(){
 
+    private void switchFriends(){
         fragTrans = fragMgr.beginTransaction();
-        Fragment fragment;
-        fragment = fragMgr.findFragmentByTag("Friend");
+        Fragment fragment = fragMgr.findFragmentByTag("Friend");
         if(fragment != null){
             if(fragment.isVisible()) { return; }
         }
@@ -257,11 +252,10 @@ public class ContentActivity extends AppCompatActivity{
         fragTrans.commit();
         fragMgr.executePendingTransactions();
     }
-    private void switchSmartSolve(){
 
+    private void switchSmartSolve(){
         fragTrans = fragMgr.beginTransaction();
-        Fragment fragment;
-        fragment = fragMgr.findFragmentByTag("Solve");
+        Fragment fragment = fragMgr.findFragmentByTag("Solve");
         if(fragment != null){
             if(fragment.isVisible()) { return; }
         }
@@ -269,11 +263,10 @@ public class ContentActivity extends AppCompatActivity{
         fragTrans.commit();
         fragMgr.executePendingTransactions();
     }
-    private void switchAccountSetting(){
 
+    private void switchAccountSetting(){
         fragTrans = fragMgr.beginTransaction();
-        Fragment fragment;
-        fragment = fragMgr.findFragmentByTag("Account");
+        Fragment fragment = fragMgr.findFragmentByTag("Account");
         if(fragment != null){
             if(fragment.isVisible()) { return; }
         }
@@ -281,11 +274,10 @@ public class ContentActivity extends AppCompatActivity{
         fragTrans.commit();
         fragMgr.executePendingTransactions();
     }
-    private void switchNotificationSetting(){
 
+    private void switchNotificationSetting(){
         fragTrans = fragMgr.beginTransaction();
-        Fragment fragment;
-        fragment = fragMgr.findFragmentByTag("Notification");
+        Fragment fragment = fragMgr.findFragmentByTag("Notification");
         if(fragment != null){
             if(fragment.isVisible()) { return; }
         }
@@ -293,41 +285,42 @@ public class ContentActivity extends AppCompatActivity{
         fragTrans.commit();
         fragMgr.executePendingTransactions();
     }
-    private void switchViewStatement(){
 
+    private void switchViewStatement(){
         fragTrans = fragMgr.beginTransaction();
         fragTrans.replace(R.id.container, new ViewStatementsFragment(), "View").addToBackStack("View");
         fragTrans.commit();
         fragMgr.executePendingTransactions();
     }
-    private void switchAddStatement(){
 
+    private void switchAddStatement(){
         fragTrans = fragMgr.beginTransaction();
         fragTrans.replace(R.id.container, new AddStatementFragment(), "Add").addToBackStack("Add");
         fragTrans.commit();
         fragMgr.executePendingTransactions();
     }
-    private void switchResolveStatement(){
 
+    private void switchResolveStatement(){
         fragTrans = fragMgr.beginTransaction();
         fragTrans.replace(R.id.container, new ResolveStatementsFragment(), "Resolve").addToBackStack("Resolve");
         fragTrans.commit();
         fragMgr.executePendingTransactions();
     }
-    private void switchSubmitStatementSummary(){
 
+    private void switchSubmitStatementSummary(){
         fragTrans = fragMgr.beginTransaction();
         fragTrans.replace(R.id.container, new SubmitStatementSummaryFragment(), "Summary").addToBackStack("Summary");
         fragTrans.commit();
         fragMgr.executePendingTransactions();
     }
-    private void switchStatementSummary(){
 
+    private void switchStatementSummary(){
         fragTrans = fragMgr.beginTransaction();
         fragTrans.replace(R.id.container, new StatementSummaryFragment(), "Summary").addToBackStack("Summary");
         fragTrans.commit();
         fragMgr.executePendingTransactions();
     }
+
     protected void layoutManage(int index){
         switch (index) {
             case POSITION_HOME:
@@ -449,27 +442,27 @@ public class ContentActivity extends AppCompatActivity{
 
             switch(position) {
                 case POSITION_HOME:
-                    layoutManage(position);
+                    switchHome();
                     break;
 
                 case POSITION_DASHBOARD:
-                    layoutManage(position);
+                    switchDashBoard();
                     break;
 
                 case POSITION_FRIENDS:
-                    layoutManage(position);
+                    switchFriends();
                     break;
 
                 case POSITION_SMART_SOLVE:
-                    layoutManage(position);
+                    switchSmartSolve();
                     break;
 
                 case POSITION_ACCOUNT_SETTING:
-                    layoutManage(position);
+                    switchAccountSetting();
                     break;
 
                 case POSITION_NOTIFICATION_SETTING:
-                    layoutManage(position);
+                    switchNotificationSetting();
                     break;
 
                 case POSITION_RATE_THIS_APP:
@@ -617,7 +610,6 @@ public class ContentActivity extends AppCompatActivity{
 
     protected class UpdateInBackground extends AsyncTask <Void, Void, Void> {
         private ProgressDialog dialog;
-
         public UpdateInBackground(Context activity) {
             dialog = new ProgressDialog(activity);
         }

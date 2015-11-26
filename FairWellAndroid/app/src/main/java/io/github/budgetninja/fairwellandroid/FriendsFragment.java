@@ -94,23 +94,16 @@ public class FriendsFragment extends Fragment{
         view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                Toast.makeText(getContext(), friendList.get(i).name, Toast.LENGTH_SHORT).show();
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
                 fragTrans = fragMgr.beginTransaction();
-                Fragment fragment;
-                fragment = fragMgr.findFragmentByTag("Friend_Detail");
-
-                if(fragment != null){
-                    if(fragment.isVisible()) { return; }
-                }
-
-                fragMgr.popBackStack("Friend_Detail", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 fragTrans.replace(R.id.container, new FriendDetailFragment(), "Friend_Detail").addToBackStack("Friend_Detail");
-
                 fragTrans.commit();
                 fragMgr.executePendingTransactions();
+                FriendDetailFragment fragment = (FriendDetailFragment) fragMgr.findFragmentByTag("Friend_Detail");
+                if(fragment != null){
+                    fragment.setDate(friendList.get(position));
+                }
             }
         });
 
@@ -285,7 +278,6 @@ public class FriendsFragment extends Fragment{
 
         private class ViewHolder{
             TextView nameText, emailText, statusText;
-            Button confirmButton, deleteButton;
             ImageView photoImage;
         }
 
@@ -311,8 +303,6 @@ public class FriendsFragment extends Fragment{
                 holder.nameText = (TextView) convertView.findViewById(R.id.friend_name);
                 holder.emailText = (TextView) convertView.findViewById(R.id.friend_email);
                 holder.statusText = (TextView) convertView.findViewById(R.id.confirmResult);
-                holder.confirmButton = (Button) convertView.findViewById(R.id.button_friend_confirm);
-                holder.deleteButton = (Button) convertView.findViewById(R.id.button_friend_delete);
                 holder.photoImage = (ImageView) convertView.findViewById(R.id.friend_photo);
                 convertView.setTag(holder);
             }
@@ -326,90 +316,22 @@ public class FriendsFragment extends Fragment{
                 int pixel = IMAGE_WIDTH_HEIGHT * (DPI / 160);
                 Bitmap bmp = HomepageFragment.decodeSampledBitmapFromByteArray(currentItem.photo, pixel, pixel);
                 holder.photoImage.setImageBitmap(bmp);
-            }
-            else{
+            } else {
                 holder.photoImage.setImageResource(R.drawable.profilepic);
             }
 
             if(!currentItem.isUserOne && !currentItem.confirm) {
-                holder.confirmButton.setVisibility(View.VISIBLE);
-                holder.statusText.setVisibility(View.INVISIBLE);
-                Pair<Integer, TextView> data = new Pair<>(position, holder.statusText);
-                holder.confirmButton.setTag(data);
-                holder.confirmButton.setOnClickListener(new View.OnClickListener() {
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public void onClick(View button) {
-                        if (!parent.isNetworkConnected()) {
-                            Toast.makeText(mContext, "Check Internet Connection", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        Pair<Integer, TextView> data = (Pair<Integer, TextView>) button.getTag();
-                        Friend currentItem = mData.get(data.first);
-                        currentItem.setConfirm();
-                        button.setVisibility(View.INVISIBLE);
-                        data.second.setVisibility(View.INVISIBLE);
-                        Toast.makeText(mContext, "Confirmed", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                holder.statusText.setVisibility(View.VISIBLE);
+                holder.statusText.setText("Awaiting for your response");
             }
             else if(currentItem.isUserOne && !currentItem.confirm){
-                holder.confirmButton.setVisibility(View.INVISIBLE);
                 holder.statusText.setVisibility(View.VISIBLE);
+                holder.statusText.setText("Awaiting for confirmation");
             }
             else{           //confirmed
-                holder.confirmButton.setVisibility(View.INVISIBLE);
                 holder.statusText.setVisibility(View.INVISIBLE);
             }
 
-            holder.deleteButton.setTag(position);
-            holder.deleteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View button) {
-                    if (!parent.isNetworkConnected()) {
-                        Toast.makeText(mContext, "Check Internet Connection", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    int position = (int) button.getTag();
-                    final Friend currentItem = mData.get(position);
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                    TextView message = new TextView(mContext);
-                    if (currentItem.confirm) {
-                        message.setText("Are you sure you want to delete \n <" + currentItem.name + "> ?");
-                        builder.setTitle("Delete Friend");
-                    } else if (currentItem.isUserOne) {
-                        message.setText("Are you sure you want to cancel the friend request to <" + currentItem.name + "> ?");
-                        builder.setTitle("Cancel Friend Request");
-                    } else {
-                        message.setText("Are you sure you want to deny the friend request from <" + currentItem.name + "> ?");
-                        builder.setTitle("Deny Friend Request");
-                    }
-                    message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-                    message.setPadding(20, 20, 20, 20);
-                    builder.setView(message);
-                    builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (currentItem.currentUserOwed > 0 || currentItem.friendOwed > 0 || currentItem.isPendingStatement) {
-                                Toast.makeText(mContext, "You can't delete friend with non-zero balance/ pending statement!", Toast.LENGTH_LONG).show();
-                            } else {
-                                currentItem.deleteFriend();
-                                Utility.removeFromExistingFriendList(currentItem);
-                                adapter.remove(currentItem);
-                            }
-                        }
-                    });
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-                    final AlertDialog dialog = builder.create();
-                    dialog.show();
-                }
-            });
             return convertView;
         }
 
@@ -444,7 +366,7 @@ public class FriendsFragment extends Fragment{
         }
     }
 
-    private class AddFriendLoading extends AsyncTask<Void, Void, Void> {
+    private class AddFriendLoading extends AsyncTask<Boolean, Void, Boolean> {
         private ProgressDialog dialog;
         private ParseUser friend;
 
@@ -460,7 +382,7 @@ public class FriendsFragment extends Fragment{
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Boolean doInBackground(Boolean... params) {
             try {
                 final ParseObject friendList = new ParseObject("FriendList");
                 friendList.put("userOne", user);
@@ -476,26 +398,34 @@ public class FriendsFragment extends Fragment{
                 Friend newItem = new Friend(friendList.getObjectId(), friendList, friend,
                         Utility.getName(friend), friend.getEmail(), 0, 0, false, false, true);
                 Utility.addToExistingFriendList(newItem);
+                return true;
             } catch (ParseException e){
                 e.printStackTrace();
+                return false;
             }
-            return null;
         }
 
         @Override
-        protected void onPostExecute(Void result) {
+        protected void onPostExecute(Boolean result) {
             if (dialog.isShowing()) {
                 dialog.dismiss();
             }
             adapter.updateData(Utility.generateFriendArray());
-            Toast.makeText(parent, "Sent a notification to <" + Utility.getName(friend) + ">", Toast.LENGTH_SHORT).show();
+            if (result) {
+                Toast.makeText(parent, "Sent a notification to <" + Utility.getName(friend) + ">", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(parent, "Request Failed, Please Retry", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
+
     public static class FriendDetailFragment extends Fragment {
 
-        private ParseUser user;
         private ContentActivity parent;
+        private Friend object;
+        private Button confirm, reject, delete;
+        private TextView name, email;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -509,13 +439,17 @@ public class FriendsFragment extends Fragment{
             }
             parent.setTitle("Friend Detail");
 
-            return rootView;
+            confirm = (Button) rootView.findViewById(R.id.friend_detail_confirm);
+            reject = (Button) rootView.findViewById(R.id.friend_detail_reject);
+            delete = (Button) rootView.findViewById(R.id.friend_detail_delete);
+            name = (TextView) rootView.findViewById(R.id.friend_detail_name);
+            email = (TextView) rootView.findViewById(R.id.friend_detail_email);
 
+            return rootView;
         }
 
         @Override
         public void onCreate( Bundle savedInstanceState) {
-            user = ParseUser.getCurrentUser();
             parent = (ContentActivity)getActivity();
             setHasOptionsMenu(true);
             super.onCreate(savedInstanceState);
@@ -540,5 +474,110 @@ public class FriendsFragment extends Fragment{
                     return super.onOptionsItemSelected(item);
             }
         }
+
+        private void setDate(Friend item){
+            object = item;
+            buttonSetup();
+            dataDisplay();
+        }
+
+        private void buttonSetup(){
+            if(!object.isUserOne && !object.confirm) {
+                confirm.setVisibility(View.VISIBLE);
+                reject.setVisibility(View.VISIBLE);
+                delete.setVisibility(View.GONE);
+            } else {
+                confirm.setVisibility(View.GONE);
+                reject.setVisibility(View.GONE);
+                delete.setVisibility(View.VISIBLE);
+            }
+
+            confirm.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View button) {
+                    if (!parent.isNetworkConnected()) {
+                        Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    object.setConfirm();
+                    confirm.setVisibility(View.GONE);
+                    reject.setVisibility(View.GONE);
+                    delete.setVisibility(View.VISIBLE);
+                    Toast.makeText(parent, "Confirmed", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            reject.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!parent.isNetworkConnected()) {
+                        Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+                    TextView message = new TextView(parent);
+                    message.setText("Are you sure you want to deny the friend request from <" + object.name + "> ?");
+                    builder.setTitle("Deny Friend Request");
+                    message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+                    message.setPadding(20, 20, 20, 20);
+                    builder.setView(message);
+                    builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (object.currentUserOwed > 0 || object.friendOwed > 0 || object.isPendingStatement) {
+                                Toast.makeText(parent, "You can't delete friend with non-zero balance/ pending statement!", Toast.LENGTH_LONG).show();
+                            } else {
+                                object.deleteFriend();
+                                Utility.removeFromExistingFriendList(object);
+                                parent.fragMgr.popBackStack();
+                            }
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", null);
+                    final AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+            });
+
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!parent.isNetworkConnected()) {
+                        Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+                    TextView message = new TextView(parent);
+                    message.setText("Are you sure you want to delete <" + object.name + "> ?");
+                    builder.setTitle("Delete Friend");
+                    message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+                    message.setPadding(20, 20, 20, 20);
+                    builder.setView(message);
+                    builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (object.currentUserOwed > 0 || object.friendOwed > 0 || object.isPendingStatement) {
+                                Toast.makeText(parent, "You can't delete friend with non-zero balance/ pending statement!", Toast.LENGTH_LONG).show();
+                            } else {
+                                object.deleteFriend();
+                                Utility.removeFromExistingFriendList(object);
+                                parent.fragMgr.popBackStack();
+                            }
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", null);
+                    final AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+            });
+        }
+
+        private void dataDisplay(){
+            name.setText(object.name);
+            email.setText(object.email);
+
+            //more info
+        }
     }
+
 }

@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingTop="13dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
     android:paddingLeft="15dp"
     android:paddingRight="15dp">
 
@@ -48,29 +49,7 @@
             android:textSize="12sp"
             android:textStyle="bold"
             android:textColor="#FF0000"
-            android:text="Awaiting for confirmation"/>
-
-        <Button
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:id="@+id/button_friend_confirm"
-            android:layout_width="105dp"
-            android:layout_height="50dp"
-            android:layout_below="@+id/friend_email"
-            android:layout_toLeftOf="@+id/button_friend_delete"
-            android:textSize="12sp"
-            android:hint="Confirm Friend Request" />
-
-        <Button
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:id="@+id/button_friend_delete"
-            android:layout_width="70dp"
-            android:layout_height="50dp"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/friend_email"
-            android:textSize="12sp"
-            android:hint="Delete"/>
+            android:text="Note"/>
 
     </RelativeLayout>
 
