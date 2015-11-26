@@ -61,6 +61,8 @@ public class FriendsFragment extends Fragment{
     private ParseUser user;
     private ContentActivity parent;
     private FriendAdaptor adapter;
+    protected FragmentManager fragMgr;
+    protected FragmentTransaction fragTrans;
 
     @Override
     public void onCreate(Bundle bundle){
@@ -68,6 +70,7 @@ public class FriendsFragment extends Fragment{
         setHasOptionsMenu(true);
         user = ParseUser.getCurrentUser();
         parent = (ContentActivity)getActivity();
+        fragMgr = getFragmentManager();
     }
 
     @Override
@@ -75,8 +78,8 @@ public class FriendsFragment extends Fragment{
         View rootView = inflater.inflate(R.layout.fragment_friend, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
-            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            final Drawable upArrow = ContextCompat.getDrawable(getContext(), R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(ContextCompat.getColor(getContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Friend");
@@ -95,17 +98,19 @@ public class FriendsFragment extends Fragment{
 
                 Toast.makeText(getContext(), friendList.get(i).name, Toast.LENGTH_SHORT).show();
 
-                Fragment fragment = parent.fragMgr.findFragmentByTag("Friend_Detail");
+                fragTrans = fragMgr.beginTransaction();
+                Fragment fragment;
+                fragment = fragMgr.findFragmentByTag("Friend_Detail");
 
                 if(fragment != null){
                     if(fragment.isVisible()) { return; }
                 }
 
-                parent.fragMgr.popBackStack("Friend_Detail", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                parent.fragTrans.replace(R.id.container, new FriendDetailFragment(), "Friend_Detail").addToBackStack("Friend_Detail");
+                fragMgr.popBackStack("Friend_Detail", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                fragTrans.replace(R.id.container, new FriendDetailFragment(), "Friend_Detail").addToBackStack("Friend_Detail");
 
-                parent.fragTrans.commit();
-                parent.fragMgr.executePendingTransactions();
+                fragTrans.commit();
+                fragMgr.executePendingTransactions();
             }
         });
 
