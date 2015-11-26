@@ -6,7 +6,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
 <return>
 <return>
 
-###### To-do Lists for the project *(Updated on 11/25)*
+###### To-do Lists *(Updated on 11/26)*
 * **Tutorial Page** - Issac https://github.com/PaoloRotolo/AppIntro
 * ~~**Login Page**~~
   * ~~Login (normal)~~
@@ -15,13 +15,14 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Forget password~~
 * ~~**Registration Page**~~
   * ~~Term and conditions~~
+  * ~~Password Length Restriction~~
   * ~~Register~~
 * **Home Page**
   * ~~Balance Update~~
   * Change balance layout
   * Change buttons layout (if possible) - Issac  https://github.com/ogaclejapan/SmartTabLayout
-  * Name display (if profile name is empty, use First and Last Name) - Tim
-  * ~~Image upload/ display~~
+  * ~Name display~
+  * ~~Image upload and display~~
   * ~~Buttons~~
 * **Dashboard Page**
   * Populate info - Issac  https://github.com/beworker/pinned-section-listview
@@ -32,9 +33,9 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Confirm firend request~~
   * ~~Reject firend request~~
   * ~~Friend info display~~
-  * Progress bar when adding friend - Tim
+  * ~~Progress bar when adding friend~~
   * Friend profile when clicked (remove friend button in friend profile) - Tim
-  * Get the info from Parse for friend profile (Should be straightforward)
+  * Get the info for friend profile
 * **Smart Solve Page**
   * *Unknown (if time permits)*
 * **Account Setting Page**
@@ -52,14 +53,15 @@ Chern Yee Chua <chernyee@buffalo.edu>
 * **View Statement Page**
   * ~~View Statement~~
   * ~~Comfirm Statement Request~~
-  * Change Wording (i.e. N/A to Yourself) - Tim
+  * ~~Change Wording~~
   * Reject Statement Request - Tim
 * **Add Statement Page**
   * ~~Design~~
-  * ~~Info input~~
+  * ~~Info Input and Check~~
   * Icon - Issac
   * Add Snapshot
   * Add Note
+  * ~~Progress bar when adding statement~~
   * ~~Add statement under split Equally mode~~
   * Add statement under split Unequally mode - Tim
   * *Add statement under ratio mode (if time permits)*
@@ -73,8 +75,8 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * Resolve statement - Tim
 * **Other**
   * Check email-verify (before they can use this app) Not for FB and TW login right? - Tim
-  * Check friend-verify (before they can add statement related to him/her) Can be done in email or phone way - Tim
+  * ~Check friend-verify~
   * Adjust images in Login-Page and AddStatement-Page based on device resolution
   * Notification - Mengpei
   * *Payment Option (if time permits)*
-  * Move 'Text' in xml to String.xml
+  * Store 'Text' in layout.xml to String.xml
