@@ -21,7 +21,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Balance Update~~
   * Change balance layout
   * Change buttons layout (if possible) - Issac  https://github.com/ogaclejapan/SmartTabLayout
-  * ~Name display~
+  * ~~Name display~~
   * ~~Image upload and display~~
   * ~~Buttons~~
 * **Dashboard Page**
@@ -75,7 +75,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * Resolve statement - Tim
 * **Other**
   * Check email-verify (before they can use this app) Not for FB and TW login right? - Tim
-  * ~Check friend-verify~
+  * ~~Check friend-verify~~
   * Adjust images in Login-Page and AddStatement-Page based on device resolution
   * Notification - Mengpei
   * *Payment Option (if time permits)*
