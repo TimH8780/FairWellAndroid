@@ -51,6 +51,7 @@ public class StatementObject {
         }
     }
 
+
     public static class Statement implements Comparable<Statement> {
 
         private ParseObject object;
@@ -145,6 +146,7 @@ public class StatementObject {
         }
     }
 
+
     public static class SubStatement {
 
         private ParseObject object;
@@ -160,7 +162,7 @@ public class StatementObject {
             this.object = object;
             this.payee = payee;
             this.payer = payer;
-            this.payerName = Utility.getUserName(payer);
+            this.payerName = Utility.getName(payer);
             this.payerConfirm = payerConfirm;
             this.payerAmount = payerAmount;
             this.payerRelation = payerRelation;

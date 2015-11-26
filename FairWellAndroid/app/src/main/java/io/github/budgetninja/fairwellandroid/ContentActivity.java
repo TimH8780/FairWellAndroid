@@ -55,6 +55,9 @@ public class ContentActivity extends AppCompatActivity{
 
     private static final String STATE_ACTIVE_POSITION = "net.simonvt.menudrawer.samples.ContentActivity.activePosition";
     private static final String STATE_CONTENT_TEXT = "net.simonvt.menudrawer.samples.ContentActivity.contentText";
+    public static final int NORMAL_USER = 0;
+    public static final int FACEBOOK_USER = 1;
+    public static final int TWITTER_USER = 2;
     public static final int POSITION_HOME = 0;
     private static final int POSITION_FRIENDS = 2;
     private static final int POSITION_DASHBOARD = 3;
@@ -147,7 +150,7 @@ public class ContentActivity extends AppCompatActivity{
         layoutManage(POSITION_HOME);
 
         checkForUpdate = new CheckForUpdate();
-        UpdateInBackground task = new UpdateInBackground(ContentActivity.this);
+        UpdateInBackground task = new UpdateInBackground(this);
         task.execute();
         new Thread(checkForUpdate).start();
     }
@@ -532,7 +535,7 @@ public class ContentActivity extends AppCompatActivity{
     protected class UpdateInBackground extends AsyncTask <Void, Void, Void> {
         private ProgressDialog dialog;
 
-        public UpdateInBackground(ContentActivity activity) {
+        public UpdateInBackground(Context activity) {
             dialog = new ProgressDialog(activity);
         }
 

@@ -1,7 +1,10 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -143,7 +146,7 @@ public class SubmitStatementSummaryFragment extends Fragment {
         categoryText = data.category;
         date = data.date;
         deadline = data.deadline;
-        sumbitByText = Utility.getUserName(user);
+        sumbitByText = Utility.getName(user);
         modeNum = data.mode;
         unknownNum = data.unknown;
         amountNum = data.totalAmount;
@@ -159,9 +162,10 @@ public class SubmitStatementSummaryFragment extends Fragment {
         deadlineView.setText(dateFormat.format(deadline));
         totalAmountView.setText("$ " + String.format("%.2f", this.amountNum));
         modeView.setText(Integer.toString(modeNum));
-        sumbitByView.setText(sumbitByText);
+        sumbitByView.setText("YOU");
+
         String payeeName;
-        if(this.payee == null){ payeeName = Utility.getUserName(ParseUser.getCurrentUser()); }
+        if(this.payee == null){ payeeName = "YOU"; }
         else { payeeName = this.payee.name; }
 
         TableRow memberRow;
@@ -182,7 +186,7 @@ public class SubmitStatementSummaryFragment extends Fragment {
 
                     payer = new TextView(parent);
                     payer.setGravity(Gravity.CENTER);
-                    payer.setText(payerName.equals("Self") ? Utility.getUserName(user) : payerName);
+                    payer.setText(payerName.equals("Self") ? "YOU" : payerName);
 
                     amount = new TextView(parent);
                     amount.setGravity(Gravity.CENTER);
@@ -195,7 +199,10 @@ public class SubmitStatementSummaryFragment extends Fragment {
                     layout.addView(memberRow);
                 }
                 if(unknownNum > 0 && runningDif >= 0.01){
-                    String entry = "(" + Integer.toString(unknownNum) + " Unknown)";
+                    String entry;
+                    if(unknownNum == 1) { entry = "(1 non-user)"; }
+                    else{ entry = "(" + Integer.toString(unknownNum) + " non-users)"; }
+
                     memberRow = new TableRow(parent);
                     memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
 
@@ -233,87 +240,118 @@ public class SubmitStatementSummaryFragment extends Fragment {
     private View.OnClickListener submitListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            object = new ParseObject("StatementGroup");
-            isCurrentUserInvolved = new Pair<>(false, false);    //First = isInvolved, Second = isPayee
-
-            if(payee == null){      //payee == current user
-                object.put("payee", user);
-                object.put("payeeConfirm", true);
-                isCurrentUserInvolved = new Pair<>(true, true);
-
-            } else {
-                object = payee.insertParseUser(object, "payee");
-                payee.notifyChange();
-                object.put("payeeConfirm", false);
-            }
-            object.put("description", descriptionText);
-            object.put("category", categoryText);
-            object.put("paymentAmount", amountNum);
-            object.put("submittedBy", sumbitByText);
-            object.put("mode", modeNum);
-            object.put("date", date);
-            object.put("deadline", deadline);
-            object.put("unknown", unknownNum);
-            object.put("unknownAmount", runningDif);
-
-            ArrayList<ParseObject> statementArray = new ArrayList<>();
-            for(int i = 0; i < payer.size(); i++){
-                Pair<Friend, Double> item = payer.get(i);
-                if(item.first.name.equals("Self") && payee == null) {       //The two cases when payer == payee
-                    continue;
-                }
-                if(!item.first.name.equals("Self") && payee != null) {
-                    if(item.first.isEqual(payee)) { continue; }
-                }
-
-                ParseObject statementObject = new ParseObject("Statement");
-                if(item.first.name.equals("Self") && payee != null) {       //The case when payee is someone else and payer is current user
-                    statementObject = payee.insertFriendship(statementObject, "friendship");
-                    payee.setPendingStatement();
-                    statementObject.put("payer", user);
-                    statementObject.put("payerConfirm", false);
-                    statementObject.put("amount", item.second);
-                    statementArray.add(statementObject);
-                    isCurrentUserInvolved = new Pair<>(true, false);
-                } else {
-                    if (payee != null) {                                    //The case when payee is someone else
-                        ParseObject temp = payee.generateFriendToFriendRelationship(item.first);
-                        temp.put("pendingStatement", true);
-                        temp.saveInBackground();
-                        statementObject.put("friendship", temp);
-                    } else {                                                //The case when payee is current user
-                        statementObject = item.first.insertFriendship(statementObject, "friendship");
-                        item.first.setPendingStatement();
-                    }
-                    statementObject = item.first.insertParseUser(statementObject, "payer");
-                    item.first.notifyChange();
-                    statementObject.put("payerConfirm", false);
-                    statementObject.put("amount", item.second);
-                    statementArray.add(statementObject);
-                }
-            }
-
-            object.put("payer", statementArray);
-            object.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if(e == null){
-                        Toast.makeText(parent, "Submitted", Toast.LENGTH_SHORT).show();
-                        parent.layoutManage(POSITION_HOME);
-                        if(isCurrentUserInvolved.first){
-                            Statement statement = new Statement(object, isCurrentUserInvolved.second);
-                            ParseObject temp = Utility.getRawListLocation();
-                            temp.getList("statementList").add(object);
-                            temp.pinInBackground();
-                            Utility.addToExistingStatementList(statement);
-                        }
-                    } else {
-                        Toast.makeText(parent, "Submission Failed", Toast.LENGTH_SHORT).show();
-                        Log.d("Statement", e.toString());
-                    }
-                }
-            });
+            SubmitStatementLoading submitStatementLoading = new SubmitStatementLoading(parent);
+            submitStatementLoading.execute();
         }
     };
+
+
+    private class SubmitStatementLoading extends AsyncTask<Boolean, Void, Boolean> {
+        private ProgressDialog dialog;
+
+        public SubmitStatementLoading(Context activity) {
+            dialog = new ProgressDialog(activity);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog.setMessage("Submitting Statement... Please Wait...");
+            dialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Boolean... params) {
+            try {
+                object = new ParseObject("StatementGroup");
+                isCurrentUserInvolved = new Pair<>(false, false);    //First = isInvolved, Second = isPayee
+
+                if (payee == null) {              //payee == current user
+                    object.put("payee", user);
+                    object.put("payeeConfirm", true);
+                    isCurrentUserInvolved = new Pair<>(true, true);
+
+                } else {
+                    object = payee.insertParseUser(object, "payee");
+                    payee.notifyChange();
+                    object.put("payeeConfirm", false);
+                }
+                object.put("description", descriptionText);
+                object.put("category", categoryText);
+                object.put("paymentAmount", amountNum);
+                object.put("submittedBy", sumbitByText);
+                object.put("mode", modeNum);
+                object.put("date", date);
+                object.put("deadline", deadline);
+                object.put("unknown", unknownNum);
+                object.put("unknownAmount", runningDif);
+
+                ArrayList<ParseObject> statementArray = new ArrayList<>();
+                for (int i = 0; i < payer.size(); i++) {
+                    Pair<Friend, Double> item = payer.get(i);
+                    if (item.first.name.equals("Self") && payee == null) {       //The two cases when payer == payee
+                        continue;
+                    }
+                    if (!item.first.name.equals("Self") && payee != null) {
+                        if (item.first.isEqual(payee)) {
+                            continue;
+                        }
+                    }
+
+                    ParseObject statementObject = new ParseObject("Statement");
+                    if (item.first.name.equals("Self") && payee != null) {       //The case when payee is someone else and payer is current user
+                        statementObject = payee.insertFriendship(statementObject, "friendship");
+                        payee.setPendingStatement();
+                        statementObject.put("payer", user);
+                        statementObject.put("payerConfirm", false);
+                        statementObject.put("amount", item.second);
+                        statementArray.add(statementObject);
+                        isCurrentUserInvolved = new Pair<>(true, false);
+                    } else {
+                        if (payee != null) {                                    //The case when payee is someone else
+                            ParseObject temp = payee.generateFriendToFriendRelationship(item.first);
+                            temp.put("pendingStatement", true);
+                            temp.saveInBackground();
+                            statementObject.put("friendship", temp);
+                        } else {                                                //The case when payee is current user
+                            statementObject = item.first.insertFriendship(statementObject, "friendship");
+                            item.first.setPendingStatement();
+                        }
+                        statementObject = item.first.insertParseUser(statementObject, "payer");
+                        item.first.notifyChange();
+                        statementObject.put("payerConfirm", false);
+                        statementObject.put("amount", item.second);
+                        statementArray.add(statementObject);
+                    }
+                }
+
+                object.put("payer", statementArray);
+                object.save();
+                if (isCurrentUserInvolved.first) {
+                    Statement statement = new Statement(object, isCurrentUserInvolved.second);
+                    ParseObject temp = Utility.getRawListLocation();
+                    temp.getList("statementList").add(object);
+                    temp.pinInBackground();
+                    Utility.addToExistingStatementList(statement);
+                }
+                return true;
+            } catch (ParseException e){
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+            parent.layoutManage(POSITION_HOME);
+            if(result) {
+                Toast.makeText(parent, "Statement Submitted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(parent, "Submission Failed", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
 }

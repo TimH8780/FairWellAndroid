@@ -1,16 +1,19 @@
 package io.github.budgetninja.fairwellandroid;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
@@ -58,8 +61,6 @@ public class FriendsFragment extends Fragment{
     private ParseUser user;
     private ContentActivity parent;
     private FriendAdaptor adapter;
-    protected FragmentManager fragMgr;
-    protected FragmentTransaction fragTrans;
 
     @Override
     public void onCreate(Bundle bundle){
@@ -67,8 +68,6 @@ public class FriendsFragment extends Fragment{
         setHasOptionsMenu(true);
         user = ParseUser.getCurrentUser();
         parent = (ContentActivity)getActivity();
-        fragMgr = getFragmentManager();
-
     }
 
     @Override
@@ -95,20 +94,18 @@ public class FriendsFragment extends Fragment{
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
                 Toast.makeText(getContext(), friendList.get(i).name, Toast.LENGTH_SHORT).show();
-//
-                fragTrans = fragMgr.beginTransaction();
-                Fragment fragment;
-                fragment = fragMgr.findFragmentByTag("Friend_Detail");
+
+                Fragment fragment = parent.fragMgr.findFragmentByTag("Friend_Detail");
 
                 if(fragment != null){
                     if(fragment.isVisible()) { return; }
                 }
 
-                fragMgr.popBackStack("Friend_Detail", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                fragTrans.replace(R.id.container, new FriendDetailFragment(), "Friend_Detail").addToBackStack("Friend_Detail");
+                parent.fragMgr.popBackStack("Friend_Detail", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                parent.fragTrans.replace(R.id.container, new FriendDetailFragment(), "Friend_Detail").addToBackStack("Friend_Detail");
 
-                fragTrans.commit();
-                fragMgr.executePendingTransactions();
+                parent.fragTrans.commit();
+                parent.fragMgr.executePendingTransactions();
             }
         });
 
@@ -239,30 +236,11 @@ public class FriendsFragment extends Fragment{
             return;
         }
         if (!isDuplicateFriend(user, friend)) {
-            final ParseObject friendList = new ParseObject("FriendList");
-            friendList.put("userOne", user);
-            friendList.put("userTwo", friend);
-            friendList.put("confirmed", false);
-            friendList.put("owedByOne", 0);
-            friendList.put("owedByTwo", 0);
-            friendList.put("pendingStatement", false);
-            friendList.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    ParseObject temp = Utility.getRawListLocation();
-                    temp.getList("list").add(friendList);
-                    temp.pinInBackground();
-                    Friend newItem = new Friend(friendList.getObjectId(), friendList, friend,
-                            Utility.getUserName(friend), friend.getEmail(), 0, 0, false, false, true);
-                    Utility.addToExistingFriendList(newItem);
-                    adapter.updateData(Utility.generateFriendArray());
-
-                    Toast.makeText(parent, "Sent a notification to <" + Utility.getUserName(friend) + ">", Toast.LENGTH_SHORT).show();
-                }
-            });
+            AddFriendLoading task = new AddFriendLoading(parent, friend);
+            task.execute();
             return;
         }
-        Toast.makeText(parent, "<" + Utility.getUserName(friend) + "> are already in your friend list", Toast.LENGTH_SHORT).show();
+        Toast.makeText(parent, "<" + Utility.getName(friend) + "> are already in your friend list", Toast.LENGTH_SHORT).show();
     }
 
     private boolean isDuplicateFriend(ParseUser userOne, ParseUser userTwo){            // check if added before
@@ -461,6 +439,54 @@ public class FriendsFragment extends Fragment{
         }
     }
 
+    private class AddFriendLoading extends AsyncTask<Void, Void, Void> {
+        private ProgressDialog dialog;
+        private ParseUser friend;
+
+        public AddFriendLoading(Context activity, ParseUser friend) {
+            dialog = new ProgressDialog(activity);
+            this.friend = friend;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog.setMessage("Searching and Adding Friend... Please Wait...");
+            dialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                final ParseObject friendList = new ParseObject("FriendList");
+                friendList.put("userOne", user);
+                friendList.put("userTwo", friend);
+                friendList.put("confirmed", false);
+                friendList.put("owedByOne", 0);
+                friendList.put("owedByTwo", 0);
+                friendList.put("pendingStatement", false);
+                friendList.save();
+                ParseObject temp = Utility.getRawListLocation();
+                temp.getList("list").add(friendList);
+                temp.pinInBackground();
+                Friend newItem = new Friend(friendList.getObjectId(), friendList, friend,
+                        Utility.getName(friend), friend.getEmail(), 0, 0, false, false, true);
+                Utility.addToExistingFriendList(newItem);
+            } catch (ParseException e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+            adapter.updateData(Utility.generateFriendArray());
+            Toast.makeText(parent, "Sent a notification to <" + Utility.getName(friend) + ">", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public static class FriendDetailFragment extends Fragment {
 
         private ParseUser user;
@@ -472,14 +498,13 @@ public class FriendsFragment extends Fragment{
             final View rootView = inflater.inflate(R.layout.fragment_friend_detail, container, false);
             ActionBar actionBar = parent.getSupportActionBar();
             if (actionBar != null) {
-                final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-                upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+                final Drawable upArrow = ContextCompat.getDrawable(getContext(), R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+                upArrow.setColorFilter(ContextCompat.getColor(getContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
                 actionBar.setHomeAsUpIndicator(upArrow);
             }
             parent.setTitle("Friend Detail");
 
             return rootView;
-
 
         }
 
@@ -510,6 +535,5 @@ public class FriendsFragment extends Fragment{
                     return super.onOptionsItemSelected(item);
             }
         }
-
     }
 }

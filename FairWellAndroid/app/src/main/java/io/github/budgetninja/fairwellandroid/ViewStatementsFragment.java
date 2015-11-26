@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -70,8 +71,8 @@ public class ViewStatementsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_view_statements, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
-            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            final Drawable upArrow = ContextCompat.getDrawable(getContext(), R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(ContextCompat.getColor(getContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("View Statement");
@@ -143,14 +144,14 @@ public class ViewStatementsFragment extends Fragment {
             if(!currentItem.isPayee) {
                 SubStatement target = currentItem.findPayerStatement(ParseUser.getCurrentUser());
                 if(target != null) {
-                    holder.nameText.setText(Utility.getUserName(currentItem.payee));
+                    holder.nameText.setText(Utility.getName(currentItem.payee));
                     holder.dueDateText.setText(dateFormat.format(currentItem.deadline));
                     holder.amountText.setText("$ " + String.format("%.2f", target.payerAmount));
                     holder.statusText.setText(target.payerConfirm ? "      " : "Required");
                 }
             }
             else{
-                holder.nameText.setText(String.format("%s", "N/A"));
+                holder.nameText.setText(String.format("%s", "YOU"));
                 holder.dueDateText.setText(dateFormat.format(currentItem.deadline));
                 holder.amountText.setText("$ " + String.format("%.2f", currentItem.totalAmount));
                 holder.statusText.setText(currentItem.payeeConfirm ? "      " : "Required");

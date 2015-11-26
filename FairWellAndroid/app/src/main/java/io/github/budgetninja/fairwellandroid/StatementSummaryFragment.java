@@ -4,6 +4,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -67,8 +68,8 @@ public class StatementSummaryFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ActionBar actionBar = parent.getSupportActionBar();
         if (actionBar != null) {
-            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            final Drawable upArrow = ContextCompat.getDrawable(getContext(), R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(ContextCompat.getColor(getContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Summary");
@@ -135,6 +136,7 @@ public class StatementSummaryFragment extends Fragment{
                 break;
         }
         sumbitByView.setText(data.submitBy);
+
         if(data.isPayee){
             displayDataPayee();
         } else {
@@ -153,7 +155,7 @@ public class StatementSummaryFragment extends Fragment{
 
         TextView payer = new TextView(parent);
         payer.setGravity(Gravity.CENTER);
-        payer.setText(Utility.getUserName(data.payee));
+        payer.setText("YOU");
 
         TextView amount = new TextView(parent);
         amount.setGravity(Gravity.CENTER);
@@ -195,6 +197,7 @@ public class StatementSummaryFragment extends Fragment{
         TextView payer, amount, status;
         for(int i = 0; i < data.payerList.size(); i++){
             SubStatement item = data.payerList.get(i);
+
             memberRow = new TableRow(parent);
             memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
 
@@ -226,7 +229,11 @@ public class StatementSummaryFragment extends Fragment{
 
             payer = new TextView(parent);
             payer.setGravity(Gravity.CENTER);
-            payer.setText("(" + Integer.toString(data.unknown) + " Unknown)");
+            if(data.unknown == 1){
+                payer.setText("(1 non-user)");
+            } else {
+                payer.setText("(" + Integer.toString(data.unknown) + " non-users)");
+            }
 
             amount = new TextView(parent);
             amount.setGravity(Gravity.CENTER);

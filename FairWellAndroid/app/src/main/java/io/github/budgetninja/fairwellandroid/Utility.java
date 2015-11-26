@@ -15,11 +15,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.BALANCE;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.NORMAL_USER;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.FACEBOOK_USER;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.TWITTER_USER;
 
 /**
  *Created by Issac on 9/23/2015.
@@ -27,39 +29,51 @@ import static io.github.budgetninja.fairwellandroid.ContentActivity.BALANCE;
 public class Utility {
 
     public static boolean isNormalUser(ParseUser user) {
-        return (!isFacebookUser(user) && !isTwitterUser(user));
+        try{
+            int userType = user.fetchIfNeeded().getInt("userType");
+            return userType == NORMAL_USER;
+        } catch (ParseException e){
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static boolean isFacebookUser(ParseUser user){
-        try {
-            if (user.fetchIfNeeded().get("usernameFacebook") != null) {
-                return true;
-            }
-        } catch (ParseException e) {
+        try{
+            int userType = user.fetchIfNeeded().getInt("userType");
+            return userType == FACEBOOK_USER;
+        } catch (ParseException e){
             e.printStackTrace();
         }
         return false;
     }
 
     public static boolean isTwitterUser(ParseUser user){
-        try {
-            if (user.fetchIfNeeded().get("usernameTwitter") != null) {
-                return true;
-            }
-        } catch (ParseException e) {
+        try{
+            int userType = user.fetchIfNeeded().getInt("userType");
+            return userType == TWITTER_USER;
+        } catch (ParseException e){
             e.printStackTrace();
         }
         return false;
     }
 
-    public static String getUserName(ParseUser user){
-        if(isFacebookUser(user)){
-            return user.getString("usernameFacebook");
+    public static String getName(ParseUser user){
+        try {
+            user.fetchIfNeeded();
+            return (user.getString("First_Name") + " " + user.getString("Last_Name"));
+        } catch (ParseException e){
+            return "";
         }
-        if(isTwitterUser(user)){
-            return user.getString("usernameTwitter");
+    }
+
+    public static String getProfileName(ParseUser user){
+        try {
+            user.fetchIfNeeded();
+            return (user.getString("profileName"));
+        } catch (ParseException e){
+            return "";
         }
-        return (user.getString("First_Name") + " " + user.getString("Last_Name"));
     }
 
     public static void generateRawFriendList(ParseUser user){
@@ -118,7 +132,7 @@ public class Utility {
                         friendowed = object.getDouble("owedByOne");
                         isUserOne = false;
                     }
-                    Friend friendItem = new Friend(object.getObjectId(), object, user, Utility.getUserName(user), user.getString("email"),
+                    Friend friendItem = new Friend(object.getObjectId(), object, user, Utility.getName(user), user.getString("email"),
                             userowed, friendowed, object.getBoolean("pendingStatement"), object.getBoolean("confirmed"), isUserOne);
                     offlineList.add(friendItem.toStringAllData());
                     friendList.add(friendItem);

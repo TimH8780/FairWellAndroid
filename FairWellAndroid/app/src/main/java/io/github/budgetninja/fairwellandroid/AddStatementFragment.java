@@ -60,6 +60,7 @@ import java.util.Objects;
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
 
+import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_STATEMENT_SUMMARY;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_SUBMIT_STATEMENT_SUMMARY;
 
 /**
@@ -96,6 +97,8 @@ public class AddStatementFragment extends Fragment {
     private static final int MONTH = 1;
     private static final int DAY = 2;
     private static final int SELF = 0;
+    private static final int PAYER_HINT = -1;
+    public static final int MODE_HINT = -1;
     public static final int SPLIT_EQUALLY = 0;
     public static final int SPLIT_UNEQUALLY = 1;
     public static final int BY_RATIO = 2;
@@ -127,18 +130,24 @@ public class AddStatementFragment extends Fragment {
         counter = -1;
         parent = (ContentActivity)getActivity();
         user = ParseUser.getCurrentUser();
-        paidByPosition = SELF;
-        modePosition = SPLIT_EQUALLY;
         format = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
+        paidByPosition = PAYER_HINT;
+        modePosition = MODE_HINT;
 
-        if(parent.isNetworkConnected()) { friendList = new ArrayList<>(Utility.generateFriendArray()); }
-        else { friendList = new ArrayList<>(Utility.generateFriendArrayOffline()); }
+        List<Friend> temp;
+        friendList = new ArrayList<>();
+        if(parent.isNetworkConnected()) { temp = new ArrayList<>(Utility.generateFriendArray()); }
+        else { temp = new ArrayList<>(Utility.generateFriendArrayOffline()); }
 
+        for(int i = 0; i < temp.size(); i++){
+            Friend item = temp.get(i);
+            if(item.confirm){
+                friendList.add(item);
+            }
+        }
 
-
+        // First item: User himself, Last item: hint
         friendList.add(0, new Friend(null, null, user, "Self", null, -1, -1, false, true, true)); //user her/himself
-
-        // this very last item is used for the spinner's hint, check it yourself
         friendList.add(friendList.size(),new Friend(null, null, user, "Select Payer", null, -1, -1, false, true, true));
 
         friendSelected = new Boolean[friendList.size()];
@@ -151,17 +160,14 @@ public class AddStatementFragment extends Fragment {
         dateRecord.add(DEADLINE + YEAR, 2101);
         dateRecord.add(DEADLINE + MONTH, 12);
         dateRecord.add(DEADLINE + DAY, 31);
-
-
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
-            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            final Drawable upArrow = ContextCompat.getDrawable(getContext(), R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(ContextCompat.getColor(getContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Add Statement");
@@ -189,37 +195,32 @@ public class AddStatementFragment extends Fragment {
         deadlineFieldButton = (Button) rootView.findViewById(R.id.deadlineFieldButton);
         layoutMemberDisplay = (LinearLayout) rootView.findViewById(R.id.layout_member_display);
 
-        // Create an ArrayAdapter using the string array and a default spinner layout
-//        ArrayAdapter<Friend> paidByAdapter = new ArrayAdapter<>(getContext(),
-//                android.R.layout.simple_spinner_item, friendList);
+/*       Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<Friend> paidByAdapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item, friendList);
 
-        // Apply the adapter to the spinner
-//        paidBySpinner.setAdapter(paidByAdapter);
+         Apply the adapter to the spinner
+        paidBySpinner.setAdapter(paidByAdapter);
 
+         Specify the layout to use when the list of choices appears
+        paidByAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        // Specify the layout to use when the list of choices appears
-//        paidByAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-//        ArrayAdapter<CharSequence> modeAdapter = ArrayAdapter.createFromResource(getContext(),
-//                R.array.mode_array, android.R.layout.simple_spinner_item);
-//        modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//        modeSpinner.setAdapter(modeAdapter);
-
+        ArrayAdapter<CharSequence> modeAdapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.mode_array, android.R.layout.simple_spinner_item);
+        modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        modeSpinner.setAdapter(modeAdapter);*/
 
         //Tim : I change it to this way (test it your own to see what) , hope this won't be causing any issue
-        // if no issues, feel free to remove those commented lines
+        //if no issues, feel free to remove those commented lines
 
 
-        ArrayAdapter<Friend> paidByAdapter = new ArrayAdapter<Friend>(getActivity(), android.R.layout.simple_spinner_dropdown_item) {
-
+        final ArrayAdapter<Friend> paidByAdapter = new ArrayAdapter<Friend>(getActivity(), android.R.layout.simple_spinner_dropdown_item) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-
                 View v = super.getView(position, convertView, parent);
                 if (position == getCount()) {
-                    ((TextView)v.findViewById(android.R.id.text1)).setText(getItem(getCount()).name); //"Hint to be displayed"
+                    ((TextView)v.findViewById(android.R.id.text1)).setText(getItem(getCount()).name);   //"Hint to be displayed"
                 }
-
                 return v;
             }
 
@@ -227,25 +228,20 @@ public class AddStatementFragment extends Fragment {
             public int getCount() {
                 return super.getCount()-1; // you dont display last item. It is used as hint.
             }
-
         };
 
         paidByAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         paidByAdapter.addAll(friendList);
-
         paidBySpinner.setAdapter(paidByAdapter);
         paidBySpinner.setSelection(paidByAdapter.getCount());
 
-        ArrayAdapter<String> modeAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item) {
-
+        final ArrayAdapter<String> modeAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-
                 View v = super.getView(position, convertView, parent);
                 if (position == getCount()) {
                     ((TextView)v.findViewById(android.R.id.text1)).setText(getItem(getCount())); //"Hint to be displayed"
                 }
-
                 return v;
             }
 
@@ -253,7 +249,6 @@ public class AddStatementFragment extends Fragment {
             public int getCount() {
                 return super.getCount()-1; // you dont display last item. It is used as hint.
             }
-
         };
 
         modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -268,7 +263,11 @@ public class AddStatementFragment extends Fragment {
         paidBySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                paidByPosition = position;
+                if(position == paidByAdapter.getCount()){
+                    paidByPosition = PAYER_HINT;
+                } else {
+                    paidByPosition = position;
+                }
                 friendSelected = new Boolean[friendList.size()];
                 selectedMember = new ArrayList<>();
                 displayMemberSelected();
@@ -281,7 +280,11 @@ public class AddStatementFragment extends Fragment {
         modeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                modePosition = position;
+                if(position == modeAdapter.getCount()){
+                    modePosition = MODE_HINT;
+                } else {
+                    modePosition = position;
+                }
                 friendSelected = new Boolean[friendList.size()];
                 selectedMember = new ArrayList<>();
                 displayMemberSelected();
@@ -301,8 +304,7 @@ public class AddStatementFragment extends Fragment {
         });
         deadlineFieldButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                showDatePickerDialog(DEADLINE);
+            public void onClick(View v) {showDatePickerDialog(DEADLINE);
             }
         });
 
@@ -376,7 +378,6 @@ public class AddStatementFragment extends Fragment {
         img.setBounds(0, 0, 75, 75);
         description.setCompoundDrawables(img, null, null, null);
 
-
         previousState = rootView;
         return rootView;
     }
@@ -395,7 +396,7 @@ public class AddStatementFragment extends Fragment {
 
     protected void setClickedIconText(String string) {
         if (!string.equals("")) {
-            clickedText.setText("Category: " + string);
+            clickedText.setText(string);
         }
     }
 
@@ -404,6 +405,7 @@ public class AddStatementFragment extends Fragment {
         int counter = selectedMember.size();
         if(counter != 0) {
             TextView text = new TextView(parent);
+            text.setTextColor(Color.RED);
             text.setTextColor(Color.RED);
             text.setGravity(Gravity.CENTER_HORIZONTAL);
             text.setTypeface(null, Typeface.BOLD);
@@ -448,10 +450,26 @@ public class AddStatementFragment extends Fragment {
             String deadline = deadlineFieldButton.getText().toString();
             Boolean member = selectedMember.isEmpty();
 
-            if(!descr.equals("") && !categ.equals("Select Category") && !amount.equals("") && !date.equals("") && !deadline.equals("") && !member){
+            if(!descr.equals("") && !categ.equals("Select Category") && !amount.equals("") && !date.equals("")
+                    && !deadline.equals("") && !member && paidByPosition != PAYER_HINT && modePosition != MODE_HINT){
+
+                Friend payee = paidByPosition == SELF ? null : friendList.get(paidByPosition);
+                if(selectedMember.size() == 1){
+                    if(selectedMember.get(0).first.name.equals("Self") && payee == null) {
+                        Toast.makeText(getContext(), "Statement must be made between at least 2 Fairwell-users", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    else if(payee != null && !selectedMember.get(0).first.name.equals("Self")){
+                        if(selectedMember.get(0).first.isEqual(payee)){
+                            Toast.makeText(getContext(), "Statement must be made between at least 2 Fairwell-users", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+                }
+
                 parent.layoutManage(INDEX_SUBMIT_STATEMENT_SUMMARY);
                 pageCheck = true;
-                Friend payee = paidByPosition == 0 ? null : friendList.get(paidByPosition);
+
                 if(isAmountChanged){
                     if(modePosition == SPLIT_EQUALLY){
                         selectedMember = new ArrayList<>();
@@ -465,8 +483,9 @@ public class AddStatementFragment extends Fragment {
                         }
                     }
                 }
+
                 try {
-                    SummaryStatement summaryStatement = new SummaryStatement(descr, categ.substring(10), format.parse(date), format.parse(deadline),
+                    SummaryStatement summaryStatement = new SummaryStatement(descr, categ, format.parse(date), format.parse(deadline),
                             modePosition, counter, Double.valueOf(amount), payee, selectedMember);
                     parent.setSubmitStatementSummaryData(summaryStatement);
                 } catch (ParseException e) {

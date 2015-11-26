@@ -43,6 +43,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.github.budgetninja.fairwellandroid.ContentActivity.FACEBOOK_USER;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.TWITTER_USER;
+
 public class LoginActivity extends Activity {
 
     private EditText username, password;
@@ -280,8 +283,18 @@ public class LoginActivity extends Activity {
     }
 
     private void setUpUsernameTwitter(ParseUser user){
-        user.put("usernameTwitter", (ParseTwitterUtils.getTwitter().getScreenName()));
+        String screenName = ParseTwitterUtils.getTwitter().getScreenName();
+        if(screenName.contains(" ")){
+            int index = screenName.indexOf(" ");
+            user.put("First_Name", screenName.substring(0, index));
+            user.put("Last_Name", screenName.substring(index+1));
+        } else{
+            user.put("First_Name", screenName);
+            user.put("Last_Name", "");
+        }
         if(user.get("newEntry") == null){
+            user.put("userType", TWITTER_USER);
+            user.put("profileName", screenName);
             ParseObject tempA = new ParseObject("Friend_update");
             tempA.put("newEntry", false);
             tempA.put("list", new ArrayList<ParseObject>());
@@ -315,8 +328,18 @@ public class LoginActivity extends Activity {
                             JSONObject object,
                             GraphResponse response) {
                         try {
-                            user.fetchIfNeeded().put("usernameFacebook", object.getString("name"));
+                            String screenName = object.getString("name");
+                            if(screenName.contains(" ")){
+                                int index = screenName.indexOf(" ");
+                                user.put("First_Name", screenName.substring(0, index));
+                                user.put("Last_Name", screenName.substring(index+1));
+                            } else{
+                                user.put("First_Name", screenName);
+                                user.put("Last_Name", "");
+                            }
                             if(user.get("newEntry") == null){
+                                user.put("profileName", object.getString("name"));
+                                user.put("userType", FACEBOOK_USER);
                                 ParseObject tempA = new ParseObject("Friend_update");
                                 tempA.put("newEntry", false);
                                 tempA.put("list", new ArrayList<ParseObject>());

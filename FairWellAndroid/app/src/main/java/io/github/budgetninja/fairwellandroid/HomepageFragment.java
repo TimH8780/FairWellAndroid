@@ -160,7 +160,7 @@ public class HomepageFragment extends Fragment {
 
         //Display Full Name
         TextView name = (TextView) view.findViewById(R.id.name);
-        name.setText(Utility.getUserName(user));
+        name.setText(Utility.getProfileName(user));
 
         //Picture
         userPhotoView = (ImageView) view.findViewById(R.id.user_photo);

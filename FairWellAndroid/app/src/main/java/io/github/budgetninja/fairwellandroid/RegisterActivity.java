@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -24,6 +25,8 @@ import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
 import java.util.ArrayList;
+
+import static io.github.budgetninja.fairwellandroid.ContentActivity.NORMAL_USER;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -50,8 +53,8 @@ public class RegisterActivity extends AppCompatActivity {
         if (getSupportActionBar()!=null){
             getSupportActionBar().setTitle("Registration");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            final Drawable upArrow = ContextCompat.getDrawable(getApplicationContext(), R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             getSupportActionBar().setHomeAsUpIndicator(upArrow);
         }
 
@@ -66,11 +69,18 @@ public class RegisterActivity extends AppCompatActivity {
                 }
                 if(pass.getText().toString().equals(ConfirmPass.getText().toString())
                         && firstN.getText().toString().length() > 0 && lastN.getText().toString().length() >0){
+                    if(pass.getText().toString().length() < 8){
+                        Toast.makeText(getApplicationContext(), "Password has to be a least 8 characters", Toast.LENGTH_SHORT).show();
+                        ConfirmPass.setText("");
+                        return;
+                    }
                     if(agreement.isChecked()) {
                         final ParseUser user = new ParseUser();
                         user.setUsername(userN.getText().toString());
                         user.setPassword(pass.getText().toString());
                         user.setEmail(email.getText().toString());
+                        user.put("profileName", firstN.getText().toString() + " " + lastN.getText().toString());
+                        user.put("userType", NORMAL_USER);
                         user.put("Last_Name", lastN.getText().toString());
                         user.put("First_Name", firstN.getText().toString());
                         user.signUpInBackground(new SignUpCallback() {
