@@ -6,7 +6,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
 <return>
 <return>
 
-###### To-do Lists *(Updated on 11/26)*
+###### To-do Lists *(Updated on 11/27)*
 * **Tutorial Page** - Issac https://github.com/PaoloRotolo/AppIntro
 * ~~**Login Page**~~
   * ~~Login (normal)~~
@@ -19,7 +19,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Register~~
 * **Home Page**
   * ~~Balance Update~~
-  * Change balance layout
+  * ~~Change balance layout~~
   * Change buttons layout (if possible) - Issac  https://github.com/ogaclejapan/SmartTabLayout
   * ~~Name display~~
   * ~~Image upload and display~~
@@ -74,7 +74,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Friend (with non-zero balance) display~~
   * Resolve statement - Tim
 * **Other**
-  * Check email-verify (before they can use this app) Not for FB and TW login right? - Tim
+  * ~~Check email-verify~~
   * ~~Check friend-verify~~
   * Adjust images in Login-Page and AddStatement-Page based on device resolution
   * Notification - Mengpei
