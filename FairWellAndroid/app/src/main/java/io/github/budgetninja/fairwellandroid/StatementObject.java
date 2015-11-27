@@ -21,7 +21,8 @@ import java.util.Date;
 import java.util.List;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
-import static io.github.budgetninja.fairwellandroid.ContentActivity.BALANCE;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.OWE_BALANCE;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.OWN_BALANCE;
 
 /**
  *Created by Tim on 11/07/15.
@@ -222,7 +223,7 @@ public class StatementObject {
                         }
                         Log.d("Balance", "Continue_3");
 
-                        BALANCE -= payerAmount;
+                        OWE_BALANCE -= payerAmount;
                         Utility.editNewEntryField(payee, true);
                         Log.d("Balance", "End");
 

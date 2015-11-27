@@ -54,7 +54,8 @@ import static android.os.Environment.isExternalStorageRemovable;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_ADD_STATEMENT;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_RESOLVE_STATEMENT;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_VIEW_STATEMENT;
-import static io.github.budgetninja.fairwellandroid.ContentActivity.BALANCE;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.OWN_BALANCE;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.OWE_BALANCE;
 import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 
@@ -72,7 +73,8 @@ public class HomepageFragment extends Fragment {
     private boolean mDiskCacheStarting = true;
     public static final String DISK_CACHE_SUBDIR = "images";
 
-    private TextView balanceView;
+    private TextView oweBalanceView;
+    private TextView ownBalanceView;
     private ParseUser user;
     private ContentActivity parent;
     private DecimalFormat format;
@@ -126,15 +128,17 @@ public class HomepageFragment extends Fragment {
         parent.setTitle("Fairwell");
 
 /*        try {
-            TextView balanceView = (TextView) view.findViewById(R.id.homepage_balance);
+            TextView oweBalanceView = (TextView) view.findViewById(R.id.homepage_balance);
             double balance = user.getParseObject("newEntry").fetch().getDouble("balance");
-            balanceView.setText(format.format(balance));
+            oweBalanceView.setText(format.format(balance));
         } catch (ParseException e) {
             e.printStackTrace();
         }*/
 
-        balanceView = (TextView) view.findViewById(R.id.homepage_balance);
-        balanceView.setText(format.format(BALANCE));
+        oweBalanceView = (TextView) view.findViewById(R.id.homepage_balance_owe);
+        oweBalanceView.setText(format.format(OWE_BALANCE));
+        ownBalanceView = (TextView) view.findViewById(R.id.homepage_balance_own);
+        ownBalanceView.setText(format.format(OWN_BALANCE));
 
         //3 Buttons Functions
         Button addStatementButton = (Button) view.findViewById(R.id.addStatementButton);
@@ -239,8 +243,11 @@ public class HomepageFragment extends Fragment {
     }
 
     protected void setBalance(){
-        if(balanceView!=null) {
-            balanceView.setText(format.format(BALANCE));
+        if(oweBalanceView !=null) {
+            oweBalanceView.setText(format.format(OWE_BALANCE));
+        }
+        if(ownBalanceView != null){
+            ownBalanceView.setText(format.format(OWN_BALANCE));
         }
     }
 
@@ -308,8 +315,7 @@ public class HomepageFragment extends Fragment {
         return inSampleSize;
     }
 
-    public static Bitmap decodeSampledBitmapFromByteArray(byte[] res,
-                                                          int reqWidth, int reqHeight) {
+    public static Bitmap decodeSampledBitmapFromByteArray(byte[] res, int reqWidth, int reqHeight) {
         System.out.println("decodeSampleBitmapFromByteArray: reqWidth+reqHeight = " + reqWidth + "," + reqHeight);
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();

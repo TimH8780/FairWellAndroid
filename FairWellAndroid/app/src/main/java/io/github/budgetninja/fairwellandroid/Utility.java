@@ -18,7 +18,8 @@ import java.util.List;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
-import static io.github.budgetninja.fairwellandroid.ContentActivity.BALANCE;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.OWE_BALANCE;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.OWN_BALANCE;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.NORMAL_USER;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.FACEBOOK_USER;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.TWITTER_USER;
@@ -95,10 +96,13 @@ public class Utility {
                 Utility.setChangedRecord();
                 List<FriendObject.Friend> tempB = Utility.generateFriendArray();
                 Double runningSum = 0.0;
+                Double runningSub = 0.0;
                 for (int i = 0; i < tempB.size(); i++) {
-                    runningSum += tempB.get(i).getNetBalance();
+                    runningSum += tempB.get(i).friendOwed;
+                    runningSub -= tempB.get(i).currentUserOwed;
                 }
-                BALANCE = runningSum;
+                OWN_BALANCE = runningSum;
+                OWE_BALANCE = runningSub;
             }
         } catch (ParseException e){
             Log.d("RawFriendList", e.getMessage());

@@ -70,7 +70,10 @@ public class ContentActivity extends AppCompatActivity{
     public static final int INDEX_RESOLVE_STATEMENT = 16;
     public static final int INDEX_SUBMIT_STATEMENT_SUMMARY = 17;
     public static final int INDEX_STATEMENT_SUMMARY = 18;
-    public static double BALANCE = 0.00;
+    public static double OWN_BALANCE = 0.00;
+    public static double OWE_BALANCE = 0.00;
+
+    private boolean verification = false;
 
     protected MenuDrawer mMenuDrawer;
     private int mActivePosition = -1;
@@ -232,6 +235,10 @@ public class ContentActivity extends AppCompatActivity{
     }
 
     private void switchDashBoard(){
+        if(!emailVerificationCheck()){
+            emailNotVerifiedDialog();
+            return;
+        }
         fragTrans = fragMgr.beginTransaction();
         Fragment fragment = fragMgr.findFragmentByTag("Dashboard");
         if(fragment != null){
@@ -243,6 +250,10 @@ public class ContentActivity extends AppCompatActivity{
     }
 
     private void switchFriends(){
+        if(!emailVerificationCheck()){
+            emailNotVerifiedDialog();
+            return;
+        }
         fragTrans = fragMgr.beginTransaction();
         Fragment fragment = fragMgr.findFragmentByTag("Friend");
         if(fragment != null){
@@ -254,6 +265,10 @@ public class ContentActivity extends AppCompatActivity{
     }
 
     private void switchSmartSolve(){
+        if(!emailVerificationCheck()){
+            emailNotVerifiedDialog();
+            return;
+        }
         fragTrans = fragMgr.beginTransaction();
         Fragment fragment = fragMgr.findFragmentByTag("Solve");
         if(fragment != null){
@@ -287,6 +302,10 @@ public class ContentActivity extends AppCompatActivity{
     }
 
     private void switchViewStatement(){
+        if(!emailVerificationCheck()){
+            emailNotVerifiedDialog();
+            return;
+        }
         fragTrans = fragMgr.beginTransaction();
         fragTrans.replace(R.id.container, new ViewStatementsFragment(), "View").addToBackStack("View");
         fragTrans.commit();
@@ -294,6 +313,10 @@ public class ContentActivity extends AppCompatActivity{
     }
 
     private void switchAddStatement(){
+        if(!emailVerificationCheck()){
+            emailNotVerifiedDialog();
+            return;
+        }
         fragTrans = fragMgr.beginTransaction();
         fragTrans.replace(R.id.container, new AddStatementFragment(), "Add").addToBackStack("Add");
         fragTrans.commit();
@@ -301,6 +324,10 @@ public class ContentActivity extends AppCompatActivity{
     }
 
     private void switchResolveStatement(){
+        if(!emailVerificationCheck()){
+            emailNotVerifiedDialog();
+            return;
+        }
         fragTrans = fragMgr.beginTransaction();
         fragTrans.replace(R.id.container, new ResolveStatementsFragment(), "Resolve").addToBackStack("Resolve");
         fragTrans.commit();
@@ -424,12 +451,7 @@ public class ContentActivity extends AppCompatActivity{
                 });
             }
         });
-        builder.setNegativeButton("Do it Later", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        builder.setNegativeButton("Do it Later", null);
         final AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -518,6 +540,43 @@ public class ContentActivity extends AppCompatActivity{
             mMenuDrawer.closeMenu(false);
         }
     };
+
+    private boolean emailVerificationCheck(){
+        if(!verification) {
+            boolean verified;
+            if (user.getString("email") == null) {
+                verified = false;
+            } else {
+                verified = user.getBoolean("emailVerified");
+            }
+            verification = verified;
+        }
+        return verification;
+    }
+
+    private void emailNotVerifiedDialog(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(ContentActivity.this);
+        final LinearLayout layout = new LinearLayout(ContentActivity.this);
+        final TextView message = new TextView(ContentActivity.this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        para.setMargins(20, 20, 20, 20);
+        message.setText("You have to link and verify your email address in order to use this function");
+        message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        message.setLayoutParams(para);
+        layout.addView(message);
+        builder.setTitle("Warning");
+        builder.setView(layout);
+        builder.setPositiveButton("Okay", null);
+        builder.setNegativeButton("Bypass it", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                verification = true;
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
     //Related to Side-Menu
     private static class Item {
@@ -628,6 +687,7 @@ public class ContentActivity extends AppCompatActivity{
                 if (isNetworkConnected()) {
                     Utility.generateRawStatementList(user);
                     Utility.generateRawFriendList(user);
+                    emailVerificationCheck();
                 } else{
                     Utility.generateFriendArrayOffline();
                 }
