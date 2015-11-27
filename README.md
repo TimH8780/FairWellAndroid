@@ -34,7 +34,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Reject firend request~~
   * ~~Friend info display~~
   * ~~Progress bar when adding friend~~
-  * Friend profile when clicked (remove friend button in friend profile) - Tim
+  * ~~Friend profile when clicked~~
   * Get the info for friend profile
 * **Smart Solve Page**
   * *Unknown (if time permits)*
