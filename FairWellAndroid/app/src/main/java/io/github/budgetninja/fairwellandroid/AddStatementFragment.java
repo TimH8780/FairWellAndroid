@@ -450,8 +450,8 @@ public class AddStatementFragment extends Fragment {
             String deadline = deadlineFieldButton.getText().toString();
             Boolean member = selectedMember.isEmpty();
 
-            if(!descr.equals("") && !categ.equals("Select Category") && !amount.equals("") && !date.equals("")
-                    && !deadline.equals("") && !member && paidByPosition != PAYER_HINT && modePosition != MODE_HINT){
+            if(!descr.equals("") && !categ.equals("Select Category") && !amount.equals("") && !date.equals("EVENT DATE")
+                    && !deadline.equals("DUE DATE") && !member && paidByPosition != PAYER_HINT && modePosition != MODE_HINT){
 
                 Friend payee = paidByPosition == SELF ? null : friendList.get(paidByPosition);
                 if(selectedMember.size() == 1){

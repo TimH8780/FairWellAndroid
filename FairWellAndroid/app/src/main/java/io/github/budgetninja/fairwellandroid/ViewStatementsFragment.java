@@ -54,16 +54,6 @@ public class ViewStatementsFragment extends Fragment {
         setHasOptionsMenu(true);
         parent = (ContentActivity)getActivity();
         dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
-        statementList = new ArrayList<>();
-        List<Statement> temp = Utility.generateStatementArray();
-        //if(parent.isNetworkConnected()) { statementList = Utility.generateStatementArray(); }
-        //else { statementList = Utility.generateStatementArrayOffline(); }
-
-        for(int i = 0; i < temp.size(); i++){
-            if(temp.get(i).payeeConfirm || temp.get(i).payee == ParseUser.getCurrentUser()){
-                statementList.add(temp.get(i));
-            }
-        }
     }
 
     @Override
@@ -76,6 +66,16 @@ public class ViewStatementsFragment extends Fragment {
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("View Statement");
+
+        statementList = new ArrayList<>();
+        List<Statement> temp = Utility.generateStatementArray();
+        //if(parent.isNetworkConnected()) { statementList = Utility.generateStatementArray(); }
+        //else { statementList = Utility.generateStatementArrayOffline(); }
+        for(int i = 0; i < temp.size(); i++){
+            if(temp.get(i).payeeConfirm || temp.get(i).payee == ParseUser.getCurrentUser()){
+                statementList.add(temp.get(i));
+            }
+        }
 
         ListView view = (ListView) rootView.findViewById(R.id.viewStatementsListView);
         adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList);
@@ -143,18 +143,30 @@ public class ViewStatementsFragment extends Fragment {
 
             if(!currentItem.isPayee) {
                 SubStatement target = currentItem.findPayerStatement(ParseUser.getCurrentUser());
-                if(target != null) {
-                    holder.nameText.setText(Utility.getName(currentItem.payee));
-                    holder.dueDateText.setText(dateFormat.format(currentItem.deadline));
-                    holder.amountText.setText("$ " + String.format("%.2f", target.payerAmount));
-                    holder.statusText.setText(target.payerConfirm ? "      " : "Required");
-                }
+                holder.nameText.setText(Utility.getName(currentItem.payee));
+                holder.dueDateText.setText(dateFormat.format(currentItem.deadline));
+                holder.amountText.setText("$ " + String.format("%.2f", target.payerAmount));
+                holder.statusText.setText(target.payerConfirm ? "      " : "Required");
             }
             else{
                 holder.nameText.setText(String.format("%s", "YOU"));
                 holder.dueDateText.setText(dateFormat.format(currentItem.deadline));
                 holder.amountText.setText("$ " + String.format("%.2f", currentItem.totalAmount));
-                holder.statusText.setText(currentItem.payeeConfirm ? "      " : "Required");
+
+                boolean actionRequire = !currentItem.payeeConfirm;
+                boolean check = true;
+                if(!actionRequire){
+                    for(int i = 0; i < currentItem.payerList.size(); i++){
+                        SubStatement temp = currentItem.payerList.get(i);
+                        actionRequire = temp.paymentPending;
+                        if(check) {
+                            check = temp.payerPaid || temp.payerReject;
+                        }
+                        if(actionRequire){ break; }
+                    }
+                    if(!actionRequire){ actionRequire = check; }
+                }
+                holder.statusText.setText(!actionRequire ? "      " : "Required");
             }
 
             return convertView;

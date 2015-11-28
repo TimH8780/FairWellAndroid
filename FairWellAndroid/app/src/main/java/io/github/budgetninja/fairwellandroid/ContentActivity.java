@@ -528,7 +528,8 @@ public class ContentActivity extends AppCompatActivity{
                                 Intent intent = new Intent(ContentActivity.this, MainActivity.class);
                                 ContentActivity.this.finish();
                                 Utility.resetExistingList();
-                                Utility.setChangedRecord();
+                                Utility.setChangedRecordFriend();
+                                Utility.setChangedRecordStatement();
                                 startActivity(intent);
                             } else {
                                 Toast.makeText(getApplicationContext(), getString(R.string.logout_failed), Toast.LENGTH_SHORT).show();

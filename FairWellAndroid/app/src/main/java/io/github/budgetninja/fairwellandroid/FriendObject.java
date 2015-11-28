@@ -137,10 +137,14 @@ public class FriendObject {
         }
 
         public void setPendingStatement(){
-            friendRelationship.put("pendingStatement", true);
-            isPendingStatement = true;
-            friendRelationship.saveInBackground();
-            Utility.editNewEntryField(friend, true);
+            try {
+                friendRelationship.put("pendingStatement", true);
+                isPendingStatement = true;
+                friendRelationship.save();
+                Utility.editNewEntryField(friend, true);
+            } catch (ParseException e){
+                e.printStackTrace();
+            }
         }
 
         public void deleteFriend(){

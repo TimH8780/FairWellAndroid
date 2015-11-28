@@ -1,11 +1,15 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,7 +27,6 @@ import com.parse.ParseUser;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.Locale;
 
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
@@ -31,6 +34,9 @@ import io.github.budgetninja.fairwellandroid.StatementObject.SubStatement;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_EQUALLY;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_UNEQUALLY;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.BY_RATIO;
+import static io.github.budgetninja.fairwellandroid.StatementObject.CONFIRM;
+import static io.github.budgetninja.fairwellandroid.StatementObject.REJECT;
+import static io.github.budgetninja.fairwellandroid.StatementObject.DELETE;
 
 /**
  *Created by Tim on 11/09/15.
@@ -39,7 +45,7 @@ public class StatementSummaryFragment extends Fragment{
 
     private TextView descriptionView, categoryView, dateView, deadlineView, totalAmountView, modeView, sumbitByView;
     private TextView payeeField, amountField;
-    private Button confirmButton, rejectButton;
+    private Button confirmButton, rejectButton, deleteButton;
     private TableLayout layout;
     private DateFormat dateFormat;
     private Statement data;
@@ -90,6 +96,7 @@ public class StatementSummaryFragment extends Fragment{
         layout = (TableLayout) view.findViewById(R.id.summary_tableLayout);
         confirmButton = (Button) view.findViewById(R.id.summary_confirmButton);
         rejectButton = (Button) view.findViewById(R.id.summary_rejectButton);
+        deleteButton = (Button) view.findViewById(R.id.summary_deleteButton);
         Button cancelButton = (Button) view.findViewById(R.id.summary_cancelButton);
         cancelButton.setVisibility(View.GONE);
         Button modifyButton = (Button) view.findViewById(R.id.summary_modifyButton);
@@ -165,6 +172,7 @@ public class StatementSummaryFragment extends Fragment{
         memberRow.addView(payee, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layout.addView(memberRow);
+        deleteButton.setVisibility(View.GONE);
 
         if(subStatement.payerConfirm){
             confirmButton.setVisibility(View.GONE);
@@ -173,18 +181,16 @@ public class StatementSummaryFragment extends Fragment{
             confirmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(parent, "Processing...", Toast.LENGTH_SHORT).show();
                     subStatement.setPayerConfirm(parent);
                     confirmButton.setVisibility(View.GONE);
                     rejectButton.setVisibility(View.GONE);
-                    parent.fragMgr.popBackStack();
                 }
             });
 
             rejectButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(parent, "Not Function yet", Toast.LENGTH_SHORT).show();
+                    subStatement.setPayerReject(parent);
                 }
             });
         }
@@ -195,6 +201,9 @@ public class StatementSummaryFragment extends Fragment{
         amountField.setText("Status");
         TableRow memberRow;
         TextView payer, amount, status;
+        Log.d("Payee", Integer.toString(data.payerList.size()));
+        boolean deletable = true;
+
         for(int i = 0; i < data.payerList.size(); i++){
             SubStatement item = data.payerList.get(i);
 
@@ -211,10 +220,21 @@ public class StatementSummaryFragment extends Fragment{
 
             status = new TextView(parent);
             status.setGravity(Gravity.CENTER);
-            if(!item.payerConfirm){
-                status.setText("Pending");
+            if(item.payerConfirm){
+                if(item.payerPaid){
+                    status.setText("Paid");
+                } else if(item.paymentPending){
+                    status.setText("Resolving");
+                    deletable = false;
+                } else {
+                    status.setText("Confirmed");
+                    deletable = false;
+                }
+            } else if(item.payerReject){
+                status.setText("Denied");
             } else {
-                status.setText("Confirmed");
+                status.setText("Pending");
+                deletable = false;
             }
 
             memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -252,23 +272,36 @@ public class StatementSummaryFragment extends Fragment{
         if(data.payeeConfirm){
             confirmButton.setVisibility(View.GONE);
             rejectButton.setVisibility(View.GONE);
+            if(!deletable){
+                deleteButton.setVisibility(View.GONE);
+            } else {
+                deleteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Statement.PayeeStatementProcess task = data.new PayeeStatementProcess(parent, DELETE);
+                        task.execute();
+                    }
+                });
+            }
         } else {
+            deleteButton.setVisibility(View.GONE);
             confirmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    data.setPayeeConfirm();
+                    data.setPayeeConfirm(parent);
                     confirmButton.setVisibility(View.GONE);
                     rejectButton.setVisibility(View.GONE);
-                    parent.fragMgr.popBackStack();
                 }
             });
 
             rejectButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(parent, "Not Function yet", Toast.LENGTH_SHORT).show();
+                    Statement.PayeeStatementProcess task = data.new PayeeStatementProcess(parent, REJECT);
+                    task.execute();
                 }
             });
         }
     }
+
 }

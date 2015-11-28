@@ -93,7 +93,7 @@ public class Utility {
                 temp.pinInBackground();
                 editNewEntryField(ParseUser.getCurrentUser(), false);
 
-                Utility.setChangedRecord();
+                Utility.setChangedRecordFriend();
                 List<FriendObject.Friend> tempB = Utility.generateFriendArray();
                 Double runningSum = 0.0;
                 Double runningSub = 0.0;
@@ -183,7 +183,7 @@ public class Utility {
             }
             pFriendList = new ArrayList<>(offlineFriendList);
             Collections.sort(pFriendList);
-            setChangedRecord();
+            setChangedRecordFriend();
         }
         return pFriendList;
     }
@@ -245,10 +245,8 @@ public class Utility {
         pStatementList = null;
     }
 
-    public static void setChangedRecord(){
-        changedRecordFriend = true;
-        changedRecordStatement = true;
-    }
+    public static void setChangedRecordFriend(){ changedRecordFriend = true; }
+    public static void setChangedRecordStatement(){ changedRecordStatement = true; }
 
     public static boolean checkNewEntryField(){
         try {
@@ -324,6 +322,8 @@ public class Utility {
     public static void generateRawStatementList(final ParseUser user){
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Statement");
         query.whereEqualTo("payer", user);
+        query.whereEqualTo("payerReject", false);
+        query.whereEqualTo("payerPaid", false);
         try{
             List<ParseObject> list = query.find();
             List<ParseObject> result = new ArrayList<>();
@@ -345,7 +345,7 @@ public class Utility {
             if(temp != null){
                 temp.put("statementList", result);
                 temp.pinInBackground();
-                Utility.setChangedRecord();
+                Utility.setChangedRecordStatement();
                 Utility.generateStatementArray();
             }
         } catch (ParseException e){
@@ -357,6 +357,7 @@ public class Utility {
     private static boolean changedRecordStatement = true;
 
     public static List<Statement> generateStatementArray(){
+        Log.d("generate", Boolean.toString(pStatementList == null) + " " + Boolean.toString(changedRecordStatement));
         if(pStatementList == null || changedRecordStatement){
             Log.d("Statement", "Generating-Start");
             List<Statement> statementList = new ArrayList<>();
@@ -407,6 +408,17 @@ public class Utility {
             int pos = searchPosition(0, pStatementList.size(), newItem);
             pStatementList.add(pos, newItem);
             Log.d("SubmitStatement", "Add Statement: " + Integer.toString(pos));
+        }
+    }
+
+    public static void removeFromExistingStatementList(Statement item){
+        if(pFriendList != null){
+            //ParseObject object = getRawListLocation();
+            //List<String> offlist = object.getList("offlineFriendList");
+            //offlist.remove(item.toStringAllData());
+            //object.put("offlineFriendList", offlist);
+            //object.pinInBackground();
+            pStatementList.remove(item);
         }
     }
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import static io.github.budgetninja.fairwellandroid.AddStatementFragment.BY_RATI
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -104,6 +106,8 @@ public class SubmitStatementSummaryFragment extends Fragment {
         Button cancelButton = (Button) view.findViewById(R.id.summary_cancelButton);
         Button modifyButton = (Button) view.findViewById(R.id.summary_modifyButton);
         Button submitButton = (Button) view.findViewById(R.id.summary_submitButton);
+        Button deleteButton = (Button) view.findViewById(R.id.summary_deleteButton);
+        deleteButton.setVisibility(View.GONE);
         Button confirmButton = (Button) view.findViewById(R.id.summary_confirmButton);
         confirmButton.setVisibility(View.GONE);
         Button rejectButton = (Button) view.findViewById(R.id.summary_rejectButton);
@@ -269,7 +273,6 @@ public class SubmitStatementSummaryFragment extends Fragment {
                     object.put("payee", user);
                     object.put("payeeConfirm", true);
                     isCurrentUserInvolved = new Pair<>(true, true);
-
                 } else {
                     object = payee.insertParseUser(object, "payee");
                     payee.notifyChange();
@@ -302,15 +305,12 @@ public class SubmitStatementSummaryFragment extends Fragment {
                         statementObject = payee.insertFriendship(statementObject, "friendship");
                         payee.setPendingStatement();
                         statementObject.put("payer", user);
-                        statementObject.put("payerConfirm", false);
-                        statementObject.put("amount", item.second);
-                        statementArray.add(statementObject);
                         isCurrentUserInvolved = new Pair<>(true, false);
                     } else {
                         if (payee != null) {                                    //The case when payee is someone else
                             ParseObject temp = payee.generateFriendToFriendRelationship(item.first);
                             temp.put("pendingStatement", true);
-                            temp.saveInBackground();
+                            temp.save();
                             statementObject.put("friendship", temp);
                         } else {                                                //The case when payee is current user
                             statementObject = item.first.insertFriendship(statementObject, "friendship");
@@ -318,23 +318,30 @@ public class SubmitStatementSummaryFragment extends Fragment {
                         }
                         statementObject = item.first.insertParseUser(statementObject, "payer");
                         item.first.notifyChange();
-                        statementObject.put("payerConfirm", false);
-                        statementObject.put("amount", item.second);
-                        statementArray.add(statementObject);
                     }
+                    statementObject.put("payerConfirm", false);
+                    statementObject.put("payerReject", false);
+                    statementObject.put("payerPaid", false);
+                    statementObject.put("paymentPending", false);
+                    statementObject.put("amount", item.second);
+                    statementObject.save();
+                    statementArray.add(statementObject);
                 }
 
+                SystemClock.sleep(2000);                        //Attempt to resolve the following issue
+
                 object.put("payer", statementArray);
-                object.save();
+                ParseObject objectCopy = object;
+                object.save();                               //For unknown reason, sometime this line causes a ConcurrentModificationException
                 if (isCurrentUserInvolved.first) {
-                    Statement statement = new Statement(object, isCurrentUserInvolved.second);
+                    Statement statement = new Statement(objectCopy, isCurrentUserInvolved.second);
                     ParseObject temp = Utility.getRawListLocation();
-                    temp.getList("statementList").add(object);
+                    temp.getList("statementList").add(objectCopy);
                     temp.pinInBackground();
                     Utility.addToExistingStatementList(statement);
                 }
                 return true;
-            } catch (ParseException e){
+            } catch (ParseException|ConcurrentModificationException e){
                 e.printStackTrace();
                 return false;
             }
