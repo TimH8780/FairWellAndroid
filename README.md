@@ -6,7 +6,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
 <return>
 <return>
 
-###### To-do Lists *(Updated on 11/27)*
+###### To-do Lists *(Updated on 11/28)*
 * **Tutorial Page** - Issac https://github.com/PaoloRotolo/AppIntro
 * ~~**Login Page**~~
   * ~~Login (normal)~~
@@ -50,11 +50,11 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Redirect to BudgetNinja website~~
 * ~~**Logout**~~
   * ~~Logout~~
-* **View Statement Page**
+* ~~**View Statement Page**~~
   * ~~View Statement~~
   * ~~Comfirm Statement Request~~
   * ~~Change Wording~~
-  * Reject Statement Request - Tim
+  * ~~Reject Statement Request~~
 * **Add Statement Page**
   * ~~Design~~
   * ~~Info Input and Check~~
