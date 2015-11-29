@@ -249,7 +249,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginRight="20dp"
             android:layout_marginLeft="20dp"
-            android:layout_marginBottom="50dp">
+            android:layout_marginBottom="20dp">
 
             <Button
                 android:id="@+id/summary_cancelButton"
@@ -334,6 +334,44 @@
             </LinearLayout>
 
         </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/resolve_Option_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="50dp">
+
+            <Button
+                android:id="@+id/denyPendingPaymentButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/buttonDark"
+                android:background="@color/buttonMedium"
+                android:textColor="@color/textLight"
+                android:text="Deny Payment"
+                android:layout_marginRight="5dp"
+                android:textStyle="bold"
+                android:textSize="14sp"/>
+
+            <Button
+                android:id="@+id/confirmPendingPaymentButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/buttonDark"
+                android:background="@color/buttonMedium"
+                android:textColor="@color/textLight"
+                android:layout_marginLeft="5dp"
+                android:text="Confirm Payment"
+                android:textStyle="bold"
+                android:textSize="14sp"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

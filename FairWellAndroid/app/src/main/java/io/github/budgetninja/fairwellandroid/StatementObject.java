@@ -34,6 +34,8 @@ public class StatementObject {
     public static final int CONFIRM = 0;
     public static final int REJECT = 1;
     public static final int DELETE = 2;
+    public static final int RESOLVING = 3;
+    public static final int PAID = 4;
 
     public static class SummaryStatement {
 
@@ -167,7 +169,7 @@ public class StatementObject {
             protected Boolean doInBackground(Boolean... params) {
                 try {
                     if(type == REJECT || type == DELETE) {
-                        for (int i = 0; i < payer.size(); i++) {
+                        for (int i = 0; i < payer.size() && type == REJECT; i++) {
                             SubStatement temp = payerList.get(i);
                             int amount = (!temp.payerReject && !temp.payerConfirm && !temp.payerPaid) ? 1 : 0;
                             ParseQuery query = ParseQuery.getQuery("Statement");
@@ -176,7 +178,6 @@ public class StatementObject {
                             query.whereEqualTo("payerPaid", false);
                             query.whereEqualTo("friendship", temp.payerRelation);
                             if (query.count() == amount) {
-                                Log.d("Reject", temp.payerRelation.getObjectId());
                                 temp.payerRelation.put("pendingStatement", false);
                                 temp.payerRelation.save();
                             }
@@ -184,15 +185,15 @@ public class StatementObject {
                         for (int i = 0; i < payer.size(); i++) {
                             payer.get(i).delete();
                         }
-                        Utility.removeFromExistingStatementList(Statement.this);
                         object.delete();
+                        Utility.removeFromExistingStatementList(Statement.this);
                         return true;
                     }
 
                     if(type == CONFIRM){
                         payeeConfirm = true;
                         object.put("payeeConfirm", true);
-                        object.saveInBackground();
+                        object.save();
                         notifyChange();
                         return true;
                     }
@@ -251,15 +252,59 @@ public class StatementObject {
         }
 
         public void setPayerConfirm(ContentActivity context) {
-            payerConfirm = true;
             PayerStatementProcess process = new PayerStatementProcess(context, CONFIRM);
             process.execute();
+            payerConfirm = true;
         }
 
         public void setPayerReject(ContentActivity context){
-            payerReject = true;
             PayerStatementProcess process = new PayerStatementProcess(context, REJECT);
             process.execute();
+            payerReject = true;
+        }
+
+        public void setPayerResolving() throws ParseException{
+            object.put("paymentPending", true);
+            object.save();
+            paymentPending = true;
+            Utility.removeFromExistingStatementList(parent);
+            Utility.editNewEntryField(payee, true);
+        }
+
+        public void setPaymentDenied() throws ParseException{
+            object.put("paymentPending", false);
+            object.save();
+            paymentPending = false;
+            Utility.editNewEntryField(payer, true);
+        }
+
+        public void setPaymentApproved() throws ParseException{
+            paymentPending = false;
+            payerPaid = true;
+            object.put("paymentPending", false);
+            object.put("payerPaid", true);
+            object.save();
+
+            double currentBalance;
+            if (payerRelation.getParseUser("userOne") == payer) {
+                currentBalance = payerRelation.fetch().getDouble("owedByOne");
+                currentBalance -= payerAmount;
+                payerRelation.put("owedByOne", currentBalance);
+            } else {
+                currentBalance = payerRelation.fetch().getDouble("owedByTwo");
+                currentBalance -= payerAmount;
+                payerRelation.put("owedByTwo", currentBalance);
+            }
+            payerRelation.save();
+            List<Friend> friends = Utility.generateFriendArray();
+            for(int i = 0; i < friends.size(); i++){
+                if(friends.get(i).isSamePerson(payer)){
+                    friends.get(i).friendOwed -= payerAmount;
+                    break;
+                }
+            }
+            OWN_BALANCE -= payerAmount;
+            Utility.editNewEntryField(payer, true);
         }
 
         private class PayerStatementProcess extends AsyncTask<Boolean, Void, Boolean> {
@@ -283,16 +328,14 @@ public class StatementObject {
             protected Boolean doInBackground(Boolean... params) {
                 try {
                     if(type == CONFIRM) {
-                        object.put("payerConfirm", true);
-                        object.save();
-
                         ParseQuery query = ParseQuery.getQuery("Statement");
                         query.whereEqualTo("payerConfirm", false);
                         query.whereEqualTo("payerReject", false);
                         query.whereEqualTo("payerPaid", false);
                         query.whereEqualTo("friendship", payerRelation);
-                        int counter = query.count();
-                        if (counter == 0) {
+                        int num = query.count();
+                        Log.d("Count", Integer.toString(num));
+                        if (num == 1) {
                             payerRelation.put("pendingStatement", false);
                         }
 
@@ -301,38 +344,46 @@ public class StatementObject {
                             currentBalance = payerRelation.fetch().getDouble("owedByOne");
                             currentBalance += payerAmount;
                             payerRelation.put("owedByOne", currentBalance);
-                            payerRelation.save();
                         } else {
                             currentBalance = payerRelation.fetch().getDouble("owedByTwo");
                             currentBalance += payerAmount;
                             payerRelation.put("owedByTwo", currentBalance);
-                            payerRelation.save();
+                        }
+                        payerRelation.put("confirmed", true);
+                        payerRelation.save();
+                        List<Friend> friends = Utility.generateFriendArray();
+                        for(int i = 0; i < friends.size(); i++){
+                            if(friends.get(i).isSamePerson(payee)){
+                                friends.get(i).currentUserOwed += payerAmount;
+                                break;
+                            }
                         }
 
+                        object.put("payerConfirm", true);
+                        object.save();
                         OWE_BALANCE -= payerAmount;
                         Utility.editNewEntryField(payee, true);
                         return true;
                     }
 
                     if(type == REJECT){
-                        Utility.removeFromExistingStatementList(parent);
-                        object.put("payerReject", true);
-                        object.save();
-
                         ParseQuery query = ParseQuery.getQuery("Statement");
                         query.whereEqualTo("payerConfirm", false);
                         query.whereEqualTo("payerReject", false);
                         query.whereEqualTo("payerPaid", false);
                         query.whereEqualTo("friendship", payerRelation);
                         int counter = query.count();
-                        if (counter == 0) {
+                        if (counter == 1) {
                             payerRelation.put("pendingStatement", false);
                             payerRelation.save();
                         }
+
+                        object.put("payerReject", true);
+                        object.save();
+                        Utility.removeFromExistingStatementList(parent);
                         Utility.editNewEntryField(payee, true);
                         return true;
                     }
-
                 } catch (ParseException e) {
                     e.printStackTrace();
                     return false;

@@ -88,6 +88,7 @@ public class AddStatementFragment extends Fragment {
     private int paidByPosition;
     private int modePosition;
     private Boolean[] friendSelected;
+    private Boolean[] tempResult;
     private List<Friend> friendList;
     private List<Pair<Friend, Double>> selectedMember;
 
@@ -571,7 +572,7 @@ public class AddStatementFragment extends Fragment {
     private void showMemberSelectionList(final int capacity, final int mode){
         final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
         final TextView capacityText = new TextView(parent);
-        final Boolean[] result = new Boolean[friendList.size()];
+        tempResult = new Boolean[friendList.size()];
         ListView container = new ListView(parent);
         maxCapacity = capacity;
         counter = capacity;
@@ -603,13 +604,13 @@ public class AddStatementFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 CheckBox checkBox = (CheckBox) view.findViewById(R.id.memberCheckBox);
                 if (checkBox.isChecked()) {
-                    result[position] = false;
+                    tempResult[position] = false;
                     checkBox.setChecked(false);
                     if (counter >= 0) {
                         capacityText.setText(Integer.toString(++counter));
                     }
                 } else if (counter != 0 && (maxCapacity != 1 || paidByPosition != position)) {
-                    result[position] = true;
+                    tempResult[position] = true;
                     checkBox.setChecked(true);
                     if (counter > 0) {
                         capacityText.setText(Integer.toString(--counter));
@@ -621,7 +622,7 @@ public class AddStatementFragment extends Fragment {
         builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                friendSelected = Arrays.copyOf(result, result.length);
+                friendSelected = Arrays.copyOf(tempResult, tempResult.length);
                 isAmountChanged = false;
                 switch (mode) {
                     case SPLIT_EQUALLY:
@@ -631,7 +632,7 @@ public class AddStatementFragment extends Fragment {
                             each = Double.valueOf(moneyAmount.getText().toString()) / capacity;
                         }
 
-                        for (int i = 0; i < result.length; i++) {
+                        for (int i = 0; i < tempResult.length; i++) {
                             if (friendSelected[i] != null) {
                                 if (friendSelected[i]) {
                                     selectedMember.add(new Pair<>(friendList.get(i), each));
@@ -726,7 +727,11 @@ public class AddStatementFragment extends Fragment {
             }
             viewHolder.position = position;
             viewHolder.nameText.setText(currentItem.name);
-            viewHolder.box.setChecked(false);
+            if(tempResult[position] == null){
+                viewHolder.box.setChecked(false);
+            } else {
+                viewHolder.box.setChecked(tempResult[position]);
+            }
 
             return convertView;
         }

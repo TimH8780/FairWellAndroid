@@ -476,6 +476,10 @@ public class ContentActivity extends AppCompatActivity{
                     break;
 
                 case POSITION_SMART_SOLVE:
+                    if(!isNetworkConnected()) {
+                        Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
                     switchSmartSolve();
                     break;
 

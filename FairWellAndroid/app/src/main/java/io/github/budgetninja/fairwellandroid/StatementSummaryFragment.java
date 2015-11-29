@@ -1,13 +1,16 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.Gravity;
@@ -17,16 +20,24 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParseException;
 import com.parse.ParseUser;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
@@ -45,12 +56,14 @@ public class StatementSummaryFragment extends Fragment{
 
     private TextView descriptionView, categoryView, dateView, deadlineView, totalAmountView, modeView, sumbitByView;
     private TextView payeeField, amountField;
-    private Button confirmButton, rejectButton, deleteButton;
+    private LinearLayout paymentOptionLayout;
+    private Button confirmButton, rejectButton, deleteButton, confirmPaymentButton, denyPaymentButton;
     private TableLayout layout;
     private DateFormat dateFormat;
     private Statement data;
     private ParseUser user;
     private ContentActivity parent;
+    private Boolean[] tempResult;
     private View previousState;
 
     @Override
@@ -94,9 +107,13 @@ public class StatementSummaryFragment extends Fragment{
         payeeField = (TextView) view.findViewById(R.id.summary_payee_subtitle);
         amountField = (TextView) view.findViewById(R.id.summary_amount_subtitle);
         layout = (TableLayout) view.findViewById(R.id.summary_tableLayout);
+        paymentOptionLayout = (LinearLayout) view.findViewById(R.id.resolve_Option_layout);
+        confirmPaymentButton = (Button) view.findViewById(R.id.confirmPendingPaymentButton);
+        denyPaymentButton = (Button) view.findViewById(R.id.denyPendingPaymentButton);
         confirmButton = (Button) view.findViewById(R.id.summary_confirmButton);
         rejectButton = (Button) view.findViewById(R.id.summary_rejectButton);
         deleteButton = (Button) view.findViewById(R.id.summary_deleteButton);
+
         Button cancelButton = (Button) view.findViewById(R.id.summary_cancelButton);
         cancelButton.setVisibility(View.GONE);
         Button modifyButton = (Button) view.findViewById(R.id.summary_modifyButton);
@@ -173,6 +190,7 @@ public class StatementSummaryFragment extends Fragment{
         memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layout.addView(memberRow);
         deleteButton.setVisibility(View.GONE);
+        paymentOptionLayout.setVisibility(View.GONE);
 
         if(subStatement.payerConfirm){
             confirmButton.setVisibility(View.GONE);
@@ -203,6 +221,7 @@ public class StatementSummaryFragment extends Fragment{
         TextView payer, amount, status;
         Log.d("Payee", Integer.toString(data.payerList.size()));
         boolean deletable = true;
+        boolean pendingPayment = false;
 
         for(int i = 0; i < data.payerList.size(); i++){
             SubStatement item = data.payerList.get(i);
@@ -226,6 +245,7 @@ public class StatementSummaryFragment extends Fragment{
                 } else if(item.paymentPending){
                     status.setText("Resolving");
                     deletable = false;
+                    pendingPayment = true;
                 } else {
                     status.setText("Confirmed");
                     deletable = false;
@@ -283,8 +303,15 @@ public class StatementSummaryFragment extends Fragment{
                     }
                 });
             }
+            if(!pendingPayment){
+                paymentOptionLayout.setVisibility(View.GONE);
+            } else {
+                confirmPaymentButton.setOnClickListener(new paymentOption(CONFIRM));
+                denyPaymentButton.setOnClickListener(new paymentOption(REJECT));
+            }
         } else {
             deleteButton.setVisibility(View.GONE);
+            paymentOptionLayout.setVisibility(View.GONE);
             confirmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -301,6 +328,166 @@ public class StatementSummaryFragment extends Fragment{
                     task.execute();
                 }
             });
+        }
+    }
+
+    private class paymentOption implements View.OnClickListener{
+
+        private int type;
+
+        public paymentOption(int type){
+            this.type = type;
+        }
+
+        @Override
+        public void onClick(View v) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+            final ListView container = new ListView(parent);
+            final List<SubStatement> list = new ArrayList<>();
+            for(int i = 0; i < data.payerList.size(); i++){
+                if(data.payerList.get(i).paymentPending){
+                    list.add(data.payerList.get(i));
+                }
+            }
+            tempResult = new Boolean[list.size()];
+
+            PayerSelectionAdaptor adaptor = new PayerSelectionAdaptor(parent, R.layout.item_add_member, list);
+            container.setAdapter(adaptor);
+            container.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    CheckBox checkBox = (CheckBox) view.findViewById(R.id.memberCheckBox);
+                    if (checkBox.isChecked()) {
+                        checkBox.setChecked(false);
+                        tempResult[position] = false;
+                    } else {
+                        checkBox.setChecked(true);
+                        tempResult[position] = true;
+                    }
+                }
+            });
+            builder.setView(container);
+            if(type == CONFIRM){
+                builder.setTitle("Confirm Pending Payment");
+                builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        PendingPaymentProcess task = new PendingPaymentProcess(parent, tempResult, list, CONFIRM);
+                        task.execute();
+                    }
+                });
+            } else {
+                builder.setTitle("Deny Pending Payment");
+                builder.setPositiveButton("Deny", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        PendingPaymentProcess task = new PendingPaymentProcess(parent, tempResult, list, REJECT);
+                        task.execute();
+                    }
+                });
+            }
+            builder.setNegativeButton("Cancel", null);
+            final AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+    }
+
+    private class PayerSelectionAdaptor extends ArrayAdapter<SubStatement> {
+
+        Context mContext;
+        int mResource;
+        List<SubStatement> mObject;
+
+        public PayerSelectionAdaptor(Context context, int resource, List<SubStatement> objects){
+            super(context, resource, objects);
+            mContext = context;
+            mResource = resource;
+            mObject = objects;
+        }
+
+        private class ViewHolder{
+            TextView nameText;
+            CheckBox box;
+            int position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parentGroup){
+            SubStatement currentItem = mObject.get(position);
+            final ViewHolder viewHolder;
+            if(convertView == null){
+                convertView = parent.getLayoutInflater().inflate(mResource, parentGroup, false);
+                viewHolder = new ViewHolder();
+                viewHolder.nameText = (TextView) convertView.findViewById(R.id.memberName);
+                viewHolder.box = (CheckBox) convertView.findViewById(R.id.memberCheckBox);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+
+            viewHolder.position = position;
+            viewHolder.nameText.setText(currentItem.payerName);
+            if(tempResult[position] == null){
+                viewHolder.box.setChecked(false);
+            } else {
+                viewHolder.box.setChecked(tempResult[position]);
+            }
+
+            return convertView;
+        }
+    }
+
+    private class PendingPaymentProcess extends AsyncTask<Boolean, Void, Boolean> {
+        private ProgressDialog dialog;
+        private Context activity;
+        private Boolean[] result;
+        private List<SubStatement> list;
+        private int type;
+
+        public PendingPaymentProcess(Context activity, Boolean[] result, List<SubStatement> list, int type) {
+            dialog = new ProgressDialog(activity);
+            this.activity = activity;
+            this.result = result;
+            this.list = list;
+            this.type = type;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog.setMessage("Processing... Please Wait...");
+            dialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Boolean... params) {
+            try {
+                for(int i = 0; i < list.size(); i++){
+                    if(result[i] != null){
+                        if(result[i] && type == CONFIRM) {
+                            list.get(i).setPaymentApproved();
+                        } else if(result[i] && type == REJECT){
+                            list.get(i).setPaymentDenied();
+                        }
+                    }
+                }
+                return true;
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+            if(result){
+                Toast.makeText(activity, "Statement processed", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(activity, "Failed to complete, Please retry", Toast.LENGTH_SHORT).show();
+            }
+            ((ContentActivity)activity).fragMgr.popBackStack();
         }
     }
 

@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -112,6 +113,8 @@ public class SubmitStatementSummaryFragment extends Fragment {
         confirmButton.setVisibility(View.GONE);
         Button rejectButton = (Button) view.findViewById(R.id.summary_rejectButton);
         rejectButton.setVisibility(View.GONE);
+        LinearLayout paymentOptionLayout = (LinearLayout) view.findViewById(R.id.resolve_Option_layout);
+        paymentOptionLayout.setVisibility(View.GONE);
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override

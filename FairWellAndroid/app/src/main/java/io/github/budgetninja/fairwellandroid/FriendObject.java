@@ -54,10 +54,6 @@ public class FriendObject {
             return name.compareToIgnoreCase(another.name);
         }
 
-        public double getNetBalance(){
-            return friendOwed - currentUserOwed;
-        }
-
         private void obtainPhoto(){
             new Thread(new Runnable() {
                 @Override
@@ -176,6 +172,10 @@ public class FriendObject {
 
         public boolean isEqual(Friend another){
             return parseObjectID.equals(another.parseObjectID);
+        }
+
+        public boolean isSamePerson(ParseUser another){
+            return friend.getObjectId().equals(another.getObjectId());
         }
     }
 

@@ -324,6 +324,7 @@ public class Utility {
         query.whereEqualTo("payer", user);
         query.whereEqualTo("payerReject", false);
         query.whereEqualTo("payerPaid", false);
+        query.whereEqualTo("paymentPending", false);
         try{
             List<ParseObject> list = query.find();
             List<ParseObject> result = new ArrayList<>();
