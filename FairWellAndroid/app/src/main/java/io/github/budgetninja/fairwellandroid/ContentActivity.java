@@ -1,6 +1,7 @@
 package io.github.budgetninja.fairwellandroid;
 
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -18,6 +19,7 @@ import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
@@ -222,6 +224,7 @@ public class ContentActivity extends AppCompatActivity{
         ((AddStatementFragment)getSupportFragmentManager().findFragmentByTag("Add")).setClickedIconText(clicked);
     }
 
+    @SuppressLint("CommitTransaction")
     private void switchHome(){
         fragTrans = fragMgr.beginTransaction();
         Fragment fragment = fragMgr.findFragmentByTag("Home");
@@ -234,6 +237,7 @@ public class ContentActivity extends AppCompatActivity{
         fragMgr.executePendingTransactions();
     }
 
+    @SuppressLint("CommitTransaction")
     private void switchDashBoard(){
         if(!emailVerificationCheck()){
             emailNotVerifiedDialog();
@@ -249,6 +253,7 @@ public class ContentActivity extends AppCompatActivity{
         fragMgr.executePendingTransactions();
     }
 
+    @SuppressLint("CommitTransaction")
     private void switchFriends(){
         if(!emailVerificationCheck()){
             emailNotVerifiedDialog();
@@ -264,6 +269,7 @@ public class ContentActivity extends AppCompatActivity{
         fragMgr.executePendingTransactions();
     }
 
+    @SuppressLint("CommitTransaction")
     private void switchSmartSolve(){
         if(!emailVerificationCheck()){
             emailNotVerifiedDialog();
@@ -279,6 +285,7 @@ public class ContentActivity extends AppCompatActivity{
         fragMgr.executePendingTransactions();
     }
 
+    @SuppressLint("CommitTransaction")
     private void switchAccountSetting(){
         fragTrans = fragMgr.beginTransaction();
         Fragment fragment = fragMgr.findFragmentByTag("Account");
@@ -290,6 +297,7 @@ public class ContentActivity extends AppCompatActivity{
         fragMgr.executePendingTransactions();
     }
 
+    @SuppressLint("CommitTransaction")
     private void switchNotificationSetting(){
         fragTrans = fragMgr.beginTransaction();
         Fragment fragment = fragMgr.findFragmentByTag("Notification");
@@ -301,6 +309,7 @@ public class ContentActivity extends AppCompatActivity{
         fragMgr.executePendingTransactions();
     }
 
+    @SuppressLint("CommitTransaction")
     private void switchViewStatement(){
         if(!emailVerificationCheck()){
             emailNotVerifiedDialog();
@@ -312,6 +321,7 @@ public class ContentActivity extends AppCompatActivity{
         fragMgr.executePendingTransactions();
     }
 
+    @SuppressLint("CommitTransaction")
     private void switchAddStatement(){
         if(!emailVerificationCheck()){
             emailNotVerifiedDialog();
@@ -323,6 +333,7 @@ public class ContentActivity extends AppCompatActivity{
         fragMgr.executePendingTransactions();
     }
 
+    @SuppressLint("CommitTransaction")
     private void switchResolveStatement(){
         if(!emailVerificationCheck()){
             emailNotVerifiedDialog();
@@ -334,6 +345,7 @@ public class ContentActivity extends AppCompatActivity{
         fragMgr.executePendingTransactions();
     }
 
+    @SuppressLint("CommitTransaction")
     private void switchSubmitStatementSummary(){
         fragTrans = fragMgr.beginTransaction();
         fragTrans.replace(R.id.container, new SubmitStatementSummaryFragment(), "Summary").addToBackStack("Summary");
@@ -341,6 +353,7 @@ public class ContentActivity extends AppCompatActivity{
         fragMgr.executePendingTransactions();
     }
 
+    @SuppressLint("CommitTransaction")
     private void switchStatementSummary(){
         fragTrans = fragMgr.beginTransaction();
         fragTrans.replace(R.id.container, new StatementSummaryFragment(), "Summary").addToBackStack("Summary");
@@ -548,13 +561,7 @@ public class ContentActivity extends AppCompatActivity{
 
     private boolean emailVerificationCheck(){
         if(!verification) {
-            boolean verified;
-            if (user.getString("email") == null) {
-                verified = false;
-            } else {
-                verified = user.getBoolean("emailVerified");
-            }
-            verification = verified;
+            verification = user.getString("email") != null && user.getBoolean("emailVerified");
         }
         return verification;
     }
@@ -659,7 +666,7 @@ public class ContentActivity extends AppCompatActivity{
                 tv.setText(((Item) item).mTitle);
                 tv.setCompoundDrawablesWithIntrinsicBounds(((Item) item).mIconRes, 0, 0, 0);
 
-                Drawable img = getApplicationContext().getResources().getDrawable(((Item) item).mIconRes);
+                Drawable img = ContextCompat.getDrawable(getApplicationContext(), ((Item) item).mIconRes);
                 img.setBounds(0, 0, 75, 75);
                 tv.setCompoundDrawables(img, null, null, null);
             }
@@ -717,7 +724,7 @@ public class ContentActivity extends AppCompatActivity{
     }
 
     private class CheckForUpdate implements Runnable{
-        private Object pauseLock;
+        private final Object pauseLock;
         private boolean paused;
 
         public CheckForUpdate() {

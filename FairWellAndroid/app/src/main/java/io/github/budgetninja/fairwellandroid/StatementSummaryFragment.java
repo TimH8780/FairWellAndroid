@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.util.Pair;
 import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.Gravity;
@@ -219,7 +218,6 @@ public class StatementSummaryFragment extends Fragment{
         amountField.setText("Status");
         TableRow memberRow;
         TextView payer, amount, status;
-        Log.d("Payee", Integer.toString(data.payerList.size()));
         boolean deletable = true;
         boolean pendingPayment = false;
 

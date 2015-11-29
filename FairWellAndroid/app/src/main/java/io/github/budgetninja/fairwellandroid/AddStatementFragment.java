@@ -6,13 +6,10 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ScaleDrawable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -23,7 +20,6 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -55,12 +51,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
 
-import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_STATEMENT_SUMMARY;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_SUBMIT_STATEMENT_SUMMARY;
 
 /**
@@ -83,7 +77,6 @@ public class AddStatementFragment extends Fragment {
     private int counter;
     private int maxCapacity;
 
-    private ParseUser user;
     private ContentActivity parent;
     private int paidByPosition;
     private int modePosition;
@@ -104,14 +97,6 @@ public class AddStatementFragment extends Fragment {
     public static final int SPLIT_UNEQUALLY = 1;
     public static final int BY_RATIO = 2;
 
-    private TextView text0;
-    private TextView text1;
-    private TextView text2;
-    private TextView text3;
-    private TextView text4;
-
-
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         MenuItem item = menu.findItem(R.id.action_refresh);
@@ -130,7 +115,7 @@ public class AddStatementFragment extends Fragment {
         maxCapacity = -1;
         counter = -1;
         parent = (ContentActivity)getActivity();
-        user = ParseUser.getCurrentUser();
+        ParseUser user = ParseUser.getCurrentUser();
         format = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
         paidByPosition = PAYER_HINT;
         modePosition = MODE_HINT;
@@ -148,7 +133,7 @@ public class AddStatementFragment extends Fragment {
         }
 
         // First item: User himself, Last item: hint
-        friendList.add(0, new Friend(null, null, user, "Self", null, -1, -1, false, true, true)); //user her/himself
+        friendList.add(0, new Friend(null, null, user, "Self", null, -1, -1, false, true, true));
         friendList.add(friendList.size(),new Friend(null, null, user, "Select Payer", null, -1, -1, false, true, true));
 
         friendSelected = new Boolean[friendList.size()];
@@ -195,25 +180,6 @@ public class AddStatementFragment extends Fragment {
         dateFieldButton = (Button) rootView.findViewById(R.id.dateFieldButton);
         deadlineFieldButton = (Button) rootView.findViewById(R.id.deadlineFieldButton);
         layoutMemberDisplay = (LinearLayout) rootView.findViewById(R.id.layout_member_display);
-
-/*       Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<Friend> paidByAdapter = new ArrayAdapter<>(getContext(),
-                android.R.layout.simple_spinner_item, friendList);
-
-         Apply the adapter to the spinner
-        paidBySpinner.setAdapter(paidByAdapter);
-
-         Specify the layout to use when the list of choices appears
-        paidByAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        ArrayAdapter<CharSequence> modeAdapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.mode_array, android.R.layout.simple_spinner_item);
-        modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        modeSpinner.setAdapter(modeAdapter);*/
-
-        //Tim : I change it to this way (test it your own to see what) , hope this won't be causing any issue
-        //if no issues, feel free to remove those commented lines
-
 
         final ArrayAdapter<Friend> paidByAdapter = new ArrayAdapter<Friend>(getActivity(), android.R.layout.simple_spinner_dropdown_item) {
             @Override
@@ -354,11 +320,11 @@ public class AddStatementFragment extends Fragment {
             }
         });
 
-        text0 = (TextView) rootView.findViewById(R.id.text0);
-        text1 = (TextView) rootView.findViewById(R.id.text1);
-        text2 = (TextView) rootView.findViewById(R.id.text2);
-        text3 = (TextView) rootView.findViewById(R.id.text3);
-        text4 = (TextView) rootView.findViewById(R.id.text4);
+        TextView text0 = (TextView) rootView.findViewById(R.id.text0);
+        TextView text1 = (TextView) rootView.findViewById(R.id.text1);
+        TextView text2 = (TextView) rootView.findViewById(R.id.text2);
+        TextView text3 = (TextView) rootView.findViewById(R.id.text3);
+        TextView text4 = (TextView) rootView.findViewById(R.id.text4);
 
         Drawable img = ContextCompat.getDrawable(getContext(), R.drawable.ic_label_outline_white_24dp);
         img.setBounds(0, 0, 75, 75);

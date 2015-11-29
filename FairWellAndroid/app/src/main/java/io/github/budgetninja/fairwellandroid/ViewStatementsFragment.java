@@ -37,7 +37,6 @@ import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_STATEM
 public class ViewStatementsFragment extends Fragment {
 
     private ContentActivity parent;
-    private StatementAdaptor adapter;
     private List<Statement> statementList;
     private DateFormat dateFormat;
 
@@ -78,7 +77,7 @@ public class ViewStatementsFragment extends Fragment {
         }
 
         ListView view = (ListView) rootView.findViewById(R.id.viewStatementsListView);
-        adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList);
+        StatementAdaptor adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList);
         view.setAdapter(adapter);
 
         LinearLayout layout = (LinearLayout) rootView.findViewById(R.id.EmptyListView);

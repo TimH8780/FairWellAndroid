@@ -358,7 +358,6 @@ public class LoginActivity extends Activity {
                                         goToLoggedInPage();
                                     } else {
                                         e.printStackTrace();
-                                        Log.d("User", e.getMessage());
                                         Toast.makeText(getApplicationContext(), "Request Failed," +
                                                 " Please Retry.", Toast.LENGTH_SHORT).show();
                                         ParseUser.logOutInBackground();

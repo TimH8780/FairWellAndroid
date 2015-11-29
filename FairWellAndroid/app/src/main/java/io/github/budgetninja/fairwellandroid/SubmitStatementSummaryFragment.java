@@ -7,9 +7,9 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -28,7 +28,6 @@ import android.widget.Toast;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
@@ -45,6 +44,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
 
 public class SubmitStatementSummaryFragment extends Fragment {
 
@@ -68,8 +68,6 @@ public class SubmitStatementSummaryFragment extends Fragment {
     private List<Pair<Friend, Double>> payer;
     private TextView descriptionView, categoryView, dateView, deadlineView, totalAmountView, modeView, sumbitByView;
     private TableLayout layout;
-    private ParseObject object;
-    private Pair<Boolean, Boolean> isCurrentUserInvolved;
 
     @Override
     public void onCreate(Bundle bundle){
@@ -86,8 +84,8 @@ public class SubmitStatementSummaryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ActionBar actionBar = parent.getSupportActionBar();
         if (actionBar != null) {
-            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            final Drawable upArrow = ContextCompat.getDrawable(getContext(), R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(ContextCompat.getColor(getContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Summary");
@@ -269,8 +267,8 @@ public class SubmitStatementSummaryFragment extends Fragment {
         @Override
         protected Boolean doInBackground(Boolean... params) {
             try {
-                object = new ParseObject("StatementGroup");
-                isCurrentUserInvolved = new Pair<>(false, false);    //First = isInvolved, Second = isPayee
+                ParseObject object = new ParseObject("StatementGroup");
+                Pair<Boolean, Boolean> isCurrentUserInvolved = new Pair<>(false, false);
 
                 if (payee == null) {              //payee == current user
                     object.put("payee", user);

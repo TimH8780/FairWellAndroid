@@ -49,7 +49,6 @@ public class ResolveStatementsFragment extends Fragment {
     private static final int IMAGE_WIDTH_HEIGHT = 90;
     private ContentActivity parent;
     private Boolean[] tempResult;
-    private List<Friend> friendList;
     private List<Pair<Statement, SubStatement>> statementList;
 
     @Override
@@ -79,7 +78,7 @@ public class ResolveStatementsFragment extends Fragment {
 
         List<Friend> tempFriend;
         List<StatementObject.Statement> tempStatement;
-        friendList = new ArrayList<>();
+        List<Friend> friendList = new ArrayList<>();
         statementList = new ArrayList<>();
         if(parent.isNetworkConnected()) {
             tempFriend = Utility.generateFriendArray();

@@ -11,10 +11,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.github.paolorotolo.appintro.AppIntro;
-import com.github.paolorotolo.appintro.AppIntroFragment;
 
 /**
- * Created by Issac on 11/23/2015.
+ *Created by Issac on 11/23/2015.
  */
 public class MyIntro extends AppIntro {
 
@@ -22,18 +21,18 @@ public class MyIntro extends AppIntro {
     @Override
     public void init(Bundle savedInstanceState) {
 
-        // Add your slide's fragments here
-        // AppIntro will automatically generate the dots indicator and buttons.
-        //     addSlide(first_fragment);
-        //     addSlide(second_fragment);
-        //     addSlide(third_fragment);
-        //     addSlide(fourth_fragment);
+/*         Add your slide's fragments here
+         AppIntro will automatically generate the dots indicator and buttons.
+             addSlide(first_fragment);
+             addSlide(second_fragment);
+             addSlide(third_fragment);
+             addSlide(fourth_fragment);
 
-        // Instead of fragments, you can also use our default slide
-        // Just set a title, description, background and image. AppIntro will do the rest
-//        addSlide(AppIntroFragment.newInstance("Hello", "My name is Issac\nAwesome as always!", R.drawable.applogo, R.color.coolActionBar));
-//        addSlide(AppIntroFragment.newInstance("YOLO", "Second page owning!", R.drawable.simple_background_small, R.color.coolActionBar));
-//        addSlide(AppIntroFragment.newInstance("DONE", "Whatssupp", R.drawable.ninja, R.color.coolActionBar));
+         Instead of fragments, you can also use our default slide
+         Just set a title, description, background and image. AppIntro will do the rest
+        addSlide(AppIntroFragment.newInstance("Hello", "My name is Issac\nAwesome as always!", R.drawable.applogo, R.color.coolActionBar));
+        addSlide(AppIntroFragment.newInstance("YOLO", "Second page owning!", R.drawable.simple_background_small, R.color.coolActionBar));
+        addSlide(AppIntroFragment.newInstance("DONE", "Whatssupp", R.drawable.ninja, R.color.coolActionBar));*/
 
         addSlide(SampleSlide.newInstance(R.layout.intro));
         addSlide(SampleSlide.newInstance(R.layout.intro2));
@@ -62,12 +61,12 @@ public class MyIntro extends AppIntro {
         Toast.makeText(getApplicationContext(), "WHY SKIPPP!!", Toast.LENGTH_SHORT).show();
     }
 
-    private void loadMainActivity(){
+    private void loadMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
-    public void getStarted(View v){
+    public void getStarted(View v) {
         loadMainActivity();
     }
 
@@ -104,12 +103,9 @@ public class MyIntro extends AppIntro {
                 layoutResId = getArguments().getInt(ARG_LAYOUT_RES_ID);
         }
 
-        @Nullable
-        @Override
+        @Nullable @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             return inflater.inflate(layoutResId, container, false);
         }
-
     }
-
 }

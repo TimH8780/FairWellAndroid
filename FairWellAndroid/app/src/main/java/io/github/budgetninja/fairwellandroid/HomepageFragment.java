@@ -59,8 +59,6 @@ import static io.github.budgetninja.fairwellandroid.ContentActivity.OWE_BALANCE;
 import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 
-
-
 public class HomepageFragment extends Fragment {
 
     private static int REQUEST_PICTURE =1;
@@ -514,12 +512,14 @@ public class HomepageFragment extends Fragment {
             while (mDiskCacheStarting) {
                 try {
                     mDiskCacheLock.wait();
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             if (mDiskLruCache != null) {
                 try {
                     final DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
-                    InputStream inputStream = null;
+                    InputStream inputStream;
                     if (snapshot != null) {
                         if (BuildConfig.DEBUG) {
                             Log.d(TAG, "Disk cache hit");

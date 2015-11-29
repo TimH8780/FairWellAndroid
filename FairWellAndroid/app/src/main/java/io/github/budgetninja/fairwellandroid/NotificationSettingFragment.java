@@ -4,8 +4,8 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.preference.PreferenceFragmentCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,18 +13,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
-import android.widget.Toast;
 
-import com.parse.ParseUser;
 
 public class NotificationSettingFragment extends Fragment {
 
-    private ParseUser user;
     private ContentActivity parent;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        user = ParseUser.getCurrentUser();
         parent = (ContentActivity)getActivity();
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
@@ -36,8 +32,8 @@ public class NotificationSettingFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_notification_setting, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
-            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            final Drawable upArrow = ContextCompat.getDrawable(getContext(), R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(ContextCompat.getColor(getContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Notification Setting");
@@ -96,8 +92,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv1.isChecked()){
                     ctv1.setChecked(false);
-                }
-                else{
+                } else {
                     ctv1.setChecked(true);
                 }
             }
@@ -109,8 +104,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv2.isChecked()){
                     ctv2.setChecked(false);
-                }
-                else{
+                } else {
                     ctv2.setChecked(true);
                 }
             }
@@ -122,8 +116,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv3.isChecked()){
                     ctv3.setChecked(false);
-                }
-                else{
+                } else {
                     ctv3.setChecked(true);
                 }
             }
@@ -135,8 +128,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv4.isChecked()){
                     ctv4.setChecked(false);
-                }
-                else{
+                } else {
                     ctv4.setChecked(true);
                 }
             }
@@ -148,8 +140,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv5.isChecked()){
                     ctv5.setChecked(false);
-                }
-                else{
+                } else {
                     ctv5.setChecked(true);
                 }
             }
@@ -161,8 +152,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv6.isChecked()){
                     ctv6.setChecked(false);
-                }
-                else{
+                } else {
                     ctv6.setChecked(true);
                 }
             }
@@ -174,8 +164,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv7.isChecked()){
                     ctv7.setChecked(false);
-                }
-                else{
+                } else {
                     ctv7.setChecked(true);
                 }
             }
@@ -187,8 +176,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv8.isChecked()){
                     ctv8.setChecked(false);
-                }
-                else{
+                } else {
                     ctv8.setChecked(true);
                 }
             }
@@ -200,8 +188,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv9.isChecked()){
                     ctv9.setChecked(false);
-                }
-                else{
+                } else {
                     ctv9.setChecked(true);
                 }
             }
@@ -213,8 +200,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv11.isChecked()){
                     ctv11.setChecked(false);
-                }
-                else{
+                } else {
                     ctv11.setChecked(true);
                 }
             }
@@ -226,8 +212,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv22.isChecked()){
                     ctv22.setChecked(false);
-                }
-                else{
+                } else {
                     ctv22.setChecked(true);
                 }
             }
@@ -239,8 +224,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv33.isChecked()){
                     ctv33.setChecked(false);
-                }
-                else{
+                } else {
                     ctv33.setChecked(true);
                 }
             }
@@ -252,8 +236,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv44.isChecked()){
                     ctv44.setChecked(false);
-                }
-                else{
+                } else {
                     ctv44.setChecked(true);
                 }
             }
@@ -265,8 +248,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv55.isChecked()){
                     ctv55.setChecked(false);
-                }
-                else{
+                } else {
                     ctv55.setChecked(true);
                 }
             }
@@ -278,8 +260,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv66.isChecked()){
                     ctv66.setChecked(false);
-                }
-                else{
+                } else {
                     ctv66.setChecked(true);
                 }
             }
@@ -291,8 +272,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv77.isChecked()){
                     ctv77.setChecked(false);
-                }
-                else{
+                } else {
                     ctv77.setChecked(true);
                 }
             }
@@ -304,8 +284,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv88.isChecked()){
                     ctv88.setChecked(false);
-                }
-                else{
+                } else {
                     ctv88.setChecked(true);
                 }
             }
@@ -317,8 +296,7 @@ public class NotificationSettingFragment extends Fragment {
             public void onClick(View v) {
                 if (ctv99.isChecked()){
                     ctv99.setChecked(false);
-                }
-                else{
+                } else {
                     ctv99.setChecked(true);
                 }
             }

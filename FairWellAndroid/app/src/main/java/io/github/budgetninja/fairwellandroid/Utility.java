@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
 
-import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -105,7 +104,7 @@ public class Utility {
                 OWE_BALANCE = runningSub;
             }
         } catch (ParseException e){
-            Log.d("RawFriendList", e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -141,7 +140,7 @@ public class Utility {
                     offlineList.add(friendItem.toStringAllData());
                     friendList.add(friendItem);
                 } catch (ParseException e) {
-                    Log.d("Fetch", e.getMessage());
+                    e.printStackTrace();
                 }
             }
             ParseObject temp = ParseUser.getCurrentUser().getParseObject("newEntry");
@@ -341,7 +340,7 @@ public class Utility {
                 result.addAll(queryB.find());
                 editNewEntryField(ParseUser.getCurrentUser(), false);
             } catch (ParseException e1){
-                Log.d("RawStatementList", e1.toString());
+                e1.printStackTrace();
             }
             if(temp != null){
                 temp.put("statementList", result);
@@ -350,7 +349,7 @@ public class Utility {
                 Utility.generateStatementArray();
             }
         } catch (ParseException e){
-            Log.d("RawStatementList", e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -358,7 +357,6 @@ public class Utility {
     private static boolean changedRecordStatement = true;
 
     public static List<Statement> generateStatementArray(){
-        Log.d("generate", Boolean.toString(pStatementList == null) + " " + Boolean.toString(changedRecordStatement));
         if(pStatementList == null || changedRecordStatement){
             Log.d("Statement", "Generating-Start");
             List<Statement> statementList = new ArrayList<>();
@@ -375,7 +373,6 @@ public class Utility {
                 ParseObject object = rawList.get(i).fetch();
                 if(!isPayee) {
                     if (object.getParseUser("payee") == ParseUser.getCurrentUser()) {
-                        Log.d("StatementArray", "Switch");
                         isPayee = true;
                     }
                 }
@@ -394,7 +391,7 @@ public class Utility {
                         submitBy, object.getParseUser("payee"), list, isPayee);
                 statementList.add(statement);
             } catch (ParseException e) {
-                Log.d("Fetch", e.getMessage());
+                e.printStackTrace();
             }
             pStatementList = new ArrayList<>(statementList);
             Collections.sort(pStatementList);
@@ -408,7 +405,6 @@ public class Utility {
         if(pStatementList != null){
             int pos = searchPosition(0, pStatementList.size(), newItem);
             pStatementList.add(pos, newItem);
-            Log.d("SubmitStatement", "Add Statement: " + Integer.toString(pos));
         }
     }
 

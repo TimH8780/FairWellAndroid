@@ -5,23 +5,17 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,13 +23,9 @@ import com.hb.views.PinnedSectionListView;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
-import java.util.Locale;
-
-import io.github.budgetninja.fairwellandroid.ContentActivity.UpdateInBackground;
 
 
 public class DashboardFragment extends ListFragment {
-
 
     /**
      * ISSAC: Uncommented for now. If we no longer use this code, I will remove it.
@@ -247,14 +237,8 @@ public class DashboardFragment extends ListFragment {
 //
 //    }
 
-
-
-
-
-
     private ParseUser user;
     private ContentActivity parent;
-
 
     @Override
     public void onCreate(Bundle bundle){
@@ -262,23 +246,20 @@ public class DashboardFragment extends ListFragment {
         setHasOptionsMenu(true);
         user = ParseUser.getCurrentUser();
         parent = (ContentActivity)getActivity();
-
     }
 
-    @Nullable
-    @Override
+    @Nullable @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_dashboard, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
-            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            upArrow.setColorFilter(getResources().getColor(R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
+            final Drawable upArrow = ContextCompat.getDrawable(getContext(), R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(ContextCompat.getColor(getContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Dashboard");
 
         return rootView;
-
     }
 
     @Override
@@ -287,7 +268,6 @@ public class DashboardFragment extends ListFragment {
         initializeAdapter();
         super.onActivityCreated(savedInstanceState);
     }
-
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
@@ -302,7 +282,6 @@ public class DashboardFragment extends ListFragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-
         if(id == android.R.id.home){
             parent.mMenuDrawer.closeMenu(false);
             parent.fragMgr.popBackStack();
@@ -312,23 +291,21 @@ public class DashboardFragment extends ListFragment {
             Toast.makeText(parent,"Not functional yet", Toast.LENGTH_SHORT).show();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
 
     private void initializeAdapter() {
         getListView().setFastScrollEnabled(false);
-
         setListAdapter(new SimpleAdapter(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1));
     }
-
 
     static class SimpleAdapter extends ArrayAdapter<Item> implements PinnedSectionListView.PinnedSectionListAdapter {
 
         private static final int[] COLORS = new int[] {
                 R.color.green_light, R.color.orange_light,
-                R.color.blue_light, R.color.red_light };
+                R.color.blue_light, R.color.red_light
+        };
 
         public SimpleAdapter(Context context, int resource, int textViewResourceId) {
             super(context, resource, textViewResourceId);
@@ -336,9 +313,8 @@ public class DashboardFragment extends ListFragment {
         }
 
         public void generateDataset() {
-
-            ArrayList<String> date = new ArrayList<String>();
-            ArrayList<String> str = new ArrayList<String>();
+            ArrayList<String> date = new ArrayList<>();
+            ArrayList<String> str = new ArrayList<>();
 
             date.add("November 2015");
             date.add("October 2015");
@@ -352,14 +328,11 @@ public class DashboardFragment extends ListFragment {
             str.add("Tim adds a statement on 10/20");
             str.add("A statement has been resolved on 10/21");
 
-
             int sectionPosition = 0, listPosition = 0;
-
             for (int i=0; i< date.size(); i++) {
                 Item section = new Item(Item.SECTION, date.get(i));
                 section.sectionPosition = sectionPosition;
                 section.listPosition = listPosition++;
-
                 add(section);
 
                 // do something about the algorithm, so that it can show the data correctly
@@ -370,36 +343,35 @@ public class DashboardFragment extends ListFragment {
                     item.listPosition = listPosition++;
                     add(item);
                 }
-
                 sectionPosition++;
             }
         }
 
-
-
-        @Override public View getView(int position, View convertView, ViewGroup parent) {
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
             TextView view = (TextView) super.getView(position, convertView, parent);
             view.setTextColor(Color.DKGRAY);
 
             view.setTag("" + position);
             Item item = getItem(position);
             if (item.type == Item.SECTION) {
-
-                Drawable img = getContext().getResources().getDrawable( R.drawable.ic_date_range_black_24dp );
+                Drawable img = ContextCompat.getDrawable(getContext(), R.drawable.ic_date_range_black_24dp);
                 img.setBounds(0, 0, 75, 75);
                 view.setCompoundDrawablePadding(10);
                 view.setCompoundDrawables(img, null, null, null);
                 view.setTypeface(null, Typeface.BOLD);
-                view.setBackgroundColor(parent.getResources().getColor(COLORS[item.sectionPosition % COLORS.length]));
+                view.setBackgroundColor(ContextCompat.getColor(getContext(), COLORS[item.sectionPosition % COLORS.length]));
             }
             return view;
         }
 
-        @Override public int getViewTypeCount() {
+        @Override
+        public int getViewTypeCount() {
             return 2;
         }
 
-        @Override public int getItemViewType(int position) {
+        @Override
+        public int getItemViewType(int position) {
             return getItem(position).type;
         }
 
@@ -407,7 +379,6 @@ public class DashboardFragment extends ListFragment {
         public boolean isItemViewTypePinned(int viewType) {
             return viewType == Item.SECTION;
         }
-
     }
 
     static class Item {
@@ -417,7 +388,6 @@ public class DashboardFragment extends ListFragment {
 
         public final int type;
         public final String text;
-
         public int sectionPosition;
         public int listPosition;
 
@@ -426,7 +396,8 @@ public class DashboardFragment extends ListFragment {
             this.text = text;
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             return text;
         }
 

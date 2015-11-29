@@ -1,5 +1,6 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -9,7 +10,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -19,7 +19,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
 import android.text.InputType;
 import android.util.Log;
-import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,7 +42,6 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,6 +91,7 @@ public class FriendsFragment extends Fragment{
         view.setAdapter(adapter);
         view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
+            @SuppressLint("CommitTransaction")
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
@@ -211,7 +210,7 @@ public class FriendsFragment extends Fragment{
                         if (e == null) {
                             addFriend(parseUser);
                         } else {
-                            Log.d("AddFriend", e.getMessage());
+                            e.printStackTrace();
                             Toast.makeText(parent, "Failed to Find E-mail: " + userInput.getText().toString(), Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -249,8 +248,8 @@ public class FriendsFragment extends Fragment{
         try {
             return (query.count() != 0);
         }
-        catch (ParseException x) {
-            Log.d("checkDuplicate",x.getMessage());
+        catch (ParseException e) {
+            e.printStackTrace();
             return true;
         }
     }

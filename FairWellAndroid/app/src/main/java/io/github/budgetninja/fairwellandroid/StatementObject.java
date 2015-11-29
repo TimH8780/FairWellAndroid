@@ -1,13 +1,9 @@
 package io.github.budgetninja.fairwellandroid;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
@@ -16,7 +12,6 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,8 +29,6 @@ public class StatementObject {
     public static final int CONFIRM = 0;
     public static final int REJECT = 1;
     public static final int DELETE = 2;
-    public static final int RESOLVING = 3;
-    public static final int PAID = 4;
 
     public static class SummaryStatement {
 
@@ -119,7 +112,7 @@ public class StatementObject {
                         item.getBoolean("payerReject"), item.getBoolean("payerPaid"), item.getBoolean("paymentPending"),
                         item.getDouble("amount"), item.getParseObject("friendship")));
             } catch (ParseException e){
-                Log.d("Fetch", e.toString());
+                e.printStackTrace();
             }
         }
 
@@ -139,7 +132,7 @@ public class StatementObject {
         }
 
         @Override
-        public int compareTo(Statement another) {
+        public int compareTo(@NonNull Statement another) {
             return deadline.compareTo(another.deadline);
         }
 
@@ -333,9 +326,7 @@ public class StatementObject {
                         query.whereEqualTo("payerReject", false);
                         query.whereEqualTo("payerPaid", false);
                         query.whereEqualTo("friendship", payerRelation);
-                        int num = query.count();
-                        Log.d("Count", Integer.toString(num));
-                        if (num == 1) {
+                        if (query.count() == 1) {
                             payerRelation.put("pendingStatement", false);
                         }
 
@@ -372,8 +363,7 @@ public class StatementObject {
                         query.whereEqualTo("payerReject", false);
                         query.whereEqualTo("payerPaid", false);
                         query.whereEqualTo("friendship", payerRelation);
-                        int counter = query.count();
-                        if (counter == 1) {
+                        if (query.count() == 1) {
                             payerRelation.put("pendingStatement", false);
                             payerRelation.save();
                         }
