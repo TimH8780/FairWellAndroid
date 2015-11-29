@@ -50,11 +50,12 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Redirect to BudgetNinja website~~
 * ~~**Logout**~~
   * ~~Logout~~
-* ~~**View Statement Page**~~
+* **View Statement Page**
   * ~~View Statement~~
   * ~~Comfirm Statement Request~~
   * ~~Change Wording~~
   * ~~Reject Statement Request~~
+  * Offline Support - Tim
 * **Add Statement Page**
   * ~~Design~~
   * ~~Info Input and Check~~
@@ -70,9 +71,9 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Cancel statement~~
   * ~~Modify statement~~
   * ~~Submit statement~~
-* **Resolve Statement Page**
+* ~~**Resolve Statement Page**~~
   * ~~Friend (with non-zero balance) display~~
-  * Resolve statement - Tim
+  * ~~Resolve statement~~
 * **Other**
   * ~~Check email-verify~~
   * ~~Check friend-verify~~
