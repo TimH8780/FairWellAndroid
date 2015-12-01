@@ -35,7 +35,7 @@ import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.POSITION_HOME;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_EQUALLY;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_UNEQUALLY;
-import static io.github.budgetninja.fairwellandroid.AddStatementFragment.BY_RATIO;
+import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_BY_RATIO;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -235,7 +235,7 @@ public class SubmitStatementSummaryFragment extends Fragment {
                 Toast.makeText(parent, "Coming Soon! - Use Split Equally", Toast.LENGTH_SHORT).show();
                 break;
 
-            case BY_RATIO:
+            case SPLIT_BY_RATIO:
                 modeView.setText("Split by Ratio");
                 Toast.makeText(parent, "Coming Soon! - Use Split Equally", Toast.LENGTH_SHORT).show();
                 break;

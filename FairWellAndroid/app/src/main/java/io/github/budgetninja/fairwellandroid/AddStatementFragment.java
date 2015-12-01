@@ -4,12 +4,15 @@ package io.github.budgetninja.fairwellandroid;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.renderscript.ScriptGroup;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -27,8 +30,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -66,6 +71,7 @@ public class AddStatementFragment extends Fragment {
     private boolean pageCheck;
     private boolean isAmountChanged;
     private TextView clickedText;
+    private TextView capacityText;
     private Button deadlineFieldButton;
     private Button dateFieldButton;
     private EditText description;
@@ -74,14 +80,14 @@ public class AddStatementFragment extends Fragment {
     private DateFormat format;
     private static ArrayList<Integer> dateRecord;
     private static int viewSel;
-    private int counter;
-    private int maxCapacity;
+    private double counter;
+    private double maxCapacity;
 
     private ContentActivity parent;
     private int paidByPosition;
     private int modePosition;
-    private Boolean[] friendSelected;
-    private Boolean[] tempResult;
+    private Double[] friendSelected;
+    private Double[] tempResult;
     private List<Friend> friendList;
     private List<Pair<Friend, Double>> selectedMember;
 
@@ -95,7 +101,7 @@ public class AddStatementFragment extends Fragment {
     public static final int MODE_HINT = -1;
     public static final int SPLIT_EQUALLY = 0;
     public static final int SPLIT_UNEQUALLY = 1;
-    public static final int BY_RATIO = 2;
+    public static final int SPLIT_BY_RATIO = 2;
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -136,7 +142,7 @@ public class AddStatementFragment extends Fragment {
         friendList.add(0, new Friend(null, null, user, "Self", null, -1, -1, false, true, true));
         friendList.add(friendList.size(),new Friend(null, null, user, "Select Payer", null, -1, -1, false, true, true));
 
-        friendSelected = new Boolean[friendList.size()];
+        friendSelected = new Double[friendList.size()];
 
         // An array used to record the date set by user for DATE and DEADLINE
         dateRecord = new ArrayList<>(6);
@@ -235,7 +241,7 @@ public class AddStatementFragment extends Fragment {
                 } else {
                     paidByPosition = position;
                 }
-                friendSelected = new Boolean[friendList.size()];
+                friendSelected = new Double[friendList.size()];
                 selectedMember = new ArrayList<>();
                 displayMemberSelected();
             }
@@ -252,7 +258,7 @@ public class AddStatementFragment extends Fragment {
                 } else {
                     modePosition = position;
                 }
-                friendSelected = new Boolean[friendList.size()];
+                friendSelected = new Double[friendList.size()];
                 selectedMember = new ArrayList<>();
                 displayMemberSelected();
             }
@@ -282,6 +288,7 @@ public class AddStatementFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 isAmountChanged = true;
+                //code
             }
 
             @Override
@@ -384,12 +391,12 @@ public class AddStatementFragment extends Fragment {
             for (int i = 0; i < counter; i++) {
                 data.append(selectedMember.get(i).first.name).append("\n");
             }
-            if(this.counter > 0){
-                text.setText("Selected Member [" + Integer.toString(counter) + "+" + Integer.toString(this.counter) + "]");
-                if(this.counter == 1){
-                    data.append("(").append(this.counter).append(" non-Fairwell user)").append("\n");
+            if((int)this.counter > 0){
+                text.setText("Selected Member [" + Integer.toString(counter) + "+" + String.format("%.0f", this.counter) + "]");
+                if((int)this.counter == 1){
+                    data.append("(").append((int)this.counter).append(" non-Fairwell user)").append("\n");
                 }else{
-                    data.append("(").append(this.counter).append(" non-Fairwell users)").append("\n");
+                    data.append("(").append((int)this.counter).append(" non-Fairwell users)").append("\n");
                 }
 
             } else{
@@ -443,7 +450,7 @@ public class AddStatementFragment extends Fragment {
                         double each = Double.valueOf(moneyAmount.getText().toString()) / maxCapacity;
                         for (int i = 0; i < friendSelected.length; i++) {
                             if (friendSelected[i] != null) {
-                                if (friendSelected[i]) {
+                                if (friendSelected[i].intValue() == 1) {
                                     selectedMember.add(new Pair<>(friendList.get(i), each));
                                 }
                             }
@@ -453,13 +460,13 @@ public class AddStatementFragment extends Fragment {
 
                 try {
                     SummaryStatement summaryStatement = new SummaryStatement(descr, categ, format.parse(date), format.parse(deadline),
-                            modePosition, counter, Double.valueOf(amount), payee, selectedMember);
+                            modePosition, (int)counter, Double.valueOf(amount), payee, selectedMember);
                     parent.setSubmitStatementSummaryData(summaryStatement);
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             } else {
-                Toast.makeText(getContext(), "Please fill in all information with SnapShot as optional", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Please fill in all required information", Toast.LENGTH_SHORT).show();
             }
         }
     };
@@ -486,12 +493,7 @@ public class AddStatementFragment extends Fragment {
                     builder.setTitle("Select Member(s)");
                     builder.setView(linearLayout);
                     builder.setPositiveButton("Next", null);
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
+                    builder.setNegativeButton("Cancel", null);
                     final AlertDialog dialog = builder.create();
 
                     dialog.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -511,7 +513,7 @@ public class AddStatementFragment extends Fragment {
                                             Toast.makeText(parent, "Please enter number greater than 0", Toast.LENGTH_SHORT).show();
                                         } else {
                                             dialog.dismiss();
-                                            showMemberSelectionList(num, SPLIT_EQUALLY);
+                                            showMemberSelectionListOne(num);
                                         }
                                     }
                                 }
@@ -522,31 +524,114 @@ public class AddStatementFragment extends Fragment {
                     break;
 
                 case SPLIT_UNEQUALLY:
-                    showMemberSelectionList(-1, SPLIT_UNEQUALLY);
+                    String money = moneyAmount.getText().toString();
+                    if(!money.equals("")) {
+                        showMemberSelectionListTwo(Double.valueOf(money), SPLIT_UNEQUALLY);
+                    } else {
+                        Toast.makeText(parent, "Please enter payment amount first", Toast.LENGTH_SHORT).show();
+                    }
                     break;
 
-                case BY_RATIO:
-                    showMemberSelectionList(-1, BY_RATIO);
+                case SPLIT_BY_RATIO:
+                    showMemberSelectionListTwo(-1, SPLIT_BY_RATIO);
                     break;
 
                 default:
-                    Toast.makeText(parent, "Please select mode", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(parent, "Please select payment mode first", Toast.LENGTH_SHORT).show();
             }
         }
     };
 
-    private void showMemberSelectionList(final int capacity, final int mode){
-        final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-        final TextView capacityText = new TextView(parent);
-        tempResult = new Boolean[friendList.size()];
+    //For SPLIT_EQUALLY only
+    private void showMemberSelectionListOne(final int capacity){
+        AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+        capacityText = new TextView(parent);
+        tempResult = new Double[friendList.size()];
         ListView container = new ListView(parent);
         maxCapacity = capacity;
         counter = capacity;
-        if(capacity > 0){
+        TextView textView = new TextView(parent);
+        textView.setText("Maximum Capacity: ");
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        capacityText.setText(Integer.toString(capacity));
+        capacityText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        LinearLayout linearLayout = new LinearLayout(parent);
+        linearLayout.setHorizontalGravity(Gravity.CENTER_HORIZONTAL);
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout.addView(textView);
+        linearLayout.addView(capacityText);
+        linearLayout.setPadding(10, 10, 10, 10);
+        LinearLayout layout = new LinearLayout(parent);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.addView(linearLayout);
+        layout.addView(container);
+        builder.setView(layout);
+
+        MemberSelectionAdaptorOne memberAdaptor = new MemberSelectionAdaptorOne(getContext(), R.layout.item_add_member_one,
+                friendList.subList(0,friendList.size()-1));
+        container.setAdapter(memberAdaptor);
+        container.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                CheckBox checkBox = (CheckBox) view.findViewById(R.id.memberCheckBox);
+                if (checkBox.isChecked()) {
+                    tempResult[position] = 0.00;
+                    checkBox.setChecked(false);
+                    if (counter >= 0) {
+                        capacityText.setText(String.format("%.0f", ++counter));
+                    }
+                } else if (counter != 0 && (maxCapacity != 1 || paidByPosition != position)) {
+                    tempResult[position] = 1.00;
+                    checkBox.setChecked(true);
+                    if (counter > 0) {
+                        capacityText.setText(String.format("%.0f", counter));
+                    }
+                }
+            }
+        });
+        builder.setTitle("Select Member(s)");
+        builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                friendSelected = Arrays.copyOf(tempResult, tempResult.length);
+                isAmountChanged = false;
+                selectedMember = new ArrayList<>();
+                double each = 0.00;
+                if (!moneyAmount.getText().toString().equals("")) {
+                    each = Double.valueOf(moneyAmount.getText().toString()) / capacity;
+                }
+
+                for (int i = 0; i < tempResult.length; i++) {
+                    if (friendSelected[i] != null) {
+                        if (friendSelected[i].intValue() == 1) {
+                            selectedMember.add(new Pair<>(friendList.get(i), each));
+                        }
+                    }
+                }
+                displayMemberSelected();
+
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    //For SPLIT_UNEQUALLY and SPLIT_BY_RATIO
+    private void showMemberSelectionListTwo(final double capacity, final int type){
+        AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+        builder.setTitle("Select Member(s)");
+        maxCapacity = capacity;
+        counter = capacity;
+        tempResult = new Double[friendList.size()];
+        ListView container = new ListView(parent);
+        MemberSelectionAdaptorTwo memberAdaptor;
+        if(type == SPLIT_UNEQUALLY) {
+            capacityText = new TextView(parent);
             TextView textView = new TextView(parent);
-            textView.setText("Maximum Capacity: ");
+            textView.setText("Maximum Capacity: $ ");
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-            capacityText.setText(Integer.toString(capacity));
+            capacityText.setText(String.format("%.2f", capacity));
             capacityText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
             LinearLayout linearLayout = new LinearLayout(parent);
             linearLayout.setHorizontalGravity(Gravity.CENTER_HORIZONTAL);
@@ -559,67 +644,18 @@ public class AddStatementFragment extends Fragment {
             layout.addView(linearLayout);
             layout.addView(container);
             builder.setView(layout);
+            memberAdaptor = new MemberSelectionAdaptorTwo(getContext(), R.layout.item_add_member_two,
+                    friendList.subList(0,friendList.size()-1), SPLIT_UNEQUALLY);
         } else {
             builder.setView(container);
+            memberAdaptor = new MemberSelectionAdaptorTwo(getContext(), R.layout.item_add_member_two,
+                    friendList.subList(0,friendList.size()-1), SPLIT_BY_RATIO);
         }
-        //TIM: issac edit this
-        MemberSelectionAdaptor memberAdaptor = new MemberSelectionAdaptor(getContext(), R.layout.item_add_member, friendList.subList(0,friendList.size()-1));
+
         container.setAdapter(memberAdaptor);
-        container.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                CheckBox checkBox = (CheckBox) view.findViewById(R.id.memberCheckBox);
-                if (checkBox.isChecked()) {
-                    tempResult[position] = false;
-                    checkBox.setChecked(false);
-                    if (counter >= 0) {
-                        capacityText.setText(Integer.toString(++counter));
-                    }
-                } else if (counter != 0 && (maxCapacity != 1 || paidByPosition != position)) {
-                    tempResult[position] = true;
-                    checkBox.setChecked(true);
-                    if (counter > 0) {
-                        capacityText.setText(Integer.toString(--counter));
-                    }
-                }
-            }
-        });
-        builder.setTitle("Select Member(s)");
-        builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                friendSelected = Arrays.copyOf(tempResult, tempResult.length);
-                isAmountChanged = false;
-                switch (mode) {
-                    case SPLIT_EQUALLY:
-                        selectedMember = new ArrayList<>();
-                        double each = 0.00;
-                        if(!moneyAmount.getText().toString().equals("")) {
-                            each = Double.valueOf(moneyAmount.getText().toString()) / capacity;
-                        }
-
-                        for (int i = 0; i < tempResult.length; i++) {
-                            if (friendSelected[i] != null) {
-                                if (friendSelected[i]) {
-                                    selectedMember.add(new Pair<>(friendList.get(i), each));
-                                }
-                            }
-                        }
-                        displayMemberSelected();
-                        break;
-
-                    case BY_RATIO:
-                        Toast.makeText(parent, "Coming Soon", Toast.LENGTH_SHORT).show();
-                        break;
-
-                    case SPLIT_UNEQUALLY:
-                        Toast.makeText(parent, "Coming Soon", Toast.LENGTH_SHORT).show();
-                        break;
-                }
-            }
-        });
+        builder.setPositiveButton("Select", null);
         builder.setNegativeButton("Cancel", null);
-        final AlertDialog dialog = builder.create();
+        AlertDialog dialog = builder.create();
         dialog.show();
     }
 
@@ -659,13 +695,13 @@ public class AddStatementFragment extends Fragment {
         return (dateRecord.get(view + DAY) != day) && (!result);
     }
 
-    private class MemberSelectionAdaptor extends ArrayAdapter<Friend>{
+    private class MemberSelectionAdaptorOne extends ArrayAdapter<Friend>{
 
         Context mContext;
         int mResource;
         List<Friend> mObject;
 
-        public MemberSelectionAdaptor(Context context, int resource, List<Friend> objects){
+        public MemberSelectionAdaptorOne(Context context, int resource, List<Friend> objects){
             super(context, resource, objects);
             mContext = context;
             mResource = resource;
@@ -696,8 +732,251 @@ public class AddStatementFragment extends Fragment {
             if(tempResult[position] == null){
                 viewHolder.box.setChecked(false);
             } else {
-                viewHolder.box.setChecked(tempResult[position]);
+                viewHolder.box.setChecked(tempResult[position].intValue() == 1);
             }
+
+            return convertView;
+        }
+    }
+
+    private class MemberSelectionAdaptorTwo extends ArrayAdapter<Friend>{
+
+        private Handler repeatUpdateHandler = new Handler();
+        private boolean mAutoIncrement = false;
+        private boolean mAutoDecrement = false;
+        Context mContext;
+        int mResource;
+        List<Friend> mObject;
+        int mType;
+
+        public MemberSelectionAdaptorTwo(Context context, int resource, List<Friend> objects, int type){
+            super(context, resource, objects);
+            mContext = context;
+            mResource = resource;
+            mObject = objects;
+            mType = type;
+        }
+
+        private class ViewHolder{
+            TextView nameText;
+            Button minus;
+            Button value;
+            Button plus;
+            int position;
+        }
+
+        private class RepeatUpdater implements Runnable {
+            private Button button;
+
+            public RepeatUpdater(View v) { button = (Button) v; }
+            public void run() {
+                if(mAutoIncrement){
+                    if (counter > 0.009) {
+                        Pair<Integer, Button> tag = (Pair) button.getTag();
+                        Double temp = Double.valueOf(tag.second.getText().toString()) + 0.01;
+                        tag.second.setText(String.format("%.2f", temp));
+                        counter -= 0.01;
+                        if(counter < 0.00 && counter > -0.01){ counter = 0.00; }
+                        capacityText.setText(String.format("%.2f", counter));
+                    }
+                    repeatUpdateHandler.postDelayed(new RepeatUpdater(button), 50);
+                } else if(mAutoDecrement){
+                    Pair<Integer, Button> tag = (Pair) button.getTag();
+                    Double temp = Double.valueOf(tag.second.getText().toString());
+                    if (temp > 0.009) {
+                        temp -= 0.01;
+                        if(temp < 0.00 && temp > -0.01){ temp = 0.00; }
+                        tag.second.setText(String.format("%.2f", temp));
+                        counter += 0.01;
+                        capacityText.setText(String.format("%.2f", counter));
+                    }
+                    repeatUpdateHandler.postDelayed(new RepeatUpdater(button), 50);
+                }
+            }
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parentGroup){
+            Friend currentItem = mObject.get(position);
+            final ViewHolder viewHolder;
+            if(convertView == null){
+                convertView = parent.getLayoutInflater().inflate(mResource, parentGroup, false);
+                viewHolder = new ViewHolder();
+                viewHolder.nameText = (TextView) convertView.findViewById(R.id.memberName);
+                viewHolder.minus = (Button) convertView.findViewById(R.id.minusButton);
+                viewHolder.value = (Button) convertView.findViewById(R.id.valueButton);
+                viewHolder.plus = (Button) convertView.findViewById(R.id.plusButton);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+            viewHolder.position = position;
+            viewHolder.nameText.setText(currentItem.name);
+
+            Pair<Integer, Button> tag = new Pair<>(position, viewHolder.value);
+            viewHolder.plus.setTag(tag);
+            viewHolder.minus.setTag(tag);
+
+            if(tempResult[position] == null){
+                if(mType == SPLIT_UNEQUALLY){ viewHolder.value.setText("0.00"); }
+                else{ viewHolder.value.setText("0"); }
+            } else {
+                if(mType == SPLIT_UNEQUALLY){ viewHolder.value.setText(String.format("%.2f", tempResult[position])); }
+                else{ viewHolder.value.setText(String.format("%.0f", tempResult[position])); }
+            }
+
+            viewHolder.plus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Pair<Integer, Button> tag = (Pair) v.getTag();
+                    if (counter > 0.99 || mType == SPLIT_BY_RATIO) {
+                        Double temp = Double.valueOf(tag.second.getText().toString()) + 1.00;
+                        if (mType == SPLIT_UNEQUALLY) {
+                            tag.second.setText(String.format("%.2f", temp));
+                            counter -= 1.00;
+                            if (counter < 0.00 && counter > -0.01) {
+                                counter = 0.00;
+                            }
+                            capacityText.setText(String.format("%.2f", counter));
+                        } else {
+                            tag.second.setText(String.format("%.0f", temp));
+                        }
+                    }
+                }
+            });
+            viewHolder.plus.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (mType == SPLIT_UNEQUALLY) {
+                        mAutoIncrement = true;
+                        repeatUpdateHandler.post(new RepeatUpdater(v));
+                    }
+                    return false;
+                }
+            });
+            viewHolder.plus.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if ((event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
+                            && mAutoIncrement && mType == SPLIT_UNEQUALLY) {
+                        mAutoIncrement = false;
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            viewHolder.minus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Pair<Integer, Button> tag = (Pair) v.getTag();
+                    Double temp = Double.valueOf(tag.second.getText().toString());
+                    if (temp > 0.99) {
+                        temp -= 1.00;
+                        if (temp < 0.00 && temp > -0.01) {
+                            temp = 0.00;
+                        }
+                        if (mType == SPLIT_UNEQUALLY) {
+                            tag.second.setText(String.format("%.2f", temp));
+                            counter += 1.00;
+                            capacityText.setText(String.format("%.2f", counter));
+                        } else {
+                            tag.second.setText(String.format("%.0f", temp));
+                        }
+                    }
+                }
+            });
+            viewHolder.minus.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (mType == SPLIT_UNEQUALLY) {
+                        mAutoDecrement = true;
+                        repeatUpdateHandler.post(new RepeatUpdater(v));
+                    }
+                    return false;
+                }
+            });
+            viewHolder.minus.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if ((event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
+                            && mAutoDecrement && mType == SPLIT_UNEQUALLY) {
+                        mAutoDecrement = false;
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            viewHolder.value.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final Button button = (Button) v;
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+                    LinearLayout linearLayout = new LinearLayout(parent);
+                    linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                    linearLayout.setPadding(50, 20, 20, 0);
+                    TextView textView = new TextView(parent);
+                    textView.setText("Set a new value:  ");
+                    textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+                    final EditText editText = new EditText(parent);
+                    editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+                    editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(7)});
+                    linearLayout.addView(textView);
+                    linearLayout.addView(editText);
+                    builder.setTitle("Set Value");
+                    builder.setView(linearLayout);
+                    if(mType == SPLIT_UNEQUALLY){
+                        editText.setHint(String.format("%.2f", Double.valueOf(button.getText().toString())));
+                        editText.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                    } else {
+                        editText.setHint(String.format("%.0f", Double.valueOf(button.getText().toString())));
+                        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                    }
+
+                    builder.setView(linearLayout);
+                    builder.setPositiveButton("Set Value", null);
+                    builder.setNegativeButton("Cancel", null);
+                    final AlertDialog dialog = builder.create();
+
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @Override
+                        public void onShow(DialogInterface dialogInterface) {
+                            final Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                            positiveButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if(mType == SPLIT_BY_RATIO){
+                                        button.setText(editText.getText().toString());
+                                        dialog.dismiss();
+                                    } else {
+                                        String newValueInString = editText.getText().toString();
+                                        if(newValueInString.contains(".")){
+                                            int index = newValueInString.indexOf(".");
+                                            if(newValueInString.length() > index + 3){
+                                                newValueInString = newValueInString.substring(0, index + 3);
+                                            }
+                                        }
+                                        Double newValue = Double.valueOf(newValueInString);
+                                        Double oldValue = Double.valueOf(button.getText().toString());
+                                        if(newValue < (counter + oldValue + 0.01)){
+                                            button.setText(String.format("%.2f", newValue));
+                                            counter = counter + oldValue - newValue;
+                                            if(counter < 0.00 && counter > -0.01){ counter = 0.00; }
+                                            capacityText.setText(String.format("%.2f", counter));
+                                            dialog.dismiss();
+                                        } else {
+                                            Toast.makeText(parent, "The new value excesses the capacity!", Toast.LENGTH_SHORT).show();
+                                            editText.setText("");
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    dialog.show();
+                }
+            });
 
             return convertView;
         }

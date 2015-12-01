@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,7 +42,7 @@ import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
 import io.github.budgetninja.fairwellandroid.StatementObject.SubStatement;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_EQUALLY;
 import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_UNEQUALLY;
-import static io.github.budgetninja.fairwellandroid.AddStatementFragment.BY_RATIO;
+import static io.github.budgetninja.fairwellandroid.AddStatementFragment.SPLIT_BY_RATIO;
 import static io.github.budgetninja.fairwellandroid.StatementObject.CONFIRM;
 import static io.github.budgetninja.fairwellandroid.StatementObject.REJECT;
 import static io.github.budgetninja.fairwellandroid.StatementObject.DELETE;
@@ -154,7 +153,7 @@ public class StatementSummaryFragment extends Fragment{
             case SPLIT_UNEQUALLY:
                 modeView.setText("Split Unequally");
                 break;
-            case BY_RATIO:
+            case SPLIT_BY_RATIO:
                 modeView.setText("Split by Ratio");
                 break;
         }
@@ -349,7 +348,7 @@ public class StatementSummaryFragment extends Fragment{
             }
             tempResult = new Boolean[list.size()];
 
-            PayerSelectionAdaptor adaptor = new PayerSelectionAdaptor(parent, R.layout.item_add_member, list);
+            PayerSelectionAdaptor adaptor = new PayerSelectionAdaptor(parent, R.layout.item_add_member_one, list);
             container.setAdapter(adaptor);
             container.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
