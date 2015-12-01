@@ -547,7 +547,7 @@ public class AddStatementFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(parent);
         capacityText = new TextView(parent);
         tempResult = new Double[friendList.size()];
-        ListView container = new ListView(parent);
+        final ListView container = new ListView(parent);
         maxCapacity = capacity;
         counter = capacity;
         TextView textView = new TextView(parent);
@@ -578,12 +578,15 @@ public class AddStatementFragment extends Fragment {
                     tempResult[position] = 0.00;
                     checkBox.setChecked(false);
                     if (counter >= 0) {
-                        capacityText.setText(String.format("%.0f", ++counter));
+                        counter += 1.00;
+                        capacityText.setText(String.format("%.0f", counter));
                     }
-                } else if (counter != 0 && (maxCapacity != 1 || paidByPosition != position)) {
+                } else if (counter != 0 && ((int)maxCapacity != 1 || paidByPosition != position)) {
                     tempResult[position] = 1.00;
                     checkBox.setChecked(true);
                     if (counter > 0) {
+                        counter -= 1.00;
+                        if(counter < 0.00 && counter > -0.01){ counter = 0.00; }
                         capacityText.setText(String.format("%.0f", counter));
                     }
                 }
@@ -776,7 +779,7 @@ public class AddStatementFragment extends Fragment {
                         Double temp = Double.valueOf(tag.second.getText().toString()) + 0.01;
                         tag.second.setText(String.format("%.2f", temp));
                         counter -= 0.01;
-                        if(counter < 0.00 && counter > -0.01){ counter = 0.00; }
+                        if(counter < 0.00 && counter > -0.001){ counter = 0.00; }
                         capacityText.setText(String.format("%.2f", counter));
                     }
                     repeatUpdateHandler.postDelayed(new RepeatUpdater(button), 50);
@@ -785,7 +788,7 @@ public class AddStatementFragment extends Fragment {
                     Double temp = Double.valueOf(tag.second.getText().toString());
                     if (temp > 0.009) {
                         temp -= 0.01;
-                        if(temp < 0.00 && temp > -0.01){ temp = 0.00; }
+                        if(temp < 0.00 && temp > -0.001){ temp = 0.00; }
                         tag.second.setText(String.format("%.2f", temp));
                         counter += 0.01;
                         capacityText.setText(String.format("%.2f", counter));
@@ -927,10 +930,10 @@ public class AddStatementFragment extends Fragment {
                     builder.setTitle("Set Value");
                     builder.setView(linearLayout);
                     if(mType == SPLIT_UNEQUALLY){
-                        editText.setHint(String.format("%.2f", Double.valueOf(button.getText().toString())));
+                        editText.setHint(button.getText().toString());
                         editText.setInputType(InputType.TYPE_CLASS_NUMBER|InputType.TYPE_NUMBER_FLAG_DECIMAL);
                     } else {
-                        editText.setHint(String.format("%.0f", Double.valueOf(button.getText().toString())));
+                        editText.setHint(button.getText().toString());
                         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
                     }
 
