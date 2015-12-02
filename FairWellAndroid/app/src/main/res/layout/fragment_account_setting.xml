@@ -53,14 +53,11 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <Button
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Change username"/>
 
             <Button
-                android:text="Change password"
+                android:id="@+id/button_change_pw"
+                android:onClick="changePW"
+                android:text="Change Password"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>

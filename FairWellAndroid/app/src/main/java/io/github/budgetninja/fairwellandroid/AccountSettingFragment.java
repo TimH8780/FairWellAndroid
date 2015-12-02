@@ -30,6 +30,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,6 +41,7 @@ import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
+import com.parse.RequestPasswordResetCallback;
 import com.parse.SaveCallback;
 
 import org.apache.commons.io.IOUtils;
@@ -122,13 +124,7 @@ public class AccountSettingFragment extends Fragment {
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Account Setting");
-        ((TextView) rootView.findViewById(R.id.email)).setText((user.getEmail()));
-        if(user.get("profileName")==null||((String)(user.get("profileName"))).isEmpty()) {
-            String profileNameString = user.get("First_Name") + " " + user.get("Last_Name");
-            ((TextView) rootView.findViewById(R.id.profile_name_view)).setText(profileNameString);
-        }else{
-            ((TextView) rootView.findViewById(R.id.profile_name_view)).setText((String)(user.get("profileName")));
-        }
+        updatePageInfo();
         userPhotoView = (ImageView) rootView.findViewById(R.id.user_photo);
         userPhotoView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,16 +132,20 @@ public class AccountSettingFragment extends Fragment {
                 promptUploadPhotoDialog();
             }
         });
+        Button buttonChangePW = (Button) rootView.findViewById(R.id.button_change_pw);
+        buttonChangePW.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changePW();
+            }
+        });
         if(user != null){
-            System.out.println("AAA");
             userPhotoFile = user.getParseFile("photo");
             if(userPhotoFile!=null) {
-                System.out.println("BBB");
                 loadParseFiletoImageView(userPhotoFile, userPhotoView, userPhotoFile.getName().substring(0, 48));
             }
         }
 
-        System.out.println("CCC");
         return rootView;
     }
 
@@ -204,17 +204,14 @@ public class AccountSettingFragment extends Fragment {
         final Bitmap bitmapInDisk = getBitmapFromDiskCache(keyProvided);
         if (bitmapInDisk != null) {
 
-            System.out.println("DDD");
             loadBitmap(null, iv, keyProvided, PIXEL_PHOTO, PIXEL_PHOTO, bitmapInDisk);
         } else if(pf != null){
 
-            System.out.println("EEE");
             pf.getDataInBackground(new GetDataCallback() {
                 @Override
                 public void done(byte[] bytes, ParseException e) {
                     if (e == null) {
 
-                        System.out.println("FFF");
                         loadBitmap(bytes, iv, keyProvided, PIXEL_PHOTO, PIXEL_PHOTO, bitmapInDisk);
                     } else {
                         Log.d("GetData", e.getMessage());
@@ -335,29 +332,23 @@ public class AccountSettingFragment extends Fragment {
     public void loadBitmap(byte[] sourceByteArray, ImageView imageView, String keyProvided, int w, int h, Bitmap bitmapInDisk) {
         if(sourceByteArray == null){
 
-            System.out.println("GGG");
             imageView.setImageBitmap(bitmapInDisk);
             hideProgressBar();
         }else if (cancelPotentialWork(sourceByteArray, imageView)) {
 
-            System.out.println("HHH");
             Bitmap bitmap = getBitmapFromMemCache(keyProvided);
             if(bitmap != null){
 
-                System.out.println("III");
                 imageView.setImageBitmap(bitmap);
                 hideProgressBar();
             } else {
 
-                System.out.println("JJJ");
                 bitmap = getBitmapFromDiskCache(keyProvided);
                 if (bitmap != null) {
 
-                    System.out.println("KKK");
                     imageView.setImageBitmap(bitmap);
                     hideProgressBar();
                 } else if(isAdded()){
-                    System.out.println("LLL");
                     Log.d("loadBitmap", "Fragment Attached");
                     final BitmapWorkerTask task = new BitmapWorkerTask(imageView, keyProvided,w,h);
                     final AsyncDrawable asyncDrawable =
@@ -367,7 +358,6 @@ public class AccountSettingFragment extends Fragment {
                     hideProgressBar();
                 } else {
 
-                    System.out.println("MMM");
                     Log.d("loadBitmap", "Fragment Not Attached");
                 }
             }
@@ -463,24 +453,19 @@ public class AccountSettingFragment extends Fragment {
 
     public Bitmap getBitmapFromDiskCache(String key) {
 
-        System.out.println("NNN");
         Bitmap bitmap = null;
         synchronized (FairwellApplication.mDiskCacheLock) {
 
-            System.out.println("OOO");
             // Wait while disk cache is started from background thread
             while (FairwellApplication.mDiskCacheStarting) {
 
-                System.out.println("PPP");
                 try {
                     FairwellApplication.mDiskCacheLock.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            System.out.println("QQQ");
             if (mDiskLruCache != null) {
-                System.out.println("RRR");
                 try {
                     final DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
                     InputStream inputStream;
@@ -605,6 +590,60 @@ public class AccountSettingFragment extends Fragment {
         View progressView = getActivity().findViewById(R.id.loadingPanel);
         if(progressView != null){
             progressView.setVisibility(View.GONE);
+        }
+    }
+    public void changePW(){
+        final String email = user.getEmail();
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        TextView textBox = new TextView(getActivity());
+        textBox.setText("You will be able to change your password using the link sent to your email.");
+        builder.setTitle("Reset Password?");
+        builder.setView(textBox);
+        builder.setPositiveButton("Send password reset link to my email", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ParseUser.requestPasswordResetInBackground(email, new RequestPasswordResetCallback() {
+                    public void done(ParseException e) {
+                        if (e == null) {
+                            Toast toast = Toast.makeText(getContext(), "An email has been sent to " + email, Toast.LENGTH_SHORT);
+                            toast.show();
+                        } else {
+                            Log.d("ResetPW", e.getMessage());
+                            Toast.makeText(getContext(), "Failed to reset password", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private void updatePageInfo(){
+        try {
+            user.fetchIfNeeded();
+            ((TextView) rootView.findViewById(R.id.email)).setText((user.getEmail()));
+            if(user.get("profileName")==null||((String)(user.get("profileName"))).isEmpty()) {
+                String profileNameString = user.get("First_Name") + " " + user.get("Last_Name");
+                ((TextView) rootView.findViewById(R.id.profile_name_view)).setText(profileNameString);
+            }else{
+                ((TextView) rootView.findViewById(R.id.profile_name_view)).setText((String)(user.get("profileName")));
+            }
+
+            ((EditText)rootView.findViewById(R.id.profile_name)).setText(user.getString("profileName"));
+            ((EditText)rootView.findViewById(R.id.first_name)).setText(user.getString("First_Name"));
+            ((EditText)rootView.findViewById(R.id.last_name)).setText(user.getString("Last_Name"));
+            ((EditText)rootView.findViewById(R.id.phone_number)).setText(user.getString("phoneNumber"));
+            ((EditText)rootView.findViewById(R.id.address_line_1)).setText(user.getString("addressLine1"));
+            ((EditText)rootView.findViewById(R.id.address_line_2)).setText(user.getString("addressLine2"));
+            ((EditText)rootView.findViewById(R.id.self_description)).setText(user.getString("selfDescription"));
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 }
