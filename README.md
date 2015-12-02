@@ -25,7 +25,8 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Buttons~~
   * Change buttons layout *(if possible)* - Issac  https://github.com/ogaclejapan/SmartTabLayout
 * **Dashboard Page**
-  * Populate info - Tim  (https://github.com/beworker/pinned-section-listview)
+  * ~~Design~~
+  * Populate info - Tim
 * **Friend Page**
   * ~~Search~~
   * ~~Add new friend~~
@@ -57,18 +58,18 @@ Chern Yee Chua <chernyee@buffalo.edu>
 * **Add Statement Page**
   * ~~Design~~
   * ~~Info Input and Check~~
+  * ~~Progress bar when adding statement~~
+  * ~~Add statement under split Equally mode~~
+  * ~~Add statement under split Unequally mode~~ (*Done but not uploaded*)
+  * ~~Add statement under ratio mode~~ (*Done but not uploaded*)
   * Icon - Issac
   * Add Snapshot - Mengpei
   * Add Note - Tim
-  * ~~Progress bar when adding statement~~
-  * ~~Add statement under split Equally mode~~
-  * ~~Add statement under split Unequally mode~~ (*Done but not updated*)
-  * ~~Add statement under ratio mode~~ (*Done but not updated*)
 * ~~**View Statement Summary Page**~~
-  * Design - Issac
   * ~~Cancel statement~~
   * ~~Modify statement~~
   * ~~Submit statement~~
+  * Design - Issac
 * ~~**Resolve Statement Page**~~
   * ~~Friend (with non-zero balance) display~~
   * ~~Resolve statement~~
