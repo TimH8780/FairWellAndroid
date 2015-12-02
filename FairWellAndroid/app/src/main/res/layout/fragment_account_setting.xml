@@ -3,6 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -16,6 +19,7 @@
             android:orientation="horizontal">
 
             <ImageView
+                android:id="@+id/user_photo"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:src="@drawable/profilepic"/>
@@ -217,16 +221,21 @@
 
         </LinearLayout>
 
-        <RelativeLayout
-            style="@style/GenericProgressBackground_Transparent"
-            android:id="@+id/loadingPanel"
-            android:visibility="gone">
-
-            <ProgressBar
-                android:id="@+id/loadingIcon"
-                style="@style/GenericProgressIndicator"/>
-
-        </RelativeLayout>
     </LinearLayout>
 
+    <RelativeLayout
+        style="@style/GenericProgressBackground_Transparent"
+        android:id="@+id/loadingPanel"
+
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/loadingIcon"
+            style="@style/GenericProgressIndicator"/>
+
+    </RelativeLayout>
+
+</FrameLayout>
 </ScrollView>
+
+

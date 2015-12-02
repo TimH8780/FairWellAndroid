@@ -63,20 +63,12 @@ public class HomepageFragment extends Fragment {
 
     private static int REQUEST_PICTURE =1;
     private static int REQUEST_CROP_PICTURE = 2;
-    private static final int DISK_CACHE_COUNT = 1;
-    private static final long DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
-    private static final String TAG = "ImageCache";
-    private static final int DISK_CACHE_INDEX = 0;
-    private final Object mDiskCacheLock = new Object();
-    private boolean mDiskCacheStarting = true;
-    public static final String DISK_CACHE_SUBDIR = "images";
 
     private TextView oweBalanceView;
     private TextView ownBalanceView;
     private ParseUser user;
     private ContentActivity parent;
     private DecimalFormat format;
-    private Uri photoUri;
     private int DPI;
     private int PIXEL_PHOTO;
     private ParseFile userPhotoFile;
@@ -110,7 +102,7 @@ public class HomepageFragment extends Fragment {
         };
 
         // Initialize disk cache on background thread
-        File cacheDir = getDiskCacheDir(parent.getApplicationContext(), DISK_CACHE_SUBDIR);
+        File cacheDir = getDiskCacheDir(parent.getApplicationContext(), FairwellApplication.DISK_CACHE_SUBDIR);
         new InitDiskCacheTask().execute(cacheDir);
         DPI = getDPI(parent.getApplicationContext());
         PIXEL_PHOTO = 200 * (DPI / 160);
@@ -207,7 +199,6 @@ public class HomepageFragment extends Fragment {
         final File croppedImageFile = new File(getActivity().getFilesDir(), "temp.jpg");
         Uri croppedImageUri = Uri.fromFile(croppedImageFile);
         if (requestCode==REQUEST_PICTURE&&resultCode == RESULT_OK) {
-            photoUri = data.getData();
             CropImageIntentBuilder cropImage = new CropImageIntentBuilder(PIXEL_PHOTO, PIXEL_PHOTO, croppedImageUri);
             cropImage.setOutlineColor(0xFF03A9F4);
             cropImage.setSourceImage(data.getData());
@@ -465,15 +456,15 @@ public class HomepageFragment extends Fragment {
     class InitDiskCacheTask extends AsyncTask<File, Void, Void> {
         @Override
         protected Void doInBackground(File... params) {
-            synchronized (mDiskCacheLock) {
+            synchronized (FairwellApplication.mDiskCacheLock) {
                 File cacheDir = params[0];
                 try {
-                    mDiskLruCache = DiskLruCache.open(cacheDir, FairwellApplication.APP_VERSION,DISK_CACHE_COUNT,DISK_CACHE_SIZE);
+                    mDiskLruCache = DiskLruCache.open(cacheDir, FairwellApplication.APP_VERSION,FairwellApplication.DISK_CACHE_COUNT,FairwellApplication.DISK_CACHE_SIZE);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                mDiskCacheStarting = false;    // Finished initialization
-                mDiskCacheLock.notifyAll();     // Wake any waiting threads
+                FairwellApplication.mDiskCacheStarting = false;    // Finished initialization
+                FairwellApplication.mDiskCacheLock.notifyAll();     // Wake any waiting threads
             }
             return null;
         }
@@ -486,13 +477,13 @@ public class HomepageFragment extends Fragment {
         }
 
         // Also add to disk cache
-        synchronized (mDiskCacheLock) {
+        synchronized (FairwellApplication.mDiskCacheLock) {
             try {
                 if (mDiskLruCache != null && mDiskLruCache.get(key) == null) {
                     final DiskLruCache.Editor editor = mDiskLruCache.edit(key);
                     OutputStream out;
                     if (editor != null) {
-                        out = editor.newOutputStream(DISK_CACHE_INDEX);
+                        out = editor.newOutputStream(FairwellApplication.DISK_CACHE_INDEX);
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
                         editor.commit();
                         out.close();
@@ -507,11 +498,11 @@ public class HomepageFragment extends Fragment {
 
     public Bitmap getBitmapFromDiskCache(String key) {
         Bitmap bitmap = null;
-        synchronized (mDiskCacheLock) {
+        synchronized (FairwellApplication.mDiskCacheLock) {
             // Wait while disk cache is started from background thread
-            while (mDiskCacheStarting) {
+            while (FairwellApplication.mDiskCacheStarting) {
                 try {
-                    mDiskCacheLock.wait();
+                    FairwellApplication.mDiskCacheLock.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -522,9 +513,9 @@ public class HomepageFragment extends Fragment {
                     InputStream inputStream;
                     if (snapshot != null) {
                         if (BuildConfig.DEBUG) {
-                            Log.d(TAG, "Disk cache hit");
+                            Log.d(FairwellApplication.TAG, "Disk cache hit");
                         }
-                        inputStream = snapshot.getInputStream(DISK_CACHE_INDEX);
+                        inputStream = snapshot.getInputStream(FairwellApplication.DISK_CACHE_INDEX);
                         if (inputStream != null) {
                             FileDescriptor fd = ((FileInputStream) inputStream).getFD();
 
