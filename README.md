@@ -23,7 +23,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Name display~~
   * ~~Image upload and display~~
   * ~~Buttons~~
-  * Change buttons layout *(if possible)* - Issac  https://github.com/ogaclejapan/SmartTabLayout
+  * Change buttons layout - Issac (not going to do this for semester)
 * **Dashboard Page**
   * ~~Design~~
   * Populate info - Tim
@@ -37,13 +37,13 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Progress bar when adding friend~~
   * ~~Friend profile when clicked~~
   * Get the info for friend profile - Tim
-* **Smart Solve Page** *(if time permits)*
+* **Smart Solve Page** *(if time permits)* (not going to do this for semester)
 * ~~**Account Setting Page**~~
   * ~~Pull information from Parse~~
   * ~~Save data to database when save button is clicked~~
 * **Notification Setting Page**
-  * Use sharedpreference to store the settings locally
-  * Work together with push notification
+  * Use sharedpreference to store the settings locally (not going to do this for semester)
+  * Work together with push notification (not going to do this for semester)
 * ~~**Rate This App**~~
   * ~~Redirect to Google Play~~
 * ~~**About us**~~
@@ -62,7 +62,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Add statement under split Equally mode~~
   * ~~Add statement under split Unequally mode~~ (*Done but not uploaded*)
   * ~~Add statement under ratio mode~~ (*Done but not uploaded*)
-  * Icon - Issac
+  * Icon - Issac ( I already have those awesome icons!)
   * Add Snapshot - Mengpei
   * Add Note - Tim
 * ~~**View Statement Summary Page**~~
@@ -77,6 +77,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Check email-verify~~
   * ~~Check friend-verify~~
   * Notification - Mengpei
-  * Store 'Text' in layout.xml to String.xml
-  * *Adjust images based on device resolution (if time permits)*
+  * Store 'Text' in layout.xml to String.xml 
+  * *Adjust images based on device resolution (if time permits)* 
   * *Payment Option (if time permits)*
+  * Overall UI layout and graphic design - Issac
