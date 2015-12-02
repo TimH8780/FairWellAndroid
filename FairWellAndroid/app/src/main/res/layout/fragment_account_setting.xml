@@ -26,19 +26,19 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/profile_name_view"
                     android:paddingTop="20dp"
                     android:paddingLeft="10dp"
                     android:textSize="25dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Issac Chern"/>
+                    android:layout_height="wrap_content"/>
 
                 <TextView
+                    android:id="@+id/email"
                     android:paddingLeft="10dp"
                     android:textSize="18dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="issacchern@gmail.com"/>
+                    android:layout_height="wrap_content"/>
 
             </LinearLayout>
 
@@ -81,9 +81,10 @@
                     android:src="@drawable/ic_picture_in_picture_black_24dp"/>
 
                 <EditText
+                    android:id="@+id/profile_name"
                     android:singleLine="true"
                     android:paddingLeft="10dp"
-                    android:hint="Profile name"
+                    android:hint="Profile Name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
@@ -106,6 +107,7 @@
                     android:orientation="horizontal">
 
                     <EditText
+                        android:id="@+id/first_name"
                         android:singleLine="true"
                         android:layout_weight="1"
                         android:paddingLeft="10dp"
@@ -114,6 +116,7 @@
                         android:layout_height="wrap_content"/>
 
                     <EditText
+                        android:id="@+id/last_name"
                         android:singleLine="true"
                         android:layout_weight="1"
                         android:paddingLeft="10dp"
@@ -137,6 +140,7 @@
                     android:src="@drawable/ic_phone_black_24dp"/>
 
                 <EditText
+                    android:id="@+id/phone_number"
                     android:singleLine="true"
                     android:paddingLeft="10dp"
                     android:hint="Phone number"
@@ -157,6 +161,7 @@
                     android:src="@drawable/ic_home_black_24dp"/>
 
                 <EditText
+                    android:id="@+id/address_line_1"
                     android:singleLine="true"
                     android:paddingLeft="10dp"
                     android:hint="Address line 1"
@@ -176,6 +181,8 @@
                     android:layout_height="25dp"/>
 
                 <EditText
+
+                    android:id="@+id/address_line_2"
                     android:singleLine="true"
                     android:paddingLeft="10dp"
                     android:hint="Address line 2"
@@ -196,6 +203,7 @@
                     android:src="@drawable/ic_description_black_24dp"/>
 
                 <EditText
+                    android:id="@+id/self_description"
                     android:gravity="top"
                     android:singleLine="false"
                     android:minLines="4"
@@ -209,6 +217,16 @@
 
         </LinearLayout>
 
+        <RelativeLayout
+            style="@style/GenericProgressBackground_Transparent"
+            android:id="@+id/loadingPanel"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/loadingIcon"
+                style="@style/GenericProgressIndicator"/>
+
+        </RelativeLayout>
     </LinearLayout>
 
 </ScrollView>
