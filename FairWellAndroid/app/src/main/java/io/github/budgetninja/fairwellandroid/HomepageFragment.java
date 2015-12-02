@@ -48,6 +48,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static android.app.Activity.RESULT_OK;
 import static android.os.Environment.isExternalStorageRemovable;
@@ -63,6 +65,8 @@ public class HomepageFragment extends Fragment {
 
     private static int REQUEST_PICTURE =1;
     private static int REQUEST_CROP_PICTURE = 2;
+    private static int REQUEST_CAMERA = 3;
+
 
     private TextView oweBalanceView;
     private TextView ownBalanceView;
@@ -76,6 +80,8 @@ public class HomepageFragment extends Fragment {
     private DiskLruCache mDiskLruCache;
     ImageView userPhotoView;
 
+    private String mCurrentPhotoPath;
+    private Uri mCurrentPhotoUri;
 
     @Override
     public void onCreate(Bundle bundle) {
@@ -205,14 +211,18 @@ public class HomepageFragment extends Fragment {
             //requestCode*11 == code for Crop Picture
             startActivityForResult(cropImage.getIntent(getContext()), REQUEST_CROP_PICTURE);
         }
-        if (requestCode == REQUEST_CROP_PICTURE && resultCode == Activity.RESULT_OK) {
+        else if(requestCode==REQUEST_CAMERA&& resultCode == RESULT_OK){
+            Uri contentUri = Uri.fromFile(new File(mCurrentPhotoPath));
+            galleryAddPic();  //add photo to gallery so that system media controller could access to it
+            mCurrentPhotoPath = null;
+            CropImageIntentBuilder cropImage = new CropImageIntentBuilder(PIXEL_PHOTO, PIXEL_PHOTO, croppedImageUri);
+            cropImage.setOutlineColor(0xFF03A9F4);
+            cropImage.setSourceImage(contentUri);
+            //requestCode*11 == code for Crop Picture
+            startActivityForResult(cropImage.getIntent(getContext()), REQUEST_CROP_PICTURE);
+        }
+        else if (requestCode == REQUEST_CROP_PICTURE && resultCode == Activity.RESULT_OK) {
             showProgressBar();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Utility.setNewEntryFieldForAllFriend();
-                }
-            }).start();
             final Bitmap photoBitmap = BitmapFactory.decodeFile(croppedImageFile.getAbsolutePath());
             ParseFile newPhoto = new ParseFile("photo.JPEG", getBytesFromBitmap(photoBitmap,50));
             user.put("photo", newPhoto);
@@ -229,6 +239,7 @@ public class HomepageFragment extends Fragment {
                 }
             });
         }
+
     }
 
     protected void setBalance(){
@@ -570,8 +581,25 @@ public class HomepageFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //startActivityForResult(Intent.createChooser(new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT), "Select picture"), REQUEST_PICTURE);
-                Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, REQUEST_PICTURE);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                // Set dialog properties
+                builder.setItems(new String[]{"Gallery", "Camera"}, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dlg, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        if (which == 0) { //select from gallery
+
+                            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            startActivityForResult(intent, REQUEST_PICTURE);
+                        } else if (which == 1) { //select to take a photo
+                            dispatchTakePictureIntent();
+                        }
+
+                    }
+                });
+                final AlertDialog dlg = builder.create();
+                dlg.show();
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -583,6 +611,59 @@ public class HomepageFragment extends Fragment {
         final AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+
+
+    /**
+     *  Save the Image file of photo captured
+     **/
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(parent.getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Log.i("IOException camera","IOException creating image file");
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                mCurrentPhotoUri = Uri.fromFile(photoFile);
+                //takePictureIntent.setData(tempUri);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCurrentPhotoUri);
+                startActivityForResult(takePictureIntent, REQUEST_CAMERA);
+            }
+        }
+    }
+
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        parent.sendBroadcast(mediaScanIntent);
+    }
+
 
     private void showProgressBar(){
         View progressView = getActivity().findViewById(R.id.loadingPanel);
