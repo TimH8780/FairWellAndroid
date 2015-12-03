@@ -6,78 +6,87 @@ Chern Yee Chua <chernyee@buffalo.edu>
 <return>
 <return>
 
-###### To-do Lists *(Updated on 12/02)*
+Note from Tim: Most likely I will finish and upload all of my parts on Friday or Saturday
+
+###### To-do Lists *(Updated on 12/03)*
 * **Tutorial Page** - Issac https://github.com/PaoloRotolo/AppIntro
 * ~~**Login Page**~~
-  * ~~Login (normal)~~
-  * ~~Login (via Facebook)~~
-  * ~~Login (via Twitter)~~
-  * ~~Forget password~~
+  * ~~Login~~
+  * ~~Login via Facebook~~
+  * ~~Login via Twitter~~
+  * ~~Forget Password~~
 * ~~**Registration Page**~~
-  * ~~Term and conditions~~
+  * ~~Term and Conditions~~
   * ~~Password Length Restriction~~
-  * ~~Register~~
+  * ~~Register Function~~
 * **Home Page**
-  * ~~Balance Update~~
-  * ~~Change balance layout~~
-  * ~~Name display~~
-  * ~~Image upload and display~~
-  * ~~Buttons~~
-  * Change buttons layout - Issac (not going to do this for semester)
-* **Dashboard Page**
+  * ~~Display Balance~~
+  * ~~Change Balance Layout~~
+  * ~~Name Display~~
+  * ~~Image Upload and Display~~
+  * ~~Buttons Function~~
+  * Change Buttons Layout - *Will not do it for this semester*
+* ~~**Dashboard Page**~~
   * ~~Design~~
-  * Populate info - Tim
+  * ~~Offline Support~~ (*Done but not uploaded*)
+  * ~~Display Data~~ (*Done but not uploaded*)
 * **Friend Page**
   * ~~Search~~
-  * ~~Add new friend~~
-  * ~~Remove existing friend~~
-  * ~~Confirm firend request~~
-  * ~~Reject firend request~~
-  * ~~Friend info display~~
-  * ~~Progress bar when adding friend~~
-  * ~~Friend profile when clicked~~
-  * Get the info for friend profile - Tim
-* **Smart Solve Page** *(if time permits)* (not going to do this for semester)
+  * ~~Add New Friend~~
+  * ~~Remove Friend~~
+  * ~~Confirm Firend Request~~
+  * ~~Reject Firend Request~~
+  * ~~Friend Information Display~~
+  * ~~Progress Bar~~
+  * ~~Display Detailed Information when Clicked~~
+  * Friend Profile - Tim
+* **Smart Solve Page** - *Will not do it for this semester*
 * ~~**Account Setting Page**~~
-  * ~~Pull information from Parse~~
-  * ~~Save data to database when save button is clicked~~
+  * ~~Offline Support~~
+  * ~~Display Data~~
+  * ~~Store Data to Database~~
 * **Notification Setting Page**
-  * Use sharedpreference to store the settings locally (not going to do this for semester)
-  * Work together with push notification (not going to do this for semester)
+  * Store Settings Locally - *Will not do it for this semester*
+  * Adjust Notification based on Settings - *Will not do it for this semester*
 * ~~**Rate This App**~~
   * ~~Redirect to Google Play~~
-* ~~**About us**~~
-  * ~~Redirect to BudgetNinja website~~
+* ~~**About Us**~~
+  * ~~Redirect to BudgetNinja Website~~
 * ~~**Logout**~~
-  * ~~Logout~~
+  * ~~Logout Function~~
 * ~~**View Statement Page**~~
   * ~~View Statement~~
-  * ~~Comfirm Statement Request~~
-  * ~~Change Wording~~
+  * ~~Confirm Statement Request~~
   * ~~Reject Statement Request~~
+  * ~~Confirm Resolve Request~~
+  * ~~Deny Resolve Request~~
+  * ~~Delete completed Statement~~
+  * ~~Data Display~~
 * **Add Statement Page**
   * ~~Design~~
-  * ~~Info Input and Check~~
-  * ~~Progress bar when adding statement~~
-  * ~~Add statement under split Equally mode~~
-  * ~~Add statement under split Unequally mode~~ (*Done but not uploaded*)
-  * ~~Add statement under ratio mode~~ (*Done but not uploaded*)
-  * Icon - Issac ( I already have those awesome icons!)
+  * ~~Data Check~~
+  * ~~Progress Bar~~
+  * ~~Submit Statement under Split Equally Mode~~
+  * ~~Submit Statement under Split Unequally Mode~~ (*Done but not uploaded*)
+  * ~~Submit Statement under Split By Ratio Mode~~ (*Done but not uploaded*)
+  * Icon - Issac (I already have those awesome icons!)
   * Add Snapshot - Mengpei
   * Add Note - Tim
 * ~~**View Statement Summary Page**~~
-  * ~~Cancel statement~~
-  * ~~Modify statement~~
-  * ~~Submit statement~~
+  * ~~Progress Bar~~
+  * ~~Cancel Statement~~
+  * ~~Modify Statement~~
+  * ~~Submit Statement~~
   * Design - Issac
 * ~~**Resolve Statement Page**~~
-  * ~~Friend (with non-zero balance) display~~
-  * ~~Resolve statement~~
+  * ~~Progress Bar~~
+  * ~~Friend (with non-zero balance) Display~~
+  * ~~Resolve Statement~~
 * **Other**
-  * ~~Check email-verify~~
-  * ~~Check friend-verify~~
+  * ~~Check Email Verification~~
+  * ~~Check Friend Verification~~
   * Notification - Mengpei
-  * Store 'Text' in layout.xml to String.xml 
-  * *Adjust images based on device resolution (if time permits)* 
-  * *Payment Option (if time permits)*
-  * Overall UI layout and graphic design - Issac
+  * Overall UI layout and Graphic Design - Issac
+  * Store String in String.xml
+  * Adjust Images based on Device Resolution - *Will not do it for this semester*
+  * Payment Option - *Will not do it for this semester*
