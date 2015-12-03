@@ -4,11 +4,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
+
 import static io.github.budgetninja.fairwellandroid.ContentActivity.OWE_BALANCE;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.OWN_BALANCE;
 
@@ -31,7 +32,8 @@ public class StatementObject {
     public static final int DELETE = 2;
 
     public static class SummaryStatement {
-
+        String note;
+        ParseFile picture;
         String description, category;
         Date date, deadline;
         int mode, unknown;
@@ -39,8 +41,10 @@ public class StatementObject {
         Friend payee;
         List<Pair<Friend,Double>> payer;
 
-        public SummaryStatement(String description, String category, Date date, Date deadline, int mode, int unknown, double totalAmount,
+        public SummaryStatement(String note, ParseFile picture, String description, String category, Date date, Date deadline, int mode, int unknown, double totalAmount,
                                 Friend payee, List<Pair<Friend, Double>> payer){
+            this.note = note;
+            this.picture = picture;
             this.description = description;
             this.category = category;
             this.date = date;
@@ -56,6 +60,8 @@ public class StatementObject {
 
     public static class Statement implements Comparable<Statement> {
 
+        String note;
+        ParseFile picture;
         private ParseObject object;
         private List<ParseObject> payer;
         List<SubStatement> payerList;
@@ -67,8 +73,10 @@ public class StatementObject {
         ParseUser payee;
         boolean isPayee, payeeConfirm;
 
-        public Statement(ParseObject object, boolean payeeConfirm, String description, String category, Date date, Date deadline, int mode,
+        public Statement(String note, ParseFile picture,ParseObject object, boolean payeeConfirm, String description, String category, Date date, Date deadline, int mode,
                          int unknown, double unknownAmount, double totalAmount, String submitBy, ParseUser payee, List<ParseObject> payer, boolean isPayee) {
+            this.note = note;
+            this.picture = picture;
             this.object = object;
             this.payee = payee;
             this.payer = payer;

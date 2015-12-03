@@ -2,14 +2,18 @@ package io.github.budgetninja.fairwellandroid;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -17,10 +21,11 @@ import java.util.List;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
+
+import static io.github.budgetninja.fairwellandroid.ContentActivity.FACEBOOK_USER;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.NORMAL_USER;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.OWE_BALANCE;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.OWN_BALANCE;
-import static io.github.budgetninja.fairwellandroid.ContentActivity.NORMAL_USER;
-import static io.github.budgetninja.fairwellandroid.ContentActivity.FACEBOOK_USER;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.TWITTER_USER;
 
 /**
@@ -364,7 +369,8 @@ public class Utility {
 
             boolean isPayee = false;
             boolean payeeConfirm;
-            String description, category, submitBy;
+            String note,description, category, submitBy;
+            ParseFile picture;
             Date date, deadline;
             int mode, unknown;
             double unknownAmount, totalAmount;
@@ -376,6 +382,8 @@ public class Utility {
                         isPayee = true;
                     }
                 }
+                note = object.getString("note");
+                picture = object.getParseFile("picture");
                 payeeConfirm = object.getBoolean("payeeConfirm");
                 description = object.getString("description");
                 category = object.getString("category");
@@ -387,7 +395,7 @@ public class Utility {
                 unknownAmount = object.getDouble("unknownAmount");
                 totalAmount = object.getDouble("paymentAmount");
                 list = object.getList("payer");
-                Statement statement = new Statement(object, payeeConfirm, description, category, date, deadline, mode, unknown, unknownAmount, totalAmount,
+                Statement statement = new Statement(note,picture,object, payeeConfirm, description, category, date, deadline, mode, unknown, unknownAmount, totalAmount,
                         submitBy, object.getParseUser("payee"), list, isPayee);
                 statementList.add(statement);
             } catch (ParseException e) {
@@ -418,5 +426,16 @@ public class Utility {
             pStatementList.remove(item);
         }
     }
-
+    public static Bitmap bitmapCompress(Bitmap b, int rate){
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        b.compress(Bitmap.CompressFormat.JPEG, rate, stream);
+        //BitmapFactory.Options o = new BitmapFactory.Options();
+        //o.inJustDecodeBounds = true;
+        return BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.toByteArray().length);
+    }
+    public static byte[] getBytesFromBitmap(Bitmap bitmap,int rate) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, rate, stream);
+        return stream.toByteArray();
+    }
 }

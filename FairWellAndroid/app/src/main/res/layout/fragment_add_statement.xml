@@ -3,6 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -397,5 +400,17 @@
             android:textSize="20sp"/>
 
     </LinearLayout>
+        <RelativeLayout
+            style="@style/GenericProgressBackground_Transparent"
+            android:id="@+id/loadingPanel"
 
+            android:visibility="gone">
+
+            <ProgressBar
+                android:id="@+id/loadingIcon"
+                style="@style/GenericProgressIndicator"/>
+
+        </RelativeLayout>
+
+    </FrameLayout>
 </ScrollView>

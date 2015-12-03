@@ -39,7 +39,6 @@ import com.parse.SaveCallback;
 
 import org.apache.commons.io.IOUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -56,8 +55,9 @@ import static android.os.Environment.isExternalStorageRemovable;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_ADD_STATEMENT;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_RESOLVE_STATEMENT;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_VIEW_STATEMENT;
-import static io.github.budgetninja.fairwellandroid.ContentActivity.OWN_BALANCE;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.OWE_BALANCE;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.OWN_BALANCE;
+import static io.github.budgetninja.fairwellandroid.Utility.getBytesFromBitmap;
 import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 
@@ -208,7 +208,6 @@ public class HomepageFragment extends Fragment {
             CropImageIntentBuilder cropImage = new CropImageIntentBuilder(PIXEL_PHOTO, PIXEL_PHOTO, croppedImageUri);
             cropImage.setOutlineColor(0xFF03A9F4);
             cropImage.setSourceImage(data.getData());
-            //requestCode*11 == code for Crop Picture
             startActivityForResult(cropImage.getIntent(getContext()), REQUEST_CROP_PICTURE);
         }
         else if(requestCode==REQUEST_CAMERA&& resultCode == RESULT_OK){
@@ -218,7 +217,6 @@ public class HomepageFragment extends Fragment {
             CropImageIntentBuilder cropImage = new CropImageIntentBuilder(PIXEL_PHOTO, PIXEL_PHOTO, croppedImageUri);
             cropImage.setOutlineColor(0xFF03A9F4);
             cropImage.setSourceImage(contentUri);
-            //requestCode*11 == code for Crop Picture
             startActivityForResult(cropImage.getIntent(getContext()), REQUEST_CROP_PICTURE);
         }
         else if (requestCode == REQUEST_CROP_PICTURE && resultCode == Activity.RESULT_OK) {
@@ -251,19 +249,9 @@ public class HomepageFragment extends Fragment {
         }
     }
 
-    public static Bitmap bitmapCompress(Bitmap b, int rate){
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        b.compress(Bitmap.CompressFormat.JPEG, rate, stream);
-        //BitmapFactory.Options o = new BitmapFactory.Options();
-        //o.inJustDecodeBounds = true;
-        return BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.toByteArray().length);
-    }
 
-    public static byte[] getBytesFromBitmap(Bitmap bitmap,int rate) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, rate, stream);
-        return stream.toByteArray();
-    }
+
+
 
     private void loadParseFiletoImageView(ParseFile pf, final ImageView iv, final String keyProvided){
         final Bitmap bitmapInDisk = getBitmapFromDiskCache(keyProvided);
@@ -669,6 +657,11 @@ public class HomepageFragment extends Fragment {
         View progressView = getActivity().findViewById(R.id.loadingPanel);
         if(progressView != null){
             progressView.setVisibility(View.VISIBLE);
+            progressView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                }
+            });
         }
     }
 

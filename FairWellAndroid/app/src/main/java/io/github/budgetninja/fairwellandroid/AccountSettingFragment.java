@@ -177,7 +177,6 @@ public class AccountSettingFragment extends Fragment {
             CropImageIntentBuilder cropImage = new CropImageIntentBuilder(PIXEL_PHOTO, PIXEL_PHOTO, croppedImageUri);
             cropImage.setOutlineColor(0xFF03A9F4);
             cropImage.setSourceImage(data.getData());
-            //requestCode*11 == code for Crop Picture
             startActivityForResult(cropImage.getIntent(getContext()), REQUEST_CROP_PICTURE);
         }
         else if(requestCode==REQUEST_CAMERA&& resultCode == RESULT_OK){
@@ -187,7 +186,6 @@ public class AccountSettingFragment extends Fragment {
             CropImageIntentBuilder cropImage = new CropImageIntentBuilder(PIXEL_PHOTO, PIXEL_PHOTO, croppedImageUri);
             cropImage.setOutlineColor(0xFF03A9F4);
             cropImage.setSourceImage(contentUri);
-            //requestCode*11 == code for Crop Picture
             startActivityForResult(cropImage.getIntent(getContext()), REQUEST_CROP_PICTURE);
         }
         else if (requestCode == REQUEST_CROP_PICTURE && resultCode == Activity.RESULT_OK) {
@@ -669,6 +667,11 @@ public class AccountSettingFragment extends Fragment {
         View progressView = getActivity().findViewById(R.id.loadingPanel);
         if(progressView != null){
             progressView.setVisibility(View.VISIBLE);
+            progressView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                }
+            });
         }
     }
 
@@ -732,4 +735,5 @@ public class AccountSettingFragment extends Fragment {
             e.printStackTrace();
         }
     }
+    public void doNothing(View v){}
 }
