@@ -17,12 +17,17 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.hb.views.PinnedSectionListView;
-import com.parse.ParseUser;
 
-import java.util.ArrayList;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
+
+import static io.github.budgetninja.fairwellandroid.ContentActivity.DASHBOARD_REFRESH;
 
 
 public class DashboardFragment extends ListFragment {
@@ -237,15 +242,16 @@ public class DashboardFragment extends ListFragment {
 //
 //    }
 
-    private ParseUser user;
     private ContentActivity parent;
+    private SimpleAdapter adapter;
 
     @Override
     public void onCreate(Bundle bundle){
         super.onCreate(bundle);
         setHasOptionsMenu(true);
-        user = ParseUser.getCurrentUser();
         parent = (ContentActivity)getActivity();
+
+        adapter = new SimpleAdapter(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1);
     }
 
     @Nullable @Override
@@ -271,12 +277,7 @@ public class DashboardFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        Item item = (Item) getListView().getAdapter().getItem(position);
-        if (item != null) {
-            Toast.makeText(getContext(), item.text, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(getContext(), "Item " + position, Toast.LENGTH_SHORT).show();
-        }
+        /* Do nothing */
     }
 
     @Override
@@ -288,62 +289,69 @@ public class DashboardFragment extends ListFragment {
             return true;
         }
         if(id == R.id.action_refresh){
-            Toast.makeText(parent,"Not functional yet", Toast.LENGTH_SHORT).show();
+            ContentActivity.UpdateInBackground task = parent.new UpdateInBackground(parent, DASHBOARD_REFRESH);
+            task.execute();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    public void notifyAdaptor(){
+        adapter.clear();
+        adapter.generateDataSet();
+        adapter.notifyDataSetChanged();
+    }
 
     private void initializeAdapter() {
         getListView().setFastScrollEnabled(false);
-        setListAdapter(new SimpleAdapter(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1));
+        setListAdapter(adapter);
     }
 
-    static class SimpleAdapter extends ArrayAdapter<Item> implements PinnedSectionListView.PinnedSectionListAdapter {
 
-        private static final int[] COLORS = new int[] {
+    class SimpleAdapter extends ArrayAdapter<Item> implements PinnedSectionListView.PinnedSectionListAdapter {
+
+        private final int[] COLORS = new int[] {
                 R.color.green_light, R.color.orange_light,
                 R.color.blue_light, R.color.red_light
         };
 
         public SimpleAdapter(Context context, int resource, int textViewResourceId) {
             super(context, resource, textViewResourceId);
-            generateDataset();
+            generateDataSet();
         }
 
-        public void generateDataset() {
-            ArrayList<String> date = new ArrayList<>();
-            ArrayList<String> str = new ArrayList<>();
-
-            date.add("November 2015");
-            date.add("October 2015");
-            date.add("June 2015");
-            date.add("May 2015");
-            date.add("Feb 2015");
-
-            str.add("Mengpei owes Issac $10 on 10/30");
-            str.add("Issac and Mengpei are friends on 11/11");
-            str.add("Tim rejects the statement on 10/30");
-            str.add("Tim adds a statement on 10/20");
-            str.add("A statement has been resolved on 10/21");
+        public void generateDataSet() {
+            List<String> data;
+            if(parent.isNetworkConnected()) { data = Utility.getDashboardData();}
+            else { data = Utility.getDashboardDataOffline(); }
 
             int sectionPosition = 0, listPosition = 0;
-            for (int i=0; i< date.size(); i++) {
-                Item section = new Item(Item.SECTION, date.get(i));
-                section.sectionPosition = sectionPosition;
-                section.listPosition = listPosition++;
-                add(section);
+            Calendar calendar = Calendar.getInstance();
+            DateFormat format = new SimpleDateFormat("MMMM yyyy", Locale.US);
+            format.setTimeZone(TimeZone.getTimeZone("GMT-05:00"));
+            String currentMonth = format.format(calendar.getTime());
 
-                // do something about the algorithm, so that it can show the data correctly
+            Item section = new Item(Item.SECTION, currentMonth);
+            section.sectionPosition = sectionPosition;
+            section.listPosition = listPosition++;
+            add(section);
 
-                for (int j=0;j< str.size();j++) {
-                    Item item = new Item(Item.ITEM, str.get(j));
-                    item.sectionPosition = sectionPosition;
-                    item.listPosition = listPosition++;
-                    add(item);
+            for (int i = data.size()-1; i >= 0; i--) {
+                int index = data.get(i).indexOf("|");
+                String month = data.get(i).substring(0, index - 1);
+                String message = data.get(i).substring(index+2);
+                if(!month.equals(currentMonth)){
+                    currentMonth = month;
+                    section = new Item(Item.SECTION, month);
+                    section.sectionPosition = ++sectionPosition;
+                    section.listPosition = listPosition++;
+                    add(section);
                 }
-                sectionPosition++;
+
+                Item item = new Item(Item.ITEM, message);
+                item.sectionPosition = sectionPosition;
+                item.listPosition = listPosition++;
+                add(item);
             }
         }
 
@@ -361,6 +369,8 @@ public class DashboardFragment extends ListFragment {
                 view.setCompoundDrawables(img, null, null, null);
                 view.setTypeface(null, Typeface.BOLD);
                 view.setBackgroundColor(ContextCompat.getColor(getContext(), COLORS[item.sectionPosition % COLORS.length]));
+            } else {
+                view.setTextSize(14);
             }
             return view;
         }

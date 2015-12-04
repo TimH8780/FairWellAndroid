@@ -10,10 +10,15 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
@@ -27,6 +32,8 @@ import static io.github.budgetninja.fairwellandroid.ContentActivity.TWITTER_USER
  *Created by Issac on 9/23/2015.
  */
 public class Utility {
+
+    private static ParseUser user = ParseUser.getCurrentUser();
 
     public static boolean isNormalUser(ParseUser user) {
         try{
@@ -70,7 +77,13 @@ public class Utility {
     public static String getProfileName(ParseUser user){
         try {
             user.fetchIfNeeded();
-            return (user.getString("profileName"));
+            String displayName = user.getString("profileName");
+            if(displayName == null || displayName.isEmpty()){
+                displayName = getName(user);
+                user.put("profileName", displayName);
+                user.saveInBackground();
+            }
+            return displayName;
         } catch (ParseException e){
             return "";
         }
@@ -90,7 +103,7 @@ public class Utility {
             if (temp != null) {
                 temp.put("list", rawList);
                 temp.pinInBackground();
-                editNewEntryField(ParseUser.getCurrentUser(), false);
+                editNewEntryField(ParseUser.getCurrentUser(), false, null);
 
                 Utility.setChangedRecordFriend();
                 List<FriendObject.Friend> tempB = Utility.generateFriendArray();
@@ -135,7 +148,7 @@ public class Utility {
                         friendowed = object.getDouble("owedByOne");
                         isUserOne = false;
                     }
-                    Friend friendItem = new Friend(object.getObjectId(), object, user, Utility.getName(user), user.getString("email"),
+                    Friend friendItem = new Friend(object.getObjectId(), object, user, Utility.getProfileName(user), user.getString("email"),
                             userowed, friendowed, object.getBoolean("pendingStatement"), object.getBoolean("confirmed"), isUserOne);
                     offlineList.add(friendItem.toStringAllData());
                     friendList.add(friendItem);
@@ -162,6 +175,8 @@ public class Utility {
             String name, email;
             boolean confirm, isUserOne, isPendingStatement;
             double userOwed, friendOwed;
+            Double runningSum = 0.0;
+            Double runningSub = 0.0;
             for(int i = 0; i < offlineList.size(); i++){
                 String item = offlineList.get(i);
                 indexA = item.indexOf(" | ", 0);
@@ -179,7 +194,11 @@ public class Utility {
                 indexA = item.indexOf(" | ", indexB + 3);
                 isPendingStatement = Boolean.parseBoolean(item.substring(indexB + 3, indexA));
                 offlineFriendList.add(new Friend(null, null, null, name, email, userOwed, friendOwed, isPendingStatement, confirm, isUserOne));
+                runningSum += friendOwed;
+                runningSub -= userOwed;
             }
+            OWN_BALANCE = runningSum;
+            OWE_BALANCE = runningSub;
             pFriendList = new ArrayList<>(offlineFriendList);
             Collections.sort(pFriendList);
             setChangedRecordFriend();
@@ -189,7 +208,6 @@ public class Utility {
 
     public static void addToExistingFriendList(Friend newItem){
         if(pFriendList != null){
-            newItem.notifyChange();
             ParseObject object = getRawListLocation();
             List<String> offlist = object.getList("offlineFriendList");
             offlist.add(newItem.toStringAllData());
@@ -198,6 +216,8 @@ public class Utility {
             int pos = searchPosition(0, pFriendList.size(), newItem);
             pFriendList.add(pos, newItem);
         }
+        newItem.notifyChange("You sent a friend request to " + newItem.getRealName(),
+                newItem.getRealName() + " sent you a friend request");
     }
 
     private static int searchPosition(int start, int end, Friend item){
@@ -246,6 +266,7 @@ public class Utility {
 
     public static void setChangedRecordFriend(){ changedRecordFriend = true; }
     public static void setChangedRecordStatement(){ changedRecordStatement = true; }
+    public static void setChangedRecordDashboard(){ changedRecordDashBoard = true; }
 
     public static boolean checkNewEntryField(){
         try {
@@ -256,15 +277,49 @@ public class Utility {
         }
     }
 
-    public static void editNewEntryField(ParseUser user, final boolean newResult){
+    public static void editNewEntryField(ParseUser user, final boolean newResult, final String message){
         if(user != null) {
             user.getParseObject("newEntry").fetchIfNeededInBackground(new GetCallback<ParseObject>() {
                 @Override
                 public void done(ParseObject parseObject, ParseException e) {
-                    parseObject.put("newEntry", newResult);
-                    parseObject.saveInBackground();
+                    if(e == null) {
+                        if (message != null) {
+                            Log.d("ChangeFriendNewEntry", parseObject.getObjectId());
+                            List<String> temp = parseObject.getList("dashboardData");
+                            temp.add(Utility.generateMessage(message));
+                            parseObject.put("dashboardData", temp);
+                        }
+                        parseObject.put("newEntry", newResult);
+                        parseObject.saveInBackground();
+                    } else {
+                        Log.d("ChangeFriendNewEntry", e.getMessage());
+                    }
                 }
             });
+            if(message != null && user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())){
+                addToExistingDashboardList(generateMessage(message));
+            }
+        }
+    }
+
+    public static void editNewEntryField(ParseUser user, final String message){
+        if(user != null && message != null) {
+            user.getParseObject("newEntry").fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                @Override
+                public void done(ParseObject parseObject, ParseException e) {
+                    if(e == null) {
+                        List<String> temp = parseObject.getList("dashboardData");
+                        temp.add(Utility.generateMessage(message));
+                        parseObject.put("dashboardData", temp);
+                        parseObject.saveInBackground();
+                    } else {
+                        Log.d("ChangeFriendNewEntry", e.getMessage());
+                    }
+                }
+            });
+            if(user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())){
+                addToExistingDashboardList(generateMessage(message));
+            }
         }
     }
 
@@ -287,11 +342,13 @@ public class Utility {
                     Log.d("getRawListLocation", "Not exist! Generating now...");
                     ParseObject tempA = new ParseObject("Friend_update");
                     tempA.put("newEntry", false);
+                    tempA.put("dashboardData", new ArrayList<String>());
                     tempA.put("list", new ArrayList<ParseObject>());
                     tempA.put("offlineFriendList", new ArrayList<String>());
                     tempA.put("statementList", new ArrayList<ParseObject>());
                     tempA.saveInBackground();
                     user.put("newEntry", tempA);
+                    user.put("userType", 0);
                     user.saveInBackground();
                     ParseObject tempB = user.getParseObject("newEntry");
                     tempB.pinInBackground();
@@ -305,7 +362,7 @@ public class Utility {
     public static void setNewEntryFieldForAllFriend(){
         List<Friend> allFriend = generateFriendArray();
         for(int i = 0; i < allFriend.size(); i++){
-            allFriend.get(i).notifyChange();
+            allFriend.get(i).notifyChange(null, null);
         }
     }
 
@@ -338,7 +395,7 @@ public class Utility {
                 queryB = ParseQuery.getQuery("StatementGroup");
                 queryB.whereEqualTo("payee", user);
                 result.addAll(queryB.find());
-                editNewEntryField(ParseUser.getCurrentUser(), false);
+                editNewEntryField(ParseUser.getCurrentUser(), false, null);
             } catch (ParseException e1){
                 e1.printStackTrace();
             }
@@ -410,13 +467,50 @@ public class Utility {
 
     public static void removeFromExistingStatementList(Statement item){
         if(pFriendList != null){
-            //ParseObject object = getRawListLocation();
-            //List<String> offlist = object.getList("offlineFriendList");
-            //offlist.remove(item.toStringAllData());
-            //object.put("offlineFriendList", offlist);
-            //object.pinInBackground();
             pStatementList.remove(item);
         }
     }
 
+    public static String generateMessage(String message){
+        Calendar calendar = Calendar.getInstance();
+        DateFormat format_one = new SimpleDateFormat("MMMM yyyy", Locale.US);
+        DateFormat format_two = new SimpleDateFormat("MM/dd", Locale.US);
+        format_one.setTimeZone(TimeZone.getTimeZone("GMT-05:00"));
+        format_two.setTimeZone(TimeZone.getTimeZone("GMT-05:00"));
+
+        return format_one.format(calendar.getTime()) + " | " + message + " on " + format_two.format(calendar.getTime());
+    }
+
+    private static List<String> pDashBoardData = null;
+    private static boolean changedRecordDashBoard = true;
+
+    public static List<String> getDashboardData(){
+        if(pDashBoardData == null || changedRecordDashBoard) try{
+            ParseObject location = user.getParseObject("newEntry").fetch();
+            pDashBoardData = location.getList("dashboardData");
+
+            if(pDashBoardData != null){
+                changedRecordDashBoard = false;
+                location.pinInBackground();
+            }
+            else{ pDashBoardData = new ArrayList<>(); }
+        } catch (ParseException e){
+            e.printStackTrace();
+        }
+        return pDashBoardData;
+    }
+
+    public static List<String> getDashboardDataOffline(){
+        if(pDashBoardData == null){
+            pDashBoardData = getRawListLocation().getList("dashboardData");
+            setChangedRecordDashboard();
+        }
+        return pDashBoardData;
+    }
+
+    public static void addToExistingDashboardList(String newItem){
+        if(pDashBoardData != null){
+            pDashBoardData.add(newItem);
+        }
+    }
 }

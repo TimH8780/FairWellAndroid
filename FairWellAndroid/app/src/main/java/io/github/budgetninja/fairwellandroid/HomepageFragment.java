@@ -51,6 +51,7 @@ import java.text.DecimalFormat;
 
 import static android.app.Activity.RESULT_OK;
 import static android.os.Environment.isExternalStorageRemovable;
+import static io.github.budgetninja.fairwellandroid.ContentActivity.ALL_REFRESH;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_ADD_STATEMENT;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_RESOLVE_STATEMENT;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_VIEW_STATEMENT;
@@ -161,8 +162,13 @@ public class HomepageFragment extends Fragment {
         userPhotoView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                promptUploadPhotoDialog();
-                return true;
+                if(parent.isNetworkConnected()) {
+                    promptUploadPhotoDialog();
+                    return true;
+                } else {
+                    Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
             }
         });
         if(user != null){
@@ -183,7 +189,7 @@ public class HomepageFragment extends Fragment {
                 return true;
 
             case R.id.action_refresh:
-                ContentActivity.UpdateInBackground task = parent.new UpdateInBackground(parent);
+                ContentActivity.UpdateInBackground task = parent.new UpdateInBackground(parent, ALL_REFRESH);
                 task.execute();
                 return true;
 

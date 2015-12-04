@@ -68,8 +68,6 @@ public class ViewStatementsFragment extends Fragment {
 
         statementList = new ArrayList<>();
         List<Statement> temp = Utility.generateStatementArray();
-        //if(parent.isNetworkConnected()) { statementList = Utility.generateStatementArray(); }
-        //else { statementList = Utility.generateStatementArrayOffline(); }
         for(int i = 0; i < temp.size(); i++){
             if(temp.get(i).payeeConfirm || temp.get(i).payee == ParseUser.getCurrentUser()){
                 statementList.add(temp.get(i));
@@ -142,7 +140,7 @@ public class ViewStatementsFragment extends Fragment {
 
             if(!currentItem.isPayee) {
                 SubStatement target = currentItem.findPayerStatement(ParseUser.getCurrentUser());
-                holder.nameText.setText(Utility.getName(currentItem.payee));
+                holder.nameText.setText(Utility.getProfileName(currentItem.payee));
                 holder.dueDateText.setText(dateFormat.format(currentItem.deadline));
                 holder.amountText.setText("$ " + String.format("%.2f", target.payerAmount));
                 holder.statusText.setText(target.payerConfirm ? "      " : "Required");

@@ -151,7 +151,7 @@ public class SubmitStatementSummaryFragment extends Fragment {
         categoryText = data.category;
         date = data.date;
         deadline = data.deadline;
-        sumbitByText = Utility.getName(user);
+        sumbitByText = Utility.getProfileName(user);
         modeNum = data.mode;
         unknownNum = data.unknown;
         amountNum = data.totalAmount;
@@ -171,39 +171,42 @@ public class SubmitStatementSummaryFragment extends Fragment {
 
         String payeeName;
         if(this.payee == null){ payeeName = "YOU"; }
-        else { payeeName = this.payee.name; }
+        else { payeeName = this.payee.displayName; }
 
         TableRow memberRow;
         TextView payee, payer, amount;
         runningDif = this.amountNum;
+
+        for(int i = 0; i < this.payer.size(); i++){
+            String payerName = this.payer.get(i).first.displayName;
+            memberRow = new TableRow(parent);
+            memberRow.setPadding(0, 0, 0,Utility.getPixel(2, getResources()));
+
+            payee = new TextView(parent);
+            payee.setGravity(Gravity.CENTER);
+            payee.setText(payeeName);
+
+            payer = new TextView(parent);
+            payer.setGravity(Gravity.CENTER);
+            payer.setText(payerName.equals("Self") ? "YOU" : payerName);
+
+            amount = new TextView(parent);
+            amount.setGravity(Gravity.CENTER);
+            amount.setText("$ " + String.format("%.2f", this.payer.get(i).second));
+            runningDif -= this.payer.get(i).second;
+
+            memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            memberRow.addView(payee, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            layout.addView(memberRow);
+        }
+        if(runningDif > -0.009 && runningDif < 0.009 ) { runningDif = 0.00; }
+
         switch (modeNum){
             case SPLIT_EQUALLY:
                 modeView.setText("Split Equally");
 
-                for(int i = 0; i < this.payer.size(); i++){
-                    String payerName = this.payer.get(i).first.name;
-                    memberRow = new TableRow(parent);
-                    memberRow.setPadding(0, 0, 0,Utility.getPixel(2, getResources()));
-
-                    payee = new TextView(parent);
-                    payee.setGravity(Gravity.CENTER);
-                    payee.setText(payeeName);
-
-                    payer = new TextView(parent);
-                    payer.setGravity(Gravity.CENTER);
-                    payer.setText(payerName.equals("Self") ? "YOU" : payerName);
-
-                    amount = new TextView(parent);
-                    amount.setGravity(Gravity.CENTER);
-                    amount.setText("$ " + String.format("%.2f", this.payer.get(i).second));
-                    runningDif -= this.payer.get(i).second;
-
-                    memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    memberRow.addView(payee, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    layout.addView(memberRow);
-                }
-                if(unknownNum > 0 && runningDif >= 0.01){
+                if(unknownNum > 0 && runningDif > 0.009){
                     String entry;
                     if(unknownNum == 1) { entry = "(1 non-user)"; }
                     else{ entry = "(" + Integer.toString(unknownNum) + " non-users)"; }
@@ -232,12 +235,32 @@ public class SubmitStatementSummaryFragment extends Fragment {
 
             case SPLIT_UNEQUALLY:
                 modeView.setText("Split Unequally");
-                Toast.makeText(parent, "Coming Soon! - Use Split Equally", Toast.LENGTH_SHORT).show();
+
+                if(runningDif > 0.009){
+                    memberRow = new TableRow(parent);
+                    memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
+
+                    payee = new TextView(parent);
+                    payee.setGravity(Gravity.CENTER);
+                    payee.setText(payeeName);
+
+                    payer = new TextView(parent);
+                    payer.setGravity(Gravity.CENTER);
+                    payer.setText("(Some non-users)");
+
+                    amount = new TextView(parent);
+                    amount.setGravity(Gravity.CENTER);
+                    amount.setText("$ " + String.format("%.2f", runningDif));
+
+                    memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    memberRow.addView(payee, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    layout.addView(memberRow);
+                }
                 break;
 
             case SPLIT_BY_RATIO:
                 modeView.setText("Split by Ratio");
-                Toast.makeText(parent, "Coming Soon! - Use Split Equally", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -261,6 +284,7 @@ public class SubmitStatementSummaryFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             dialog.setMessage("Submitting Statement... Please Wait...");
+            dialog.setCancelable(false);
             dialog.show();
         }
 
@@ -274,9 +298,8 @@ public class SubmitStatementSummaryFragment extends Fragment {
                     object.put("payee", user);
                     object.put("payeeConfirm", true);
                     isCurrentUserInvolved = new Pair<>(true, true);
-                } else {
+                } else {                           //payee == someone else
                     object = payee.insertParseUser(object, "payee");
-                    payee.notifyChange();
                     object.put("payeeConfirm", false);
                 }
                 object.put("description", descriptionText);
@@ -292,17 +315,17 @@ public class SubmitStatementSummaryFragment extends Fragment {
                 ArrayList<ParseObject> statementArray = new ArrayList<>();
                 for (int i = 0; i < payer.size(); i++) {
                     Pair<Friend, Double> item = payer.get(i);
-                    if (item.first.name.equals("Self") && payee == null) {       //The two cases when payer == payee
+                    if (item.first.displayName.equals("Self") && payee == null) {       //The two cases when payer == payee
                         continue;
                     }
-                    if (!item.first.name.equals("Self") && payee != null) {
+                    if (!item.first.displayName.equals("Self") && payee != null) {
                         if (item.first.isEqual(payee)) {
                             continue;
                         }
                     }
 
                     ParseObject statementObject = new ParseObject("Statement");
-                    if (item.first.name.equals("Self") && payee != null) {       //The case when payee is someone else and payer is current user
+                    if (item.first.displayName.equals("Self") && payee != null) {       //The case when payee is someone else and payer is current user
                         statementObject = payee.insertFriendship(statementObject, "friendship");
                         payee.setPendingStatement();
                         statementObject.put("payer", user);
@@ -313,12 +336,12 @@ public class SubmitStatementSummaryFragment extends Fragment {
                             temp.put("pendingStatement", true);
                             temp.save();
                             statementObject.put("friendship", temp);
+                            item.first.notifyChange(null, null);
                         } else {                                                //The case when payee is current user
                             statementObject = item.first.insertFriendship(statementObject, "friendship");
                             item.first.setPendingStatement();
                         }
                         statementObject = item.first.insertParseUser(statementObject, "payer");
-                        item.first.notifyChange();
                     }
                     statementObject.put("payerConfirm", false);
                     statementObject.put("payerReject", false);
@@ -341,6 +364,18 @@ public class SubmitStatementSummaryFragment extends Fragment {
                     temp.pinInBackground();
                     Utility.addToExistingStatementList(statement);
                 }
+
+                //Update Dashboard after everything is successful
+                if (payee == null) {
+                    Utility.editNewEntryField(user, "A new statement, <" + descriptionText + ">, was added");
+                    for (int i = 0; i < payer.size(); i++) {
+                        Pair<Friend, Double> item = payer.get(i);
+                        if (item.first.displayName.equals("Self")) { continue; }
+                        else { item.first.notifyChange(null, "A new statement, <" + descriptionText + ">, was added"); }
+                    }
+                }
+                else{ payee.notifyChange(null, "A new statement, <" + descriptionText + ">, was added"); }
+
                 return true;
             } catch (ParseException|ConcurrentModificationException e){
                 e.printStackTrace();

@@ -57,6 +57,8 @@ public class ContentActivity extends AppCompatActivity{
     public static final int NORMAL_USER = 0;
     public static final int FACEBOOK_USER = 1;
     public static final int TWITTER_USER = 2;
+    public static final int ALL_REFRESH = 0;
+    public static final int DASHBOARD_REFRESH = 1;
     public static final int POSITION_HOME = 0;
     private static final int POSITION_FRIENDS = 2;
     private static final int POSITION_DASHBOARD = 3;
@@ -152,7 +154,7 @@ public class ContentActivity extends AppCompatActivity{
         layoutManage(POSITION_HOME);
 
         checkForUpdate = new CheckForUpdate();
-        UpdateInBackground task = new UpdateInBackground(this);
+        UpdateInBackground task = new UpdateInBackground(this, ALL_REFRESH);
         task.execute();
         new Thread(checkForUpdate).start();
 
@@ -388,6 +390,10 @@ public class ContentActivity extends AppCompatActivity{
                 break;
 
             case INDEX_VIEW_STATEMENT:
+                if(!isNetworkConnected()) {
+                    Toast.makeText(getApplicationContext(), "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                    break;
+                }
                 switchViewStatement();
                 break;
 
@@ -547,6 +553,7 @@ public class ContentActivity extends AppCompatActivity{
                                 Utility.resetExistingList();
                                 Utility.setChangedRecordFriend();
                                 Utility.setChangedRecordStatement();
+                                Utility.setChangedRecordDashboard();
                                 startActivity(intent);
                             } else {
                                 Toast.makeText(getApplicationContext(), getString(R.string.logout_failed), Toast.LENGTH_SHORT).show();
@@ -681,27 +688,38 @@ public class ContentActivity extends AppCompatActivity{
 
     protected class UpdateInBackground extends AsyncTask <Void, Void, Void> {
         private ProgressDialog dialog;
-        public UpdateInBackground(Context activity) {
+        private int type;
+
+        public UpdateInBackground(Context activity, int type) {
+            this.type = type;
             dialog = new ProgressDialog(activity);
         }
 
         @Override
         protected void onPreExecute() {
-            dialog.setMessage("Loading Data... Please Wait...");
+            if(type == ALL_REFRESH){ dialog.setMessage("Loading Data... Please Wait..."); }
+            else{ dialog.setMessage("Refreshing Dashboard... Please Wait..."); }
             dialog.show();
-            //dialog.setCancelable(false);
+            dialog.setCancelable(false);
             checkForUpdate.pause();
         }
 
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                if (isNetworkConnected()) {
-                    Utility.generateRawStatementList(user);
-                    Utility.generateRawFriendList(user);
-                    emailVerificationCheck();
-                } else{
-                    Utility.generateFriendArrayOffline();
+                if(isNetworkConnected()){
+                    if(type == ALL_REFRESH){
+                        Utility.generateRawStatementList(user);
+                        Utility.generateRawFriendList(user);
+                        emailVerificationCheck();
+                    }
+                    Utility.setChangedRecordDashboard();
+                    Utility.getDashboardData();
+                } else {
+                    if(type == ALL_REFRESH){
+                        Utility.generateFriendArrayOffline();
+                    }
+                    Utility.getDashboardDataOffline();
                 }
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -711,13 +729,19 @@ public class ContentActivity extends AppCompatActivity{
 
         @Override
         protected void onPostExecute(Void result) {
-            HomepageFragment child = (HomepageFragment) getSupportFragmentManager().findFragmentByTag("Home");
-            if(child != null) {
-                child.setBalance();
+            HomepageFragment child_1 = (HomepageFragment) getSupportFragmentManager().findFragmentByTag("Home");
+            DashboardFragment child_2 = (DashboardFragment) getSupportFragmentManager().findFragmentByTag("Dashboard");
+            if(child_1 != null){
+                child_1.setBalance();
             }
+            if(child_2 != null){
+                child_2.notifyAdaptor();
+            }
+
             if (dialog.isShowing()) {
                 dialog.dismiss();
-                Toast.makeText(getApplicationContext(), "Data is updated!", Toast.LENGTH_SHORT).show();
+                if(isNetworkConnected()){ Toast.makeText(getApplicationContext(), "Data is updated!", Toast.LENGTH_SHORT).show(); }
+                else{ Toast.makeText(getApplicationContext(), "Offline data is updated", Toast.LENGTH_SHORT).show(); }
             }
             checkForUpdate.resume();
         }
@@ -735,7 +759,7 @@ public class ContentActivity extends AppCompatActivity{
         @Override
         public void run() {
            while(true) try{
-               SystemClock.sleep(60000);
+               SystemClock.sleep(60000);        //Check for update every minute
                if(paused){ continue; }
                Log.d("Update", "Check");
                if(Utility.checkNewEntryField()){
@@ -743,6 +767,9 @@ public class ContentActivity extends AppCompatActivity{
                    Utility.generateRawStatementList(user);
                    if(paused){ continue; }
                    Utility.generateRawFriendList(user);
+                   if(paused){ continue; }
+                   Utility.setChangedRecordDashboard();
+                   Utility.getDashboardData();
                }
            } catch (NullPointerException e){
                e.getStackTrace();

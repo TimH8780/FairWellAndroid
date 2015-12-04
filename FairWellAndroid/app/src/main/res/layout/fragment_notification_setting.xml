@@ -17,7 +17,7 @@
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
             android:textSize="15dp"
-            android:text="Select/deselect all"/>
+            android:text="Select/ Deselect All"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -135,7 +135,7 @@
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
             android:textSize="15dp"
-            android:text="When friend request is received"/>
+            android:text="When a friend request is received"/>
 
         <CheckedTextView
             android:id="@+id/checkedTextView22"

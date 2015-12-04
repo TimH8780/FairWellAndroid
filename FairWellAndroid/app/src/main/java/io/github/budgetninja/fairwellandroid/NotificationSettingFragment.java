@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
+import android.widget.Toast;
 
 
 public class NotificationSettingFragment extends Fragment {
@@ -320,6 +321,11 @@ public class NotificationSettingFragment extends Fragment {
                 parent.mMenuDrawer.closeMenu(false);
                 parent.fragMgr.popBackStack();
                 return true;
+
+            case R.id.action_save:
+                Toast.makeText(parent, "Not function yet", Toast.LENGTH_SHORT).show();
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

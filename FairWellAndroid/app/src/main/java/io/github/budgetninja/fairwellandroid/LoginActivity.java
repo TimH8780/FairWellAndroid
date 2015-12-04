@@ -297,6 +297,7 @@ public class LoginActivity extends Activity {
             user.put("profileName", screenName);
             ParseObject tempA = new ParseObject("Friend_update");
             tempA.put("newEntry", false);
+            tempA.put("dashboardData", new ArrayList<String>());
             tempA.put("list", new ArrayList<ParseObject>());
             tempA.put("offlineFriendList", new ArrayList<String>());
             tempA.put("statementList", new ArrayList<ParseObject>());
@@ -342,6 +343,7 @@ public class LoginActivity extends Activity {
                                 user.put("userType", FACEBOOK_USER);
                                 ParseObject tempA = new ParseObject("Friend_update");
                                 tempA.put("newEntry", false);
+                                tempA.put("dashboardData", new ArrayList<String>());
                                 tempA.put("list", new ArrayList<ParseObject>());
                                 tempA.put("offlineFriendList", new ArrayList<String>());
                                 tempA.put("statementList", new ArrayList<ParseObject>());

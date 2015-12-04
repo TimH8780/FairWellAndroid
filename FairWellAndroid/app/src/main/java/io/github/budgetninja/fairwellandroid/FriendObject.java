@@ -2,6 +2,7 @@ package io.github.budgetninja.fairwellandroid;
 
 import android.support.annotation.NonNull;
 
+import com.android.camera.Util;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -22,8 +23,9 @@ public class FriendObject {
         private String parseObjectID;
         private ParseObject friendRelationship;
         private ParseUser friend;
+        private ParseUser user = ParseUser.getCurrentUser();
         private boolean reload;
-        String name;
+        String displayName;
         String email;
         boolean isPendingStatement;
         boolean confirm;
@@ -38,7 +40,7 @@ public class FriendObject {
             this.parseObjectID = parseObjectID;
             this.friendRelationship = friendRelation;
             this.friend = friend;
-            this.name = name;
+            this.displayName = name;
             this.email = email;
             this.isPendingStatement = isPendingStatement;
             this.confirm = confirm;
@@ -50,7 +52,7 @@ public class FriendObject {
 
         @Override
         public int compareTo(@NonNull Friend another){
-            return name.compareToIgnoreCase(another.name);
+            return displayName.compareToIgnoreCase(another.displayName);
         }
 
         private void obtainPhoto(){
@@ -98,6 +100,10 @@ public class FriendObject {
             return object;
         }
 
+        public String getRealName(){
+            return Utility.getName(friend);
+        }
+
         public ParseObject generateFriendToFriendRelationship(final Friend another){
             ParseQuery<ParseObject> query = ParseQuery.getQuery("FriendList");
             ParseUser[] list = {friend, another.friend};
@@ -116,8 +122,8 @@ public class FriendObject {
                 friendList.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
-                        Utility.editNewEntryField(friend, true);
-                        Utility.editNewEntryField(another.friend, true);
+                        Utility.editNewEntryField(friend, true, "You sent a friend request to " + Utility.getName(another.friend));
+                        Utility.editNewEntryField(another.friend, true, Utility.getName(friend) + " sent you a friend request");
                     }
                 });
                 return friendList;
@@ -126,9 +132,10 @@ public class FriendObject {
 
         public void setConfirm(){
             friendRelationship.put("confirmed", true);
-            confirm = true;
             friendRelationship.saveInBackground();
-            Utility.editNewEntryField(friend, true);
+            confirm = true;
+            Utility.editNewEntryField(friend, true, Utility.getName(user) + " confirmed your friend request");
+            Utility.editNewEntryField(user, "You confirmed the friend request from " + Utility.getName(friend));
         }
 
         public void setPendingStatement(){
@@ -136,29 +143,32 @@ public class FriendObject {
                 friendRelationship.put("pendingStatement", true);
                 isPendingStatement = true;
                 friendRelationship.save();
-                Utility.editNewEntryField(friend, true);
             } catch (ParseException e){
                 e.printStackTrace();
             }
         }
 
-        public void deleteFriend(){
+        public void deleteFriend(String message_you, String message_friend){
             ParseObject object = Utility.getRawListLocation();
             object.getList("list").remove(friendRelationship);
             object.pinInBackground();
             friendRelationship.deleteInBackground();
-            Utility.editNewEntryField(friend, true);
+            Utility.editNewEntryField(friend, true, message_friend);
+            Utility.editNewEntryField(user, message_you);
         }
 
-        public void notifyChange(){ Utility.editNewEntryField(friend, true); }
+        public void notifyChange(String message_you, String message_friend){
+            Utility.editNewEntryField(friend, true, message_friend);
+            Utility.editNewEntryField(user, message_you);
+        }
 
         public String toString(){       //For arrayAdapter
-            return name;
+            return displayName;
         }
 
         public String toStringAllData(){
             StringBuilder builder = new StringBuilder();
-            builder.append(name).append(" | ");
+            builder.append(displayName).append(" | ");
             builder.append(email).append(" | ");
             builder.append(confirm).append(" | ");
             builder.append(isUserOne).append(" | ");

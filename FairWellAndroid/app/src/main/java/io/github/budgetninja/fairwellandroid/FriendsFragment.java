@@ -237,7 +237,7 @@ public class FriendsFragment extends Fragment{
             task.execute();
             return;
         }
-        Toast.makeText(parent, "<" + Utility.getName(friend) + "> are already in your friend list", Toast.LENGTH_SHORT).show();
+        Toast.makeText(parent, "<" + Utility.getProfileName(friend) + "> are already in your friend list", Toast.LENGTH_SHORT).show();
     }
 
     private boolean isDuplicateFriend(ParseUser userOne, ParseUser userTwo){            // check if added before
@@ -308,7 +308,7 @@ public class FriendsFragment extends Fragment{
             else{
                 holder = (ViewHolder) convertView.getTag();
             }
-            holder.nameText.setText(currentItem.name);
+            holder.nameText.setText(currentItem.displayName);
             holder.emailText.setText(currentItem.email);
             if(currentItem.hasPhoto()){
                 int DPI = getDPI(mContext);
@@ -346,7 +346,7 @@ public class FriendsFragment extends Fragment{
                     else{
                         List<Friend> data = new ArrayList<>();
                         for(int i = 0; i < backupData.size(); i++){
-                            if(backupData.get(i).name.toLowerCase().contains(constraint)){
+                            if(backupData.get(i).displayName.toLowerCase().contains(constraint)){
                                 data.add(backupData.get(i));
                             }
                         }
@@ -377,6 +377,7 @@ public class FriendsFragment extends Fragment{
         @Override
         protected void onPreExecute() {
             dialog.setMessage("Searching and Adding Friend... Please Wait...");
+            dialog.setCancelable(false);
             dialog.show();
         }
 
@@ -395,7 +396,7 @@ public class FriendsFragment extends Fragment{
                 temp.getList("list").add(friendList);
                 temp.pinInBackground();
                 Friend newItem = new Friend(friendList.getObjectId(), friendList, friend,
-                        Utility.getName(friend), friend.getEmail(), 0, 0, false, false, true);
+                        Utility.getProfileName(friend), friend.getEmail(), 0, 0, false, false, true);
                 Utility.addToExistingFriendList(newItem);
                 return true;
             } catch (ParseException e){
@@ -411,7 +412,7 @@ public class FriendsFragment extends Fragment{
             }
             adapter.updateData(Utility.generateFriendArray());
             if (result) {
-                Toast.makeText(parent, "Sent a notification to <" + Utility.getName(friend) + ">", Toast.LENGTH_SHORT).show();
+                Toast.makeText(parent, "Sent a notification to <" + Utility.getProfileName(friend) + ">", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(parent, "Request Failed, Please Retry", Toast.LENGTH_SHORT).show();
             }
@@ -436,7 +437,7 @@ public class FriendsFragment extends Fragment{
                 upArrow.setColorFilter(ContextCompat.getColor(getContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
                 actionBar.setHomeAsUpIndicator(upArrow);
             }
-            parent.setTitle("Friend Detail");
+            parent.setTitle("Friend Information");
 
             confirm = (Button) rootView.findViewById(R.id.friend_detail_confirm);
             reject = (Button) rootView.findViewById(R.id.friend_detail_reject);
@@ -515,7 +516,7 @@ public class FriendsFragment extends Fragment{
                     }
                     AlertDialog.Builder builder = new AlertDialog.Builder(parent);
                     TextView message = new TextView(parent);
-                    message.setText("Are you sure you want to deny the friend request from <" + object.name + "> ?");
+                    message.setText("Are you sure you want to deny the friend request from <" + object.displayName + "> ?");
                     builder.setTitle("Deny Friend Request");
                     message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
                     message.setPadding(20, 20, 20, 20);
@@ -526,7 +527,7 @@ public class FriendsFragment extends Fragment{
                             if (object.currentUserOwed > 0 || object.friendOwed > 0 || object.isPendingStatement) {
                                 Toast.makeText(parent, "You can't delete friend with non-zero balance/ pending statement!", Toast.LENGTH_LONG).show();
                             } else {
-                                object.deleteFriend();
+                                object.deleteFriend("You denied the friend request from " + object.getRealName(), null);
                                 Utility.removeFromExistingFriendList(object);
                                 parent.fragMgr.popBackStack();
                             }
@@ -547,7 +548,7 @@ public class FriendsFragment extends Fragment{
                     }
                     AlertDialog.Builder builder = new AlertDialog.Builder(parent);
                     TextView message = new TextView(parent);
-                    message.setText("Are you sure you want to delete <" + object.name + "> ?");
+                    message.setText("Are you sure you want to delete <" + object.displayName + "> ?");
                     builder.setTitle("Delete Friend");
                     message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
                     message.setPadding(20, 20, 20, 20);
@@ -558,7 +559,7 @@ public class FriendsFragment extends Fragment{
                             if (object.currentUserOwed > 0 || object.friendOwed > 0 || object.isPendingStatement) {
                                 Toast.makeText(parent, "You can't delete friend with non-zero balance/ pending statement!", Toast.LENGTH_LONG).show();
                             } else {
-                                object.deleteFriend();
+                                object.deleteFriend("You deleted the friendship with " + object.getRealName(), null);
                                 Utility.removeFromExistingFriendList(object);
                                 parent.fragMgr.popBackStack();
                             }
@@ -572,7 +573,7 @@ public class FriendsFragment extends Fragment{
         }
 
         private void dataDisplay(){
-            name.setText(object.name);
+            name.setText(object.displayName);
             email.setText(object.email);
 
             //more info

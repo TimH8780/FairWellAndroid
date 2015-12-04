@@ -127,7 +127,7 @@ public class StatementObject {
 
         private void notifyChange(){
             for(int i = 0; i < payerList.size(); i++){
-                payerList.get(i).notifyChange();
+                payerList.get(i).notifyChange("A new statement, <" + description + ">, was added");
             }
         }
 
@@ -155,6 +155,7 @@ public class StatementObject {
             @Override
             protected void onPreExecute() {
                 dialog.setMessage("Processing... Please Wait...");
+                dialog.setCancelable(false);
                 dialog.show();
             }
 
@@ -179,6 +180,8 @@ public class StatementObject {
                             payer.get(i).delete();
                         }
                         object.delete();
+                        if(type == REJECT){ Utility.editNewEntryField(payee, "You rejected a statement, <" + description + ">"); }
+                        else { Utility.editNewEntryField(payee, "You deleted a completed statement, <" + description + ">"); }
                         Utility.removeFromExistingStatementList(Statement.this);
                         return true;
                     }
@@ -187,6 +190,7 @@ public class StatementObject {
                         payeeConfirm = true;
                         object.put("payeeConfirm", true);
                         object.save();
+                        Utility.editNewEntryField(payee, "You confirmed a statement, <" + description + ">");
                         notifyChange();
                         return true;
                     }
@@ -212,7 +216,7 @@ public class StatementObject {
 
     public static class SubStatement {
 
-        private Statement parent;
+        private Statement parentStatement;
         private ParseObject object;
         private ParseObject payerRelation;
         private ParseUser payee;
@@ -223,11 +227,11 @@ public class StatementObject {
 
         private SubStatement(Statement parent, ParseObject object, ParseUser payee, ParseUser payer, boolean payerConfirm, boolean payerReject,
                              boolean payerPaid, boolean paymentPending, double payerAmount, ParseObject payerRelation) {
-            this.parent = parent;
+            this.parentStatement = parent;
             this.object = object;
             this.payee = payee;
             this.payer = payer;
-            this.payerName = Utility.getName(payer);
+            this.payerName = Utility.getProfileName(payer);
             this.payerConfirm = payerConfirm;
             this.payerReject = payerReject;
             this.payerPaid = payerPaid;
@@ -236,8 +240,8 @@ public class StatementObject {
             this.payerRelation = payerRelation;
         }
 
-        private void notifyChange() {
-            Utility.editNewEntryField(payer, true);
+        private void notifyChange(String message_payer) {
+            Utility.editNewEntryField(payer, true, message_payer);
         }
 
         private boolean isUserStatement(ParseUser item) {
@@ -260,15 +264,21 @@ public class StatementObject {
             object.put("paymentPending", true);
             object.save();
             paymentPending = true;
-            Utility.removeFromExistingStatementList(parent);
-            Utility.editNewEntryField(payee, true);
+            Utility.removeFromExistingStatementList(parentStatement);
+            Utility.editNewEntryField(payer, "You sent a resolve request for statement, <" +
+                    parentStatement.description + ">, to " + Utility.getName(payee));
+            Utility.editNewEntryField(payee, true, Utility.getName(payer) + " sent a resolve request for statement, <" +
+                    parentStatement.description + ">,");
         }
 
         public void setPaymentDenied() throws ParseException{
             object.put("paymentPending", false);
             object.save();
             paymentPending = false;
-            Utility.editNewEntryField(payer, true);
+            Utility.editNewEntryField(payer, true, Utility.getName(payee) + " denied your resolve request for statement, <" +
+                    parentStatement.description + ">,");
+            Utility.editNewEntryField(payee, "You denied the resolve request from " + Utility.getName(payer) +
+                    " for statement, <" + parentStatement.description + ">,");
         }
 
         public void setPaymentApproved() throws ParseException{
@@ -282,10 +292,12 @@ public class StatementObject {
             if (payerRelation.getParseUser("userOne") == payer) {
                 currentBalance = payerRelation.fetch().getDouble("owedByOne");
                 currentBalance -= payerAmount;
+                if(currentBalance > -0.009 && currentBalance < 0.009 ) { currentBalance = 0.00; }
                 payerRelation.put("owedByOne", currentBalance);
             } else {
                 currentBalance = payerRelation.fetch().getDouble("owedByTwo");
                 currentBalance -= payerAmount;
+                if(currentBalance > -0.009 && currentBalance < 0.009 ) { currentBalance = 0.00; }
                 payerRelation.put("owedByTwo", currentBalance);
             }
             payerRelation.save();
@@ -293,11 +305,18 @@ public class StatementObject {
             for(int i = 0; i < friends.size(); i++){
                 if(friends.get(i).isSamePerson(payer)){
                     friends.get(i).friendOwed -= payerAmount;
+                    if(friends.get(i).friendOwed > -0.009 && friends.get(i).friendOwed < 0.009 ) {
+                        friends.get(i).friendOwed = 0.00;
+                    }
                     break;
                 }
             }
             OWN_BALANCE -= payerAmount;
-            Utility.editNewEntryField(payer, true);
+            if(OWN_BALANCE > -0.009 && OWN_BALANCE < 0.009 ) { OWN_BALANCE = 0.00; }
+            Utility.editNewEntryField(payer, true, Utility.getName(payee) + " approved your resolve request for statement, <" +
+                    parentStatement.description + ">,");
+            Utility.editNewEntryField(payee, "You approved the resolve request from " + Utility.getName(payer) +
+                    " for statement, <" + parentStatement.description + ">,");
         }
 
         private class PayerStatementProcess extends AsyncTask<Boolean, Void, Boolean> {
@@ -314,6 +333,7 @@ public class StatementObject {
             @Override
             protected void onPreExecute() {
                 dialog.setMessage("Processing... Please Wait...");
+                dialog.setCancelable(false);
                 dialog.show();
             }
 
@@ -353,7 +373,10 @@ public class StatementObject {
                         object.put("payerConfirm", true);
                         object.save();
                         OWE_BALANCE -= payerAmount;
-                        Utility.editNewEntryField(payee, true);
+                        Utility.editNewEntryField(payee, true, Utility.getName(payer) + " confirmed the statement, <" +
+                                parentStatement.description + ">, ");
+                        Utility.editNewEntryField(payer, "You confirmed the statement, <" +
+                                parentStatement.description + ">, ");
                         return true;
                     }
 
@@ -370,8 +393,10 @@ public class StatementObject {
 
                         object.put("payerReject", true);
                         object.save();
-                        Utility.removeFromExistingStatementList(parent);
-                        Utility.editNewEntryField(payee, true);
+                        Utility.removeFromExistingStatementList(parentStatement);
+                        Utility.editNewEntryField(payee, true, Utility.getName(payer) + " rejected the statement, <" +
+                                parentStatement.description + ">, ");
+                        Utility.editNewEntryField(payer, "You rejected the statement, <" + parentStatement.description + ">, ");
                         return true;
                     }
                 } catch (ParseException e) {

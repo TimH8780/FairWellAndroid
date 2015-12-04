@@ -260,7 +260,7 @@ public class StatementSummaryFragment extends Fragment{
             layout.addView(memberRow);
         }
 
-        if(data.unknown > 0){
+        if(data.unknown != 0){
             memberRow = new TableRow(parent);
             memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
 
@@ -268,8 +268,10 @@ public class StatementSummaryFragment extends Fragment{
             payer.setGravity(Gravity.CENTER);
             if(data.unknown == 1){
                 payer.setText("(1 non-user)");
-            } else {
+            } else if(data.unknown > 1) {
                 payer.setText("(" + Integer.toString(data.unknown) + " non-users)");
+            } else {
+                payer.setText("(Some non-users)");
             }
 
             amount = new TextView(parent);
@@ -452,6 +454,7 @@ public class StatementSummaryFragment extends Fragment{
         @Override
         protected void onPreExecute() {
             dialog.setMessage("Processing... Please Wait...");
+            dialog.setCancelable(false);
             dialog.show();
         }
 

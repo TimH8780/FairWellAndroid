@@ -22,8 +22,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.text.InputType;
 import android.util.Log;
 import android.util.LruCache;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,6 +35,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -115,7 +118,6 @@ public class AccountSettingFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         rootView = inflater.inflate(R.layout.fragment_account_setting, container, false);
         ActionBar actionBar = parent.getSupportActionBar();
         if(actionBar != null) {
@@ -124,14 +126,20 @@ public class AccountSettingFragment extends Fragment {
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("Account Setting");
+
         updatePageInfo();
         userPhotoView = (ImageView) rootView.findViewById(R.id.user_photo);
         userPhotoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!parent.isNetworkConnected()){
+                    Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 promptUploadPhotoDialog();
             }
         });
+
         Button buttonChangePW = (Button) rootView.findViewById(R.id.button_change_pw);
         buttonChangePW.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,6 +170,7 @@ public class AccountSettingFragment extends Fragment {
                 return super.onOptionsItemSelected(item);
         }
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -194,6 +203,7 @@ public class AccountSettingFragment extends Fragment {
             });
         }
     }
+
     public static byte[] getBytesFromBitmap(Bitmap bitmap,int rate) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, rate, stream);
@@ -452,10 +462,8 @@ public class AccountSettingFragment extends Fragment {
     }
 
     public Bitmap getBitmapFromDiskCache(String key) {
-
         Bitmap bitmap = null;
         synchronized (FairwellApplication.mDiskCacheLock) {
-
             // Wait while disk cache is started from background thread
             while (FairwellApplication.mDiskCacheStarting) {
 
@@ -541,8 +549,9 @@ public class AccountSettingFragment extends Fragment {
         final AlertDialog dialog = builder.create();
         dialog.show();
     }
+
     private void saveAccountSetting(){
-        if(user!=null&&parent!=null){
+        if(user != null && parent.isNetworkConnected()){
             showProgressBar();
             String profileNameString = ((EditText)rootView.findViewById(R.id.profile_name)).getText().toString();
             final String firstNameString = ((EditText)rootView.findViewById(R.id.first_name)).getText().toString();
@@ -553,7 +562,7 @@ public class AccountSettingFragment extends Fragment {
             String selfDescriptionString = ((EditText)rootView.findViewById(R.id.self_description)).getText().toString();
             if(!profileNameString.isEmpty()) {
                 user.put("profileName", profileNameString);
-            }else{
+            } else {
                 user.put("profileName", firstNameString+" "+lastNameString);
             }
             user.put("First_Name",firstNameString);
@@ -565,17 +574,17 @@ public class AccountSettingFragment extends Fragment {
             user.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
-                    Toast.makeText(getContext(),"Data Saved",Toast.LENGTH_SHORT).show();
-                    if(user.get("profileName")==null||((String)(user.get("profileName"))).isEmpty()) {
-                        String profileNameString = user.get("First_Name") + " " + user.get("Last_Name");
-                        ((TextView) rootView.findViewById(R.id.profile_name_view)).setText(profileNameString);
-                    }else{
-                        ((TextView) rootView.findViewById(R.id.profile_name_view)).setText((String)(user.get("profileName")));
+                    if(e == null) {
+                        Toast.makeText(getContext(), "Data Saved", Toast.LENGTH_SHORT).show();
+                        ((TextView) rootView.findViewById(R.id.profile_name_view)).setText(Utility.getProfileName(user));
+                    } else {
+                        Toast.makeText(getContext(), "Fail to save data", Toast.LENGTH_SHORT).show();
                     }
                     hideProgressBar();
                 }
             });
-
+        } else {
+            Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -592,14 +601,27 @@ public class AccountSettingFragment extends Fragment {
             progressView.setVisibility(View.GONE);
         }
     }
+
     public void changePW(){
+        if(!parent.isNetworkConnected()){
+            Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
         final String email = user.getEmail();
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        TextView textBox = new TextView(getActivity());
-        textBox.setText("You will be able to change your password using the link sent to your email.");
+        AlertDialog.Builder builder = new AlertDialog.Builder(parent);
+        LinearLayout layout = new LinearLayout(parent);
+        TextView message = new TextView(parent);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams para = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        para.setMargins(20, 20, 20, 20);
+        message.setText("A link will be sent to your email to change your password");
+        message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        message.setLayoutParams(para);
+        layout.addView(message);
         builder.setTitle("Reset Password?");
-        builder.setView(textBox);
-        builder.setPositiveButton("Send password reset link to my email", new DialogInterface.OnClickListener() {
+        builder.setView(layout);
+        builder.setPositiveButton("Send Reset Link", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 ParseUser.requestPasswordResetInBackground(email, new RequestPasswordResetCallback() {
@@ -615,25 +637,16 @@ public class AccountSettingFragment extends Fragment {
                 });
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        final AlertDialog dialog = builder.create();
+        builder.setNegativeButton("Cancel", null);
+        AlertDialog dialog = builder.create();
         dialog.show();
     }
+
     private void updatePageInfo(){
         try {
             user.fetchIfNeeded();
+            ((TextView) rootView.findViewById(R.id.profile_name_view)).setText(Utility.getProfileName(user));
             ((TextView) rootView.findViewById(R.id.email)).setText((user.getEmail()));
-            if(user.get("profileName")==null||((String)(user.get("profileName"))).isEmpty()) {
-                String profileNameString = user.get("First_Name") + " " + user.get("Last_Name");
-                ((TextView) rootView.findViewById(R.id.profile_name_view)).setText(profileNameString);
-            }else{
-                ((TextView) rootView.findViewById(R.id.profile_name_view)).setText((String)(user.get("profileName")));
-            }
 
             ((EditText)rootView.findViewById(R.id.profile_name)).setText(user.getString("profileName"));
             ((EditText)rootView.findViewById(R.id.first_name)).setText(user.getString("First_Name"));

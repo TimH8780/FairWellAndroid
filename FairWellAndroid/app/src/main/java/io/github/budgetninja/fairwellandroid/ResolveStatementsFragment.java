@@ -166,7 +166,7 @@ public class ResolveStatementsFragment extends Fragment {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            viewHolder.nameText.setText(currentItem.name);
+            viewHolder.nameText.setText(currentItem.displayName);
             viewHolder.youOwedAmount.setText(String.format("%.2f",currentItem.currentUserOwed));
             viewHolder.friendOwedAmount.setText(String.format("%.2f",currentItem.friendOwed));
             viewHolder.netBalance.setText(String.format("%.2f", currentItem.currentUserOwed - currentItem.friendOwed));
@@ -214,7 +214,7 @@ public class ResolveStatementsFragment extends Fragment {
                         }
                     });
                     builder.setView(container);
-                    builder.setTitle("Resolve Statement(s) with \n<" + currentItem.name + ">");
+                    builder.setTitle("Resolve Statement(s) with \n<" + currentItem.displayName + ">");
                     builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -293,6 +293,7 @@ public class ResolveStatementsFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             dialog.setMessage("Processing... Please Wait...");
+            dialog.setCancelable(false);
             dialog.show();
         }
 

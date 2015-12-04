@@ -86,6 +86,7 @@ public class AddStatementFragment extends Fragment {
     private ContentActivity parent;
     private int paidByPosition;
     private int modePosition;
+    private String previousMoneyAmount;
     private Double[] friendSelected;
     private Double[] tempResult;
     private List<Friend> friendList;
@@ -120,6 +121,7 @@ public class AddStatementFragment extends Fragment {
         previousState = null;
         maxCapacity = -1;
         counter = -1;
+        previousMoneyAmount = "";
         parent = (ContentActivity)getActivity();
         ParseUser user = ParseUser.getCurrentUser();
         format = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
@@ -175,7 +177,7 @@ public class AddStatementFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
         Spinner paidBySpinner = (Spinner) rootView.findViewById(R.id.spinner);
-        Spinner modeSpinner = (Spinner) rootView.findViewById(R.id.spinner2);
+        final Spinner modeSpinner = (Spinner) rootView.findViewById(R.id.spinner2);
         Button addMemberButton = (Button) rootView.findViewById(R.id.addMemberButton);
         Button addSnapshotButton = (Button) rootView.findViewById(R.id.addSnapshotButton);
         Button addNoteButton = (Button) rootView.findViewById(R.id.addNoteButton);
@@ -192,7 +194,7 @@ public class AddStatementFragment extends Fragment {
             public View getView(int position, View convertView, ViewGroup parent) {
                 View v = super.getView(position, convertView, parent);
                 if (position == getCount()) {
-                    ((TextView)v.findViewById(android.R.id.text1)).setText(getItem(getCount()).name);   //"Hint to be displayed"
+                    ((TextView)v.findViewById(android.R.id.text1)).setText(getItem(getCount()).displayName);   //"Hint to be displayed"
                 }
                 return v;
             }
@@ -287,8 +289,17 @@ public class AddStatementFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                isAmountChanged = true;
-                //code
+                if(!s.toString().equals(previousMoneyAmount)) {
+                    if (modePosition == SPLIT_EQUALLY || modePosition == SPLIT_BY_RATIO) {
+                        isAmountChanged = true;
+                    } else if (modePosition == SPLIT_UNEQUALLY) {
+                        isAmountChanged = false;
+                        friendSelected = new Double[friendList.size()];
+                        selectedMember = new ArrayList<>();
+                        displayMemberSelected();
+                    }
+                    previousMoneyAmount = s.toString();
+                }
             }
 
             @Override
@@ -389,14 +400,19 @@ public class AddStatementFragment extends Fragment {
 
             StringBuilder data = new StringBuilder("");
             for (int i = 0; i < counter; i++) {
-                data.append(selectedMember.get(i).first.name).append("\n");
+                data.append(selectedMember.get(i).first.displayName).append("\n");
             }
-            if((int)this.counter > 0){
-                text.setText("Selected Member [" + Integer.toString(counter) + "+" + String.format("%.0f", this.counter) + "]");
-                if((int)this.counter == 1){
-                    data.append("(").append((int)this.counter).append(" non-Fairwell user)").append("\n");
-                }else{
-                    data.append("(").append((int)this.counter).append(" non-Fairwell users)").append("\n");
+            if(this.counter > 0.009 && modePosition != SPLIT_BY_RATIO){
+                if(modePosition == SPLIT_UNEQUALLY){
+                    text.setText("Selected Member [" + Integer.toString(counter) + "+n]");
+                    data.append("(Some non-Fairwell users)").append("\n");
+                } else {
+                    text.setText("Selected Member [" + Integer.toString(counter) + "+" + String.format("%.0f", this.counter) + "]");
+                    if ((int) this.counter == 1) {
+                        data.append("(").append((int) this.counter).append(" non-Fairwell user)").append("\n");
+                    } else {
+                        data.append("(").append((int) this.counter).append(" non-Fairwell users)").append("\n");
+                    }
                 }
 
             } else{
@@ -429,11 +445,11 @@ public class AddStatementFragment extends Fragment {
 
                 Friend payee = paidByPosition == SELF ? null : friendList.get(paidByPosition);
                 if(selectedMember.size() == 1){
-                    if(selectedMember.get(0).first.name.equals("Self") && payee == null) {
+                    if(selectedMember.get(0).first.displayName.equals("Self") && payee == null) {
                         Toast.makeText(getContext(), "Statement must be made between at least 2 Fairwell-users", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    else if(payee != null && !selectedMember.get(0).first.name.equals("Self")){
+                    else if(payee != null && !selectedMember.get(0).first.displayName.equals("Self")){
                         if(selectedMember.get(0).first.isEqual(payee)){
                             Toast.makeText(getContext(), "Statement must be made between at least 2 Fairwell-users", Toast.LENGTH_SHORT).show();
                             return;
@@ -455,12 +471,28 @@ public class AddStatementFragment extends Fragment {
                                 }
                             }
                         }
+                    } else if(modePosition == SPLIT_BY_RATIO){
+                        selectedMember = new ArrayList<>();
+                        double eachPortion = Double.valueOf(moneyAmount.getText().toString()) / counter;
+                        for (int i = 0; i < friendSelected.length; i++) {
+                            if (friendSelected[i] != null) {
+                                if (friendSelected[i] > 0.99) {
+                                    selectedMember.add(new Pair<>(friendList.get(i), friendSelected[i] * eachPortion));
+                                }
+                            }
+                        }
                     }
+                    isAmountChanged = false;
                 }
 
                 try {
+                    int unknown;
+                    if(modePosition == SPLIT_EQUALLY){ unknown = (int)counter; }
+                    else if(modePosition == SPLIT_BY_RATIO){ unknown = 0; }
+                    else { unknown = -1; }
+
                     SummaryStatement summaryStatement = new SummaryStatement(descr, categ, format.parse(date), format.parse(deadline),
-                            modePosition, (int)counter, Double.valueOf(amount), payee, selectedMember);
+                            modePosition, unknown, Double.valueOf(amount), payee, selectedMember);
                     parent.setSubmitStatementSummaryData(summaryStatement);
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -533,7 +565,7 @@ public class AddStatementFragment extends Fragment {
                     break;
 
                 case SPLIT_BY_RATIO:
-                    showMemberSelectionListTwo(-1, SPLIT_BY_RATIO);
+                    showMemberSelectionListTwo(0, SPLIT_BY_RATIO);
                     break;
 
                 default:
@@ -656,7 +688,33 @@ public class AddStatementFragment extends Fragment {
         }
 
         container.setAdapter(memberAdaptor);
-        builder.setPositiveButton("Select", null);
+        builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                friendSelected = Arrays.copyOf(tempResult, tempResult.length);
+                isAmountChanged = false;
+                selectedMember = new ArrayList<>();
+                if(modePosition == SPLIT_UNEQUALLY && counter != maxCapacity){
+                    for (int i = 0; i < tempResult.length; i++) {
+                        if (friendSelected[i] != null) {
+                            if (friendSelected[i] > 0.009) {
+                                selectedMember.add(new Pair<>(friendList.get(i), friendSelected[i]));
+                            }
+                        }
+                    }
+                } else if(modePosition == SPLIT_BY_RATIO && counter > 0.99){
+                    double eachPortion = Double.valueOf(moneyAmount.getText().toString())/ counter;
+                    for (int i = 0; i < tempResult.length; i++) {
+                        if (friendSelected[i] != null) {
+                            if (friendSelected[i] > 0.99) {
+                                selectedMember.add(new Pair<>(friendList.get(i), friendSelected[i].intValue() * eachPortion));
+                            }
+                        }
+                    }
+                }
+                displayMemberSelected();
+            }
+        });
         builder.setNegativeButton("Cancel", null);
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -731,7 +789,7 @@ public class AddStatementFragment extends Fragment {
                viewHolder = (ViewHolder) convertView.getTag();
             }
             viewHolder.position = position;
-            viewHolder.nameText.setText(currentItem.name);
+            viewHolder.nameText.setText(currentItem.displayName);
             if(tempResult[position] == null){
                 viewHolder.box.setChecked(false);
             } else {
@@ -774,24 +832,38 @@ public class AddStatementFragment extends Fragment {
             public RepeatUpdater(View v) { button = (Button) v; }
             public void run() {
                 if(mAutoIncrement){
-                    if (counter > 0.009) {
-                        Pair<Integer, Button> tag = (Pair) button.getTag();
+                    Pair<Integer, Button> tag = (Pair) button.getTag();
+                    if (counter > 0.009 && mType == SPLIT_UNEQUALLY) {
                         Double temp = Double.valueOf(tag.second.getText().toString()) + 0.01;
                         tag.second.setText(String.format("%.2f", temp));
+                        tempResult[tag.first] = temp;
                         counter -= 0.01;
                         if(counter < 0.00 && counter > -0.001){ counter = 0.00; }
                         capacityText.setText(String.format("%.2f", counter));
+                    } else if(mType == SPLIT_BY_RATIO){
+                        Double temp = Double.valueOf(tag.second.getText().toString()) + 1;
+                        counter += 1;
+                        tempResult[tag.first] = temp;
+                        tag.second.setText(String.format("%.0f", temp));
                     }
                     repeatUpdateHandler.postDelayed(new RepeatUpdater(button), 50);
                 } else if(mAutoDecrement){
                     Pair<Integer, Button> tag = (Pair) button.getTag();
                     Double temp = Double.valueOf(tag.second.getText().toString());
-                    if (temp > 0.009) {
+                    if (temp > 0.009 && mType == SPLIT_UNEQUALLY) {
                         temp -= 0.01;
                         if(temp < 0.00 && temp > -0.001){ temp = 0.00; }
+                        tempResult[tag.first] = temp;
                         tag.second.setText(String.format("%.2f", temp));
                         counter += 0.01;
                         capacityText.setText(String.format("%.2f", counter));
+                    } else if(mType == SPLIT_BY_RATIO && temp > 0.99){
+                        temp -= 1;
+                        counter -= 1;
+                        if(counter < 0.00 && counter > -0.01){ counter = 0.00; }
+                        if(temp < 0.00 && temp > -0.01){ temp = 0.00; }
+                        tempResult[tag.first] = temp;
+                        tag.second.setText(String.format("%.0f", temp));
                     }
                     repeatUpdateHandler.postDelayed(new RepeatUpdater(button), 50);
                 }
@@ -814,11 +886,12 @@ public class AddStatementFragment extends Fragment {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
             viewHolder.position = position;
-            viewHolder.nameText.setText(currentItem.name);
+            viewHolder.nameText.setText(currentItem.displayName);
 
             Pair<Integer, Button> tag = new Pair<>(position, viewHolder.value);
             viewHolder.plus.setTag(tag);
             viewHolder.minus.setTag(tag);
+            viewHolder.value.setTag(position);
 
             if(tempResult[position] == null){
                 if(mType == SPLIT_UNEQUALLY){ viewHolder.value.setText("0.00"); }
@@ -834,6 +907,7 @@ public class AddStatementFragment extends Fragment {
                     Pair<Integer, Button> tag = (Pair) v.getTag();
                     if (counter > 0.99 || mType == SPLIT_BY_RATIO) {
                         Double temp = Double.valueOf(tag.second.getText().toString()) + 1.00;
+                        tempResult[tag.first] = temp;
                         if (mType == SPLIT_UNEQUALLY) {
                             tag.second.setText(String.format("%.2f", temp));
                             counter -= 1.00;
@@ -842,6 +916,7 @@ public class AddStatementFragment extends Fragment {
                             }
                             capacityText.setText(String.format("%.2f", counter));
                         } else {
+                            counter += 1;
                             tag.second.setText(String.format("%.0f", temp));
                         }
                     }
@@ -850,10 +925,8 @@ public class AddStatementFragment extends Fragment {
             viewHolder.plus.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (mType == SPLIT_UNEQUALLY) {
-                        mAutoIncrement = true;
-                        repeatUpdateHandler.post(new RepeatUpdater(v));
-                    }
+                    mAutoIncrement = true;
+                    repeatUpdateHandler.post(new RepeatUpdater(v));
                     return false;
                 }
             });
@@ -861,7 +934,7 @@ public class AddStatementFragment extends Fragment {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     if ((event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
-                            && mAutoIncrement && mType == SPLIT_UNEQUALLY) {
+                            && mAutoIncrement) {
                         mAutoIncrement = false;
                         return true;
                     }
@@ -879,11 +952,14 @@ public class AddStatementFragment extends Fragment {
                         if (temp < 0.00 && temp > -0.01) {
                             temp = 0.00;
                         }
+                        tempResult[tag.first] = temp;
                         if (mType == SPLIT_UNEQUALLY) {
                             tag.second.setText(String.format("%.2f", temp));
                             counter += 1.00;
                             capacityText.setText(String.format("%.2f", counter));
                         } else {
+                            counter -= 1;
+                            if(counter < 0.00 && counter > -0.01){ counter = 0; }
                             tag.second.setText(String.format("%.0f", temp));
                         }
                     }
@@ -892,10 +968,8 @@ public class AddStatementFragment extends Fragment {
             viewHolder.minus.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (mType == SPLIT_UNEQUALLY) {
-                        mAutoDecrement = true;
-                        repeatUpdateHandler.post(new RepeatUpdater(v));
-                    }
+                    mAutoDecrement = true;
+                    repeatUpdateHandler.post(new RepeatUpdater(v));
                     return false;
                 }
             });
@@ -903,7 +977,7 @@ public class AddStatementFragment extends Fragment {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     if ((event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL)
-                            && mAutoDecrement && mType == SPLIT_UNEQUALLY) {
+                            && mAutoDecrement) {
                         mAutoDecrement = false;
                         return true;
                     }
@@ -949,11 +1023,13 @@ public class AddStatementFragment extends Fragment {
                             positiveButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
+                                    String newValueInString = editText.getText().toString();
+                                    Double oldValue = Double.valueOf(button.getText().toString());
                                     if(mType == SPLIT_BY_RATIO){
-                                        button.setText(editText.getText().toString());
+                                        button.setText(newValueInString);
+                                        counter = counter - oldValue.intValue() + Double.valueOf(newValueInString).intValue();
                                         dialog.dismiss();
                                     } else {
-                                        String newValueInString = editText.getText().toString();
                                         if(newValueInString.contains(".")){
                                             int index = newValueInString.indexOf(".");
                                             if(newValueInString.length() > index + 3){
@@ -961,9 +1037,9 @@ public class AddStatementFragment extends Fragment {
                                             }
                                         }
                                         Double newValue = Double.valueOf(newValueInString);
-                                        Double oldValue = Double.valueOf(button.getText().toString());
                                         if(newValue < (counter + oldValue + 0.01)){
                                             button.setText(String.format("%.2f", newValue));
+                                            tempResult[(int)button.getTag()] = newValue;
                                             counter = counter + oldValue - newValue;
                                             if(counter < 0.00 && counter > -0.01){ counter = 0.00; }
                                             capacityText.setText(String.format("%.2f", counter));
