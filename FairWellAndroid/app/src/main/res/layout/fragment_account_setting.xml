@@ -58,8 +58,14 @@
 
             <Button
                 android:id="@+id/button_change_pw"
-                android:onClick="changePW"
                 android:text="Change Password"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/button_add_email"
+                android:text="Link Email"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>

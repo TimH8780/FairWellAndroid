@@ -427,7 +427,7 @@ public class ContentActivity extends AppCompatActivity{
         return (networkInfo != null && networkInfo.isConnected());
     }
 
-    private void setEmailFacebookTwitterUser(){
+    protected void setEmailFacebookTwitterUser(){
         final AlertDialog.Builder builder = new AlertDialog.Builder(ContentActivity.this);
         final LinearLayout layout = new LinearLayout(ContentActivity.this);
         final TextView message = new TextView(ContentActivity.this);
@@ -456,6 +456,10 @@ public class ContentActivity extends AppCompatActivity{
                         if(e == null){
                             Toast.makeText(getApplicationContext(), "Success. A verification email was sent to " + email, Toast.LENGTH_SHORT).show();
                             Utility.setNewEntryFieldForAllFriend();
+                            AccountSettingFragment fragment = (AccountSettingFragment)fragMgr.findFragmentByTag("Account");
+                            if(fragment != null){
+                                fragment.removeAddEmailButton();
+                            }
                             return;
                         }
                         Toast.makeText(getApplicationContext(), "Invalid Email Address", Toast.LENGTH_SHORT).show();
@@ -561,7 +565,7 @@ public class ContentActivity extends AppCompatActivity{
 
     private boolean emailVerificationCheck(){
         if(!verification) {
-            verification = user.getString("email") != null && user.getBoolean("emailVerified");
+            verification = user.getBoolean("emailVerified");
         }
         return verification;
     }

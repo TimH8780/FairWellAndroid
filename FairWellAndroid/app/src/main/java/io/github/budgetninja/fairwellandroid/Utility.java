@@ -279,10 +279,9 @@ public class Utility {
 
     public static void editNewEntryField(ParseUser user, final boolean newResult, final String message){
         if(user != null) try{
-            ParseObject parseObject = user.getParseObject("newEntry").fetchIfNeeded();
+            ParseObject parseObject = user.getParseObject("newEntry").fetch();
             if(message != null){
                 List<String> temp = parseObject.getList("dashboardData");
-                Log.d("Dashboard Number: ", Integer.toString(temp.size()));
                 temp.add(Utility.generateMessage(message));
                 parseObject.put("dashboardData", temp);
             }
@@ -290,7 +289,6 @@ public class Utility {
             parseObject.save();
 
             if(message != null && user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())){
-                //addToExistingDashboardList(generateMessage(message));
                 setChangedRecordDashboard();
                 getDashboardData();
             }
@@ -301,14 +299,13 @@ public class Utility {
 
     public static void editNewEntryField(ParseUser user, final String message){
         if(user != null && message != null) try{
-            ParseObject parseObject = user.getParseObject("newEntry").fetchIfNeeded();
+            ParseObject parseObject = user.getParseObject("newEntry").fetch();
             List<String> temp = parseObject.getList("dashboardData");
             temp.add(Utility.generateMessage(message));
             parseObject.put("dashboardData", temp);
             parseObject.save();
 
             if(user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())){
-                //addToExistingDashboardList(generateMessage(message));
                 setChangedRecordDashboard();
                 getDashboardData();
             }
@@ -487,7 +484,7 @@ public class Utility {
 
     public static List<String> getDashboardData(){
         if(pDashBoardData == null || changedRecordDashBoard) try{
-            ParseObject location = ParseUser.getCurrentUser().fetchIfNeeded().getParseObject("newEntry").fetch();
+            ParseObject location = ParseUser.getCurrentUser().fetch().getParseObject("newEntry").fetch();
             pDashBoardData = location.getList("dashboardData");
             changedRecordDashBoard = false;
             location.pinInBackground();
@@ -503,12 +500,6 @@ public class Utility {
             setChangedRecordDashboard();
         }
         return pDashBoardData;
-    }
-
-    public static void addToExistingDashboardList(String newItem) {
-        if (pDashBoardData != null) {
-            pDashBoardData.add(newItem);
-        }
     }
 
     public static Bitmap bitmapCompress(Bitmap b, int rate){

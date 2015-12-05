@@ -152,6 +152,18 @@ public class AccountSettingFragment extends Fragment {
                 changePW();
             }
         });
+
+        Button addEmail = (Button) rootView.findViewById(R.id.button_add_email);
+        if(user.getEmail() == null){
+            addEmail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    parent.setEmailFacebookTwitterUser();
+                }
+            });
+        } else {
+            addEmail.setVisibility(View.GONE);
+        }
         if(user != null){
             ParseFile userPhotoFile = user.getParseFile("photo");
             if(userPhotoFile !=null) {
@@ -242,15 +254,6 @@ public class AccountSettingFragment extends Fragment {
                 }
             });
         }
-    }
-
-    public Bitmap getBitmapFromURI(Uri u){
-        try {
-            return MediaStore.Images.Media.getBitmap(parent.getContentResolver(), u);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
@@ -653,7 +656,8 @@ public class AccountSettingFragment extends Fragment {
             progressView.setVisibility(View.VISIBLE);
             progressView.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) { }
+                public void onClick(View v) {
+                }
             });
         }
     }
@@ -663,6 +667,11 @@ public class AccountSettingFragment extends Fragment {
         if(progressView != null){
             progressView.setVisibility(View.GONE);
         }
+    }
+
+    public void removeAddEmailButton(){
+        rootView.findViewById(R.id.button_add_email).setVisibility(View.GONE);
+        ((TextView) rootView.findViewById(R.id.email)).setText(user.getEmail());
     }
 
     public void changePW(){
