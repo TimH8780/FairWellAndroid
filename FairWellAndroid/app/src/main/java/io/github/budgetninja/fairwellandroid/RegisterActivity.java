@@ -132,11 +132,8 @@ public class RegisterActivity extends AppCompatActivity {
                     // EULA text
                     String message = getString(R.string.eula_string);
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this)
-                            .setTitle(title)
-                            .setMessage(message)
-                            .setCancelable(false)
-                            .setNegativeButton("OK", null);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this).setTitle(title)
+                            .setMessage(message).setCancelable(false).setNegativeButton("OK", null);
                     builder.create().show();
             }
         });

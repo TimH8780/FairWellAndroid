@@ -124,6 +124,7 @@ public class ResolveStatementsFragment extends Fragment {
                 parent.mMenuDrawer.closeMenu(false);
                 parent.fragMgr.popBackStack();
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -175,8 +176,9 @@ public class ResolveStatementsFragment extends Fragment {
                 int pixel = IMAGE_WIDTH_HEIGHT * (DPI / 160);
                 Bitmap bmp = HomepageFragment.decodeSampledBitmapFromByteArray(currentItem.photo, pixel, pixel);
                 viewHolder.photoImage.setImageBitmap(bmp);
+            } else{
+                viewHolder.photoImage.setImageResource(R.drawable.profilepic);
             }
-            else{ viewHolder.photoImage.setImageResource(R.drawable.profilepic); }
 
             viewHolder.resolveButton.setTag(position);
             viewHolder.resolveButton.setOnClickListener(new View.OnClickListener() {
@@ -265,8 +267,7 @@ public class ResolveStatementsFragment extends Fragment {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
             viewHolder.position = position;
-            viewHolder.nameText.setText(currentItem.first.description + " [$ " +
-                    String.format("%.2f", currentItem.second.payerAmount) + "]");
+            viewHolder.nameText.setText(currentItem.first.description + " [$ " + String.format("%.2f", currentItem.second.payerAmount) + "]");
             if(tempResult[position] == null){
                 viewHolder.box.setChecked(false);
             } else {

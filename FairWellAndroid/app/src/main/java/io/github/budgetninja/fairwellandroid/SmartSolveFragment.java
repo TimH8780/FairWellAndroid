@@ -46,6 +46,7 @@ public class SmartSolveFragment extends Fragment {
                 parent.mMenuDrawer.closeMenu(false);
                 parent.fragMgr.popBackStack();
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }

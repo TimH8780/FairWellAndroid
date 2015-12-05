@@ -16,6 +16,7 @@
             android:orientation="horizontal">
 
             <ImageView
+                android:id="@+id/picture"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:src="@drawable/profilepic"/>
@@ -99,9 +100,10 @@
                     android:src="@drawable/ic_picture_in_picture_black_24dp"/>
 
                 <TextView
+                    android:id="@+id/profile_name_view"
                     android:textSize="18dp"
                     android:paddingLeft="10dp"
-                    android:text="Too much awesomeness"
+                    android:text="Profile Name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
@@ -120,9 +122,10 @@
                     android:src="@drawable/ic_account_box_black_24dp"/>
 
                 <TextView
+                    android:id="@+id/real_name_view"
                     android:textSize="18dp"
                     android:paddingLeft="10dp"
-                    android:text="Issac Chern"
+                    android:text="First Last"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
@@ -141,10 +144,11 @@
                     android:src="@drawable/ic_phone_black_24dp"/>
 
                 <TextView
+                    android:id="@+id/phone_number_view"
                     android:textSize="18dp"
                     android:singleLine="true"
                     android:paddingLeft="10dp"
-                    android:text="716-380-6601"
+                    android:text="(N/A)"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
@@ -163,8 +167,9 @@
                     android:src="@drawable/ic_home_black_24dp"/>
 
                 <TextView
+                    android:id="@+id/address_view"
                     android:textSize="18dp"
-                    android:text="1525 Amherst Manor Dr \nBuffalo NY, 14221"
+                    android:text="(N/A)"
                     android:paddingLeft="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
@@ -184,7 +189,8 @@
                     android:src="@drawable/ic_description_black_24dp"/>
 
                 <TextView
-                    android:text="I am awesome, you see me. I am cool like shit. Hit me up yo. Later bro!"
+                    android:id="@+id/description_view"
+                    android:text="(N/A)"
                     android:textSize="18dp"
                     android:gravity="top"
                     android:paddingLeft="10dp"

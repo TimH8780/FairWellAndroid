@@ -2,7 +2,6 @@ package io.github.budgetninja.fairwellandroid;
 
 import android.support.annotation.NonNull;
 
-import com.android.camera.Util;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -25,8 +24,7 @@ public class FriendObject {
         private ParseUser friend;
         private ParseUser user = ParseUser.getCurrentUser();
         private boolean reload;
-        String displayName;
-        String email;
+        String displayName, email, firstName, lastName, phoneNumber, address_1, address_2, selfDescription;
         boolean isPendingStatement;
         boolean confirm;
         boolean isUserOne;
@@ -34,19 +32,26 @@ public class FriendObject {
         double friendOwed;
         byte[] photo;
 
-        Friend(String parseObjectID, ParseObject friendRelation, ParseUser friend, String name, String email, double currentUserOwed,
-               double friendOwed, boolean isPendingStatement, boolean confirm, boolean isUserOne){
+        Friend(String parseObjectID, ParseObject friendRelation, ParseUser friend, String displayName, String email, double currentUserOwed,
+               double friendOwed, boolean isPendingStatement, boolean confirm, boolean isUserOne, String firstName, String lastName,
+               String phoneNumber, String address_1, String address_2, String selfDescription){
+            this.friend = friend;
             obtainPhoto();
             this.parseObjectID = parseObjectID;
             this.friendRelationship = friendRelation;
-            this.friend = friend;
-            this.displayName = name;
+            this.displayName = displayName;
             this.email = email;
             this.isPendingStatement = isPendingStatement;
             this.confirm = confirm;
             this.currentUserOwed = currentUserOwed;
             this.friendOwed = friendOwed;
             this.isUserOne = isUserOne;
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.phoneNumber = phoneNumber;
+            this.address_1 = address_1;
+            this.address_2 = address_2;
+            this.selfDescription = selfDescription;
             reload = false;
         }
 
@@ -101,7 +106,7 @@ public class FriendObject {
         }
 
         public String getRealName(){
-            return Utility.getName(friend);
+            return firstName + " " + lastName;
         }
 
         public ParseObject generateFriendToFriendRelationship(final Friend another){
@@ -176,6 +181,12 @@ public class FriendObject {
             builder.append(friendOwed).append(" | ");
             builder.append(currentUserOwed - friendOwed).append(" | ");
             builder.append(isPendingStatement).append(" | ");
+            builder.append(firstName).append(" | ");
+            builder.append(lastName).append(" | ");
+            builder.append(phoneNumber).append(" | ");
+            builder.append(address_1).append(" | ");
+            builder.append(address_2).append(" | ");
+            builder.append(selfDescription).append(" | ");
             return builder.toString();
         }
 

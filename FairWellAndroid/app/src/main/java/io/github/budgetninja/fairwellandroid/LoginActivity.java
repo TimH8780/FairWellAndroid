@@ -384,6 +384,7 @@ public class LoginActivity extends Activity {
     private void goToLoggedInPage(){
         Intent intent = new Intent(LoginActivity.this, ContentActivity.class);
         startActivity(intent);
+        this.finish();
     }
 
     private boolean isNetworkConnected(){

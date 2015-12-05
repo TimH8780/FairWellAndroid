@@ -2,16 +2,19 @@ package io.github.budgetninja.fairwellandroid;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -22,43 +25,20 @@ import java.util.TimeZone;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
+
+import static io.github.budgetninja.fairwellandroid.ContentActivity.NORMAL_USER;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.OWE_BALANCE;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.OWN_BALANCE;
-import static io.github.budgetninja.fairwellandroid.ContentActivity.NORMAL_USER;
-import static io.github.budgetninja.fairwellandroid.ContentActivity.FACEBOOK_USER;
-import static io.github.budgetninja.fairwellandroid.ContentActivity.TWITTER_USER;
 
 /**
  *Created by Issac on 9/23/2015.
  */
 public class Utility {
 
-    private static ParseUser user = ParseUser.getCurrentUser();
-
     public static boolean isNormalUser(ParseUser user) {
         try{
             int userType = user.fetchIfNeeded().getInt("userType");
             return userType == NORMAL_USER;
-        } catch (ParseException e){
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public static boolean isFacebookUser(ParseUser user){
-        try{
-            int userType = user.fetchIfNeeded().getInt("userType");
-            return userType == FACEBOOK_USER;
-        } catch (ParseException e){
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public static boolean isTwitterUser(ParseUser user){
-        try{
-            int userType = user.fetchIfNeeded().getInt("userType");
-            return userType == TWITTER_USER;
         } catch (ParseException e){
             e.printStackTrace();
         }
@@ -97,6 +77,7 @@ public class Utility {
         List<ParseQuery<ParseObject>> list = new ArrayList<>();
         list.add(queryA);
         list.add(queryB);
+
         try{
             List<ParseObject> rawList = ParseQuery.or(list).find();
             ParseObject temp = getRawListLocation();
@@ -149,13 +130,16 @@ public class Utility {
                         isUserOne = false;
                     }
                     Friend friendItem = new Friend(object.getObjectId(), object, user, Utility.getProfileName(user), user.getString("email"),
-                            userowed, friendowed, object.getBoolean("pendingStatement"), object.getBoolean("confirmed"), isUserOne);
+                            userowed, friendowed, object.getBoolean("pendingStatement"), object.getBoolean("confirmed"), isUserOne,
+                            user.getString("First_Name"), user.getString("Last_Name"), user.getString("phoneNumber"),
+                            user.getString("addressLine1"), user.getString("addressLine2"), user.getString("selfDescription"));
                     offlineList.add(friendItem.toStringAllData());
                     friendList.add(friendItem);
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
+
             ParseObject temp = ParseUser.getCurrentUser().getParseObject("newEntry");
             temp.put("offlineFriendList", offlineList);
             temp.pinInBackground();
@@ -172,11 +156,12 @@ public class Utility {
             List<Friend> offlineFriendList = new ArrayList<>();
             List<String> offlineList = getRawListLocation().getList("offlineFriendList");
             int indexA, indexB;
-            String name, email;
+            String name, email, firstName, lastName, phoneNumber, address_1, address_2, selfDescription;
             boolean confirm, isUserOne, isPendingStatement;
             double userOwed, friendOwed;
             Double runningSum = 0.0;
             Double runningSub = 0.0;
+
             for(int i = 0; i < offlineList.size(); i++){
                 String item = offlineList.get(i);
                 indexA = item.indexOf(" | ", 0);
@@ -193,10 +178,25 @@ public class Utility {
                 friendOwed = Double.parseDouble(item.substring(indexA + 3, indexB));
                 indexA = item.indexOf(" | ", indexB + 3);
                 isPendingStatement = Boolean.parseBoolean(item.substring(indexB + 3, indexA));
-                offlineFriendList.add(new Friend(null, null, null, name, email, userOwed, friendOwed, isPendingStatement, confirm, isUserOne));
+                indexB = item.indexOf(" | ", indexA + 3);
+                firstName = item.substring(indexA + 3, indexB);
+                indexA = item.indexOf(" | ", indexB + 3);
+                lastName = item.substring(indexB + 3, indexA);
+                indexB = item.indexOf(" | ", indexA + 3);
+                phoneNumber = item.substring(indexA + 3, indexB);
+                indexA = item.indexOf(" | ", indexB + 3);
+                address_1 = item.substring(indexB + 3, indexA);
+                indexB = item.indexOf(" | ", indexA + 3);
+                address_2 = item.substring(indexA + 3, indexB);
+                indexA = item.indexOf(" | ", indexB + 3);
+                selfDescription = item.substring(indexB + 3, indexA);
+
+                offlineFriendList.add(new Friend(null, null, null, name, email, userOwed, friendOwed, isPendingStatement, confirm,
+                        isUserOne, firstName, lastName, phoneNumber, address_1, address_2, selfDescription));
                 runningSum += friendOwed;
                 runningSub -= userOwed;
             }
+
             OWN_BALANCE = runningSum;
             OWE_BALANCE = runningSub;
             pFriendList = new ArrayList<>(offlineFriendList);
@@ -216,8 +216,7 @@ public class Utility {
             int pos = searchPosition(0, pFriendList.size(), newItem);
             pFriendList.add(pos, newItem);
         }
-        newItem.notifyChange("You sent a friend request to " + newItem.getRealName(),
-                newItem.getRealName() + " sent you a friend request");
+        newItem.notifyChange("You sent a friend request to " + newItem.getRealName(), newItem.getRealName() + " sent you a friend request");
     }
 
     private static int searchPosition(int start, int end, Friend item){
@@ -262,6 +261,7 @@ public class Utility {
     public static void resetExistingList(){
         pFriendList = null;
         pStatementList = null;
+        pDashBoardData = null;
     }
 
     public static void setChangedRecordFriend(){ changedRecordFriend = true; }
@@ -271,55 +271,49 @@ public class Utility {
     public static boolean checkNewEntryField(){
         try {
             return ParseUser.getCurrentUser().getParseObject("newEntry").fetch().getBoolean("newEntry");
-        }catch (ParseException|NullPointerException e) {
+        } catch (ParseException|NullPointerException e) {
             Log.d("getRawListLocation", "Not exist");
             return true;
         }
     }
 
     public static void editNewEntryField(ParseUser user, final boolean newResult, final String message){
-        if(user != null) {
-            user.getParseObject("newEntry").fetchIfNeededInBackground(new GetCallback<ParseObject>() {
-                @Override
-                public void done(ParseObject parseObject, ParseException e) {
-                    if(e == null) {
-                        if (message != null) {
-                            Log.d("ChangeFriendNewEntry", parseObject.getObjectId());
-                            List<String> temp = parseObject.getList("dashboardData");
-                            temp.add(Utility.generateMessage(message));
-                            parseObject.put("dashboardData", temp);
-                        }
-                        parseObject.put("newEntry", newResult);
-                        parseObject.saveInBackground();
-                    } else {
-                        Log.d("ChangeFriendNewEntry", e.getMessage());
-                    }
-                }
-            });
-            if(message != null && user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())){
-                addToExistingDashboardList(generateMessage(message));
+        if(user != null) try{
+            ParseObject parseObject = user.getParseObject("newEntry").fetchIfNeeded();
+            if(message != null){
+                List<String> temp = parseObject.getList("dashboardData");
+                Log.d("Dashboard Number: ", Integer.toString(temp.size()));
+                temp.add(Utility.generateMessage(message));
+                parseObject.put("dashboardData", temp);
             }
+            parseObject.put("newEntry", newResult);
+            parseObject.save();
+
+            if(message != null && user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())){
+                //addToExistingDashboardList(generateMessage(message));
+                setChangedRecordDashboard();
+                getDashboardData();
+            }
+        } catch(ParseException e){
+            Log.d("ChangeFriendNewEntry", e.getMessage());
         }
     }
 
     public static void editNewEntryField(ParseUser user, final String message){
-        if(user != null && message != null) {
-            user.getParseObject("newEntry").fetchIfNeededInBackground(new GetCallback<ParseObject>() {
-                @Override
-                public void done(ParseObject parseObject, ParseException e) {
-                    if(e == null) {
-                        List<String> temp = parseObject.getList("dashboardData");
-                        temp.add(Utility.generateMessage(message));
-                        parseObject.put("dashboardData", temp);
-                        parseObject.saveInBackground();
-                    } else {
-                        Log.d("ChangeFriendNewEntry", e.getMessage());
-                    }
-                }
-            });
+        if(user != null && message != null) try{
+            ParseObject parseObject = user.getParseObject("newEntry").fetchIfNeeded();
+            List<String> temp = parseObject.getList("dashboardData");
+            temp.add(Utility.generateMessage(message));
+            parseObject.put("dashboardData", temp);
+            parseObject.save();
+
             if(user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())){
-                addToExistingDashboardList(generateMessage(message));
+                //addToExistingDashboardList(generateMessage(message));
+                setChangedRecordDashboard();
+                getDashboardData();
             }
+        } catch (ParseException e){
+            Log.d("ChangeFriendNewEntry", e.getMessage());
         }
     }
 
@@ -330,7 +324,7 @@ public class Utility {
             offline.fetchFromLocalDatastore();
             Log.d("getRawListLocation", "From offline");
             return offline;
-        }catch (ParseException|NullPointerException e) {
+        } catch (ParseException|NullPointerException e) {
             try {                                                                           // Get it from online if can't find in local
                 ParseObject online = user.getParseObject("newEntry");
                 online.fetch();
@@ -372,7 +366,7 @@ public class Utility {
 
     public static int getPixel(int desiredDp, Resources resources){
         float scale = resources.getDisplayMetrics().density;
-        return  (int) (desiredDp * scale + 0.5f);
+        return  (int)(desiredDp * scale + 0.5f);
     }
 
     public static void generateRawStatementList(final ParseUser user){
@@ -381,6 +375,7 @@ public class Utility {
         query.whereEqualTo("payerReject", false);
         query.whereEqualTo("payerPaid", false);
         query.whereEqualTo("paymentPending", false);
+
         try{
             List<ParseObject> list = query.find();
             List<ParseObject> result = new ArrayList<>();
@@ -399,6 +394,7 @@ public class Utility {
             } catch (ParseException e1){
                 e1.printStackTrace();
             }
+
             if(temp != null){
                 temp.put("statementList", result);
                 temp.pinInBackground();
@@ -421,11 +417,13 @@ public class Utility {
 
             boolean isPayee = false;
             boolean payeeConfirm;
-            String description, category, submitBy;
+            String note, description, category, submitBy;
+            ParseFile picture;
             Date date, deadline;
             int mode, unknown;
             double unknownAmount, totalAmount;
             List<ParseObject> list;
+
             for (int i = 0; i < rawList.size(); i++) try{
                 ParseObject object = rawList.get(i).fetch();
                 if(!isPayee) {
@@ -433,6 +431,8 @@ public class Utility {
                         isPayee = true;
                     }
                 }
+                note = object.getString("note");
+                picture = object.getParseFile("picture");
                 payeeConfirm = object.getBoolean("payeeConfirm");
                 description = object.getString("description");
                 category = object.getString("category");
@@ -444,12 +444,13 @@ public class Utility {
                 unknownAmount = object.getDouble("unknownAmount");
                 totalAmount = object.getDouble("paymentAmount");
                 list = object.getList("payer");
-                Statement statement = new Statement(object, payeeConfirm, description, category, date, deadline, mode, unknown, unknownAmount, totalAmount,
-                        submitBy, object.getParseUser("payee"), list, isPayee);
+                Statement statement = new Statement(note, picture, object, payeeConfirm, description, category, date, deadline, mode, unknown,
+                        unknownAmount, totalAmount, submitBy, object.getParseUser("payee"), list, isPayee);
                 statementList.add(statement);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+
             pStatementList = new ArrayList<>(statementList);
             Collections.sort(pStatementList);
             changedRecordStatement = false;
@@ -486,14 +487,10 @@ public class Utility {
 
     public static List<String> getDashboardData(){
         if(pDashBoardData == null || changedRecordDashBoard) try{
-            ParseObject location = user.getParseObject("newEntry").fetch();
+            ParseObject location = ParseUser.getCurrentUser().fetchIfNeeded().getParseObject("newEntry").fetch();
             pDashBoardData = location.getList("dashboardData");
-
-            if(pDashBoardData != null){
-                changedRecordDashBoard = false;
-                location.pinInBackground();
-            }
-            else{ pDashBoardData = new ArrayList<>(); }
+            changedRecordDashBoard = false;
+            location.pinInBackground();
         } catch (ParseException e){
             e.printStackTrace();
         }
@@ -508,9 +505,23 @@ public class Utility {
         return pDashBoardData;
     }
 
-    public static void addToExistingDashboardList(String newItem){
-        if(pDashBoardData != null){
+    public static void addToExistingDashboardList(String newItem) {
+        if (pDashBoardData != null) {
             pDashBoardData.add(newItem);
         }
+    }
+
+    public static Bitmap bitmapCompress(Bitmap b, int rate){
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        b.compress(Bitmap.CompressFormat.JPEG, rate, stream);
+        //BitmapFactory.Options o = new BitmapFactory.Options();
+        //o.inJustDecodeBounds = true;
+        return BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.toByteArray().length);
+    }
+
+    public static byte[] getBytesFromBitmap(Bitmap bitmap, int rate) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, rate, stream);
+        return stream.toByteArray();
     }
 }

@@ -18,7 +18,6 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
 import android.text.InputType;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -94,7 +93,6 @@ public class FriendsFragment extends Fragment{
             @SuppressLint("CommitTransaction")
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-
                 fragTrans = fragMgr.beginTransaction();
                 fragTrans.replace(R.id.container, new FriendDetailFragment(), "Friend_Detail").addToBackStack("Friend_Detail");
                 fragTrans.commit();
@@ -116,7 +114,6 @@ public class FriendsFragment extends Fragment{
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-
         //hide refresh button
         MenuItem item = menu.findItem(R.id.action_refresh);
         item.setVisible(false);
@@ -126,7 +123,6 @@ public class FriendsFragment extends Fragment{
         // search box in friend activity's action bar
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        // Configure the search info and add any event listeners
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -217,12 +213,7 @@ public class FriendsFragment extends Fragment{
                 });
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        builder.setNegativeButton("Cancel", null);
         final AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -304,8 +295,7 @@ public class FriendsFragment extends Fragment{
                 holder.statusText = (TextView) convertView.findViewById(R.id.confirmResult);
                 holder.photoImage = (ImageView) convertView.findViewById(R.id.friend_photo);
                 convertView.setTag(holder);
-            }
-            else{
+            } else {
                 holder = (ViewHolder) convertView.getTag();
             }
             holder.nameText.setText(currentItem.displayName);
@@ -342,8 +332,7 @@ public class FriendsFragment extends Fragment{
                     FilterResults results = new FilterResults();
                     if(constraint.equals("")){
                         results.values = backupData;
-                    }
-                    else{
+                    } else {
                         List<Friend> data = new ArrayList<>();
                         for(int i = 0; i < backupData.size(); i++){
                             if(backupData.get(i).displayName.toLowerCase().contains(constraint)){
@@ -355,8 +344,7 @@ public class FriendsFragment extends Fragment{
                     return results;
                 }
 
-                @SuppressWarnings("unchecked")
-                @Override
+                @SuppressWarnings("unchecked") @Override
                 protected void publishResults(CharSequence constraint, FilterResults results) {
                     mData = (List<Friend>) results.values;
                     FriendAdaptor.this.notifyDataSetChanged();
@@ -395,8 +383,10 @@ public class FriendsFragment extends Fragment{
                 ParseObject temp = Utility.getRawListLocation();
                 temp.getList("list").add(friendList);
                 temp.pinInBackground();
-                Friend newItem = new Friend(friendList.getObjectId(), friendList, friend,
-                        Utility.getProfileName(friend), friend.getEmail(), 0, 0, false, false, true);
+                Friend newItem = new Friend(friendList.getObjectId(), friendList, friend, Utility.getProfileName(friend),
+                        friend.getEmail(), 0, 0, false, false, true, friend.getString("First_Name"), friend.getString("Last_Name"),
+                        friend.getString("phoneNumber"), friend.getString("addressLine1"), friend.getString("addressLine2"),
+                        friend.getString("selfDescription"));
                 Utility.addToExistingFriendList(newItem);
                 return true;
             } catch (ParseException e){
@@ -419,17 +409,16 @@ public class FriendsFragment extends Fragment{
         }
     }
 
-
     public static class FriendDetailFragment extends Fragment {
 
         private ContentActivity parent;
         private Friend object;
         private Button confirm, reject, delete;
-        private TextView name, email;
+        private ImageView picture;
+        private TextView name, email, profileName, realName, phone, address, description;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
             final View rootView = inflater.inflate(R.layout.fragment_friend_detail, container, false);
             ActionBar actionBar = parent.getSupportActionBar();
             if (actionBar != null) {
@@ -444,6 +433,12 @@ public class FriendsFragment extends Fragment{
             delete = (Button) rootView.findViewById(R.id.friend_detail_delete);
             name = (TextView) rootView.findViewById(R.id.friend_detail_name);
             email = (TextView) rootView.findViewById(R.id.friend_detail_email);
+            profileName = (TextView) rootView.findViewById(R.id.profile_name_view);
+            realName = (TextView) rootView.findViewById(R.id.real_name_view);
+            phone = (TextView) rootView.findViewById(R.id.phone_number_view);
+            address = (TextView) rootView.findViewById(R.id.address_view);
+            description = (TextView) rootView.findViewById(R.id.description_view);
+            picture = (ImageView) rootView.findViewById(R.id.picture);
 
             return rootView;
         }
@@ -459,7 +454,6 @@ public class FriendsFragment extends Fragment{
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             MenuItem item = menu.findItem(R.id.action_refresh);
             item.setVisible(false);
-           // inflater.inflate(R.menu.menu_setting, menu);
             super.onCreateOptionsMenu(menu, inflater);
         }
 
@@ -573,10 +567,29 @@ public class FriendsFragment extends Fragment{
         }
 
         private void dataDisplay(){
+            if(object.hasPhoto()){
+                int DPI = getDPI(parent);
+                int pixel = IMAGE_WIDTH_HEIGHT * (DPI / 160);
+                Bitmap bmp = HomepageFragment.decodeSampledBitmapFromByteArray(object.photo, pixel, pixel);
+                picture.setImageBitmap(bmp);
+            }
             name.setText(object.displayName);
             email.setText(object.email);
-
-            //more info
+            profileName.setText(object.displayName);
+            realName.setText(object.getRealName());
+            if(object.phoneNumber != null && !object.phoneNumber.isEmpty()) {
+                phone.setText(object.phoneNumber);
+            }
+            if(object.address_1 != null && !object.address_1.isEmpty()){
+                if(object.address_2 != null && !object.address_2.isEmpty()){
+                    address.setText(object.address_1 + "\n" + object.address_2);
+                } else {
+                    address.setText(object.address_1);
+                }
+            }
+            if(object.selfDescription != null && !object.selfDescription.isEmpty()) {
+                description.setText(object.selfDescription);
+            }
         }
     }
 

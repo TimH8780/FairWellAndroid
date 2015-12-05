@@ -82,7 +82,6 @@ public class MyIntro extends AppIntro {
 
         public static SampleSlide newInstance(int layoutResId) {
             SampleSlide sampleSlide = new SampleSlide();
-
             Bundle args = new Bundle();
             args.putInt(ARG_LAYOUT_RES_ID, layoutResId);
             sampleSlide.setArguments(args);
@@ -93,14 +92,15 @@ public class MyIntro extends AppIntro {
         private int layoutResId;
 
         public SampleSlide() {
+
         }
 
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-
-            if (getArguments() != null && getArguments().containsKey(ARG_LAYOUT_RES_ID))
+            if (getArguments() != null && getArguments().containsKey(ARG_LAYOUT_RES_ID)) {
                 layoutResId = getArguments().getInt(ARG_LAYOUT_RES_ID);
+            }
         }
 
         @Nullable @Override

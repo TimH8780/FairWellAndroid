@@ -22,7 +22,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
-import android.text.InputType;
 import android.util.Log;
 import android.util.LruCache;
 import android.util.TypedValue;
@@ -57,6 +56,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 import static android.os.Environment.isExternalStorageRemovable;
@@ -67,16 +69,19 @@ public class AccountSettingFragment extends Fragment {
 
     private static int REQUEST_PICTURE =1;
     private static int REQUEST_CROP_PICTURE = 2;
+    private static int REQUEST_CAMERA =3;
 
     private int DPI;
     private int PIXEL_PHOTO;
-    private ParseFile userPhotoFile;
     private LruCache<String, Bitmap> mMemoryCache;
     private DiskLruCache mDiskLruCache;
-    ImageView userPhotoView;
+    private ImageView userPhotoView;
     private ParseUser user;
     private ContentActivity parent;
     private View rootView;
+
+    private String mCurrentPhotoPath;
+    private Uri mCurrentPhotoUri;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -148,8 +153,8 @@ public class AccountSettingFragment extends Fragment {
             }
         });
         if(user != null){
-            userPhotoFile = user.getParseFile("photo");
-            if(userPhotoFile!=null) {
+            ParseFile userPhotoFile = user.getParseFile("photo");
+            if(userPhotoFile !=null) {
                 loadParseFiletoImageView(userPhotoFile, userPhotoView, userPhotoFile.getName().substring(0, 48));
             }
         }
@@ -166,6 +171,7 @@ public class AccountSettingFragment extends Fragment {
                 return true;
             case R.id.action_save:
                 saveAccountSetting();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -177,14 +183,22 @@ public class AccountSettingFragment extends Fragment {
 
         final File croppedImageFile = new File(getActivity().getFilesDir(), "temp.jpg");
         Uri croppedImageUri = Uri.fromFile(croppedImageFile);
-        if (requestCode==REQUEST_PICTURE&&resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_PICTURE && resultCode == RESULT_OK) {
             CropImageIntentBuilder cropImage = new CropImageIntentBuilder(PIXEL_PHOTO, PIXEL_PHOTO, croppedImageUri);
             cropImage.setOutlineColor(0xFF03A9F4);
             cropImage.setSourceImage(data.getData());
-            //requestCode*11 == code for Crop Picture
             startActivityForResult(cropImage.getIntent(getContext()), REQUEST_CROP_PICTURE);
         }
-        if (requestCode == REQUEST_CROP_PICTURE && resultCode == Activity.RESULT_OK) {
+        else if(requestCode == REQUEST_CAMERA && resultCode == RESULT_OK){
+            Uri contentUri = Uri.fromFile(new File(mCurrentPhotoPath));
+            galleryAddPic();  //add photo to gallery so that system media controller could access to it
+            mCurrentPhotoPath = null;
+            CropImageIntentBuilder cropImage = new CropImageIntentBuilder(PIXEL_PHOTO, PIXEL_PHOTO, croppedImageUri);
+            cropImage.setOutlineColor(0xFF03A9F4);
+            cropImage.setSourceImage(contentUri);
+            startActivityForResult(cropImage.getIntent(getContext()), REQUEST_CROP_PICTURE);
+        }
+        else if (requestCode == REQUEST_CROP_PICTURE && resultCode == Activity.RESULT_OK) {
             showProgressBar();
             final Bitmap photoBitmap = BitmapFactory.decodeFile(croppedImageFile.getAbsolutePath());
             ParseFile newPhoto = new ParseFile("photo.JPEG", getBytesFromBitmap(photoBitmap,50));
@@ -196,12 +210,13 @@ public class AccountSettingFragment extends Fragment {
                         loadBitmap(getBytesFromBitmap(photoBitmap,50),
                                 userPhotoView, user.getParseFile("photo").getName().substring(0, 48), PIXEL_PHOTO, PIXEL_PHOTO, null);
                     } else {
-                        Toast.makeText(parent.getApplicationContext(), "Failed to upload new profile picture, please try again.", Toast.LENGTH_SHORT).show();
-                        Log.d("User", "Failed to upload profile picture");
+                        Toast.makeText(parent.getApplicationContext(), "Failed to upload new profile picture, please try again.",
+                                Toast.LENGTH_SHORT).show();
                     }
                 }
             });
         }
+
     }
 
     public static byte[] getBytesFromBitmap(Bitmap bitmap,int rate) {
@@ -213,15 +228,12 @@ public class AccountSettingFragment extends Fragment {
     private void loadParseFiletoImageView(ParseFile pf, final ImageView iv, final String keyProvided){
         final Bitmap bitmapInDisk = getBitmapFromDiskCache(keyProvided);
         if (bitmapInDisk != null) {
-
             loadBitmap(null, iv, keyProvided, PIXEL_PHOTO, PIXEL_PHOTO, bitmapInDisk);
         } else if(pf != null){
-
             pf.getDataInBackground(new GetDataCallback() {
                 @Override
                 public void done(byte[] bytes, ParseException e) {
                     if (e == null) {
-
                         loadBitmap(bytes, iv, keyProvided, PIXEL_PHOTO, PIXEL_PHOTO, bitmapInDisk);
                     } else {
                         Log.d("GetData", e.getMessage());
@@ -241,41 +253,41 @@ public class AccountSettingFragment extends Fragment {
         return null;
     }
 
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 1;
-        System.out.println("outHeight and outWidth" + height + "," + width);
+        System.out.println("outHeight and outWidth: " + height + ", " + width);
         if (height > reqHeight || width > reqWidth) {
             final int halfHeight = height / 2;
             final int halfWidth = width / 2;
 
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
             // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
+            while ((halfHeight / inSampleSize) > reqHeight && (halfWidth / inSampleSize) > reqWidth) {
                 inSampleSize *= 2;
             }
         }
-        System.out.println("inSampleSize=" + inSampleSize);
+        System.out.println("inSampleSize = " + inSampleSize);
         return inSampleSize;
     }
 
     public static Bitmap decodeSampledBitmapFromByteArray(byte[] res, int reqWidth, int reqHeight) {
-        System.out.println("decodeSampleBitmapFromByteArray: reqWidth+reqHeight = " + reqWidth + "," + reqHeight);
+        System.out.println("decodeSampleBitmapFromByteArray: reqWidth+reqHeight = " + reqWidth + ", " + reqHeight);
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeByteArray(res, 0, res.length, options);
-        System.out.println("decodeSampleBitmapFromByteArray InjustdecodeBounds: outWidth+outHeight = " + options.outWidth + "," + options.outHeight);
+        System.out.println("decodeSampleBitmapFromByteArray InjustdecodeBounds: outWidth+outHeight = " +
+                options.outWidth + ", " + options.outHeight);
         // Calculate inSampleSize
         options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         Bitmap result = BitmapFactory.decodeByteArray(res, 0, res.length, options);
-        System.out.println("decodeSampleBitmapFromByteArray: resultWidth+resultHeight = " + result.getWidth() + "," + result.getHeight());
+        System.out.println("decodeSampleBitmapFromByteArray: resultWidth+resultHeight = " + result.getWidth() + ", " +
+                result.getHeight());
         return result;
     }
 
@@ -341,21 +353,16 @@ public class AccountSettingFragment extends Fragment {
 
     public void loadBitmap(byte[] sourceByteArray, ImageView imageView, String keyProvided, int w, int h, Bitmap bitmapInDisk) {
         if(sourceByteArray == null){
-
             imageView.setImageBitmap(bitmapInDisk);
             hideProgressBar();
         }else if (cancelPotentialWork(sourceByteArray, imageView)) {
-
             Bitmap bitmap = getBitmapFromMemCache(keyProvided);
             if(bitmap != null){
-
                 imageView.setImageBitmap(bitmap);
                 hideProgressBar();
             } else {
-
                 bitmap = getBitmapFromDiskCache(keyProvided);
                 if (bitmap != null) {
-
                     imageView.setImageBitmap(bitmap);
                     hideProgressBar();
                 } else if(isAdded()){
@@ -367,7 +374,6 @@ public class AccountSettingFragment extends Fragment {
                     task.execute(sourceByteArray);
                     hideProgressBar();
                 } else {
-
                     Log.d("loadBitmap", "Fragment Not Attached");
                 }
             }
@@ -465,35 +471,30 @@ public class AccountSettingFragment extends Fragment {
         Bitmap bitmap = null;
         synchronized (FairwellApplication.mDiskCacheLock) {
             // Wait while disk cache is started from background thread
-            while (FairwellApplication.mDiskCacheStarting) {
-
-                try {
-                    FairwellApplication.mDiskCacheLock.wait();
-                } catch (InterruptedException e) {
+            while (FairwellApplication.mDiskCacheStarting) try{
+                FairwellApplication.mDiskCacheLock.wait();
+            } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
             }
-            if (mDiskLruCache != null) {
-                try {
-                    final DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
-                    InputStream inputStream;
-                    if (snapshot != null) {
-                        if (BuildConfig.DEBUG) {
-                            Log.d(FairwellApplication.TAG, "Disk cache hit");
-                        }
-                        inputStream = snapshot.getInputStream(FairwellApplication.DISK_CACHE_INDEX);
-                        if (inputStream != null) {
-                            FileDescriptor fd = ((FileInputStream) inputStream).getFD();
-
-                            // Decode bitmap, but we don't want to sample so give
-                            // MAX_VALUE as the target dimensions
-                            bitmap = getBitmapFromByte(IOUtils.toByteArray(inputStream));
-                            //bitmap = ImageResizer.decodeSampledBitmapFromDescriptor(fd, Integer.MAX_VALUE, Integer.MAX_VALUE, this);
-                        }
+            if (mDiskLruCache != null) try{
+                final DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
+                InputStream inputStream;
+                if (snapshot != null) {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(FairwellApplication.TAG, "Disk cache hit");
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    inputStream = snapshot.getInputStream(FairwellApplication.DISK_CACHE_INDEX);
+                    if (inputStream != null) {
+                        FileDescriptor fd = ((FileInputStream) inputStream).getFD();
+
+                        // Decode bitmap, but we don't want to sample so give
+                        // MAX_VALUE as the target dimensions
+                        bitmap = getBitmapFromByte(IOUtils.toByteArray(inputStream));
+                        //bitmap = ImageResizer.decodeSampledBitmapFromDescriptor(fd, Integer.MAX_VALUE, Integer.MAX_VALUE, this);
+                    }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         return bitmap;
@@ -504,11 +505,8 @@ public class AccountSettingFragment extends Fragment {
     public static File getDiskCacheDir(Context context, String uniqueName) {
         // Check if media is mounted or storage is built-in, if so, try and use external cache dir
         // otherwise use internal cache dir
-
-        final String cachePath =
-                (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                        !isExternalStorageRemovable()) ? getExternalCacheDir(context).getPath() :
-                        context.getCacheDir().getPath();
+        final String cachePath = (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+                !isExternalStorageRemovable()) ? getExternalCacheDir(context).getPath() : context.getCacheDir().getPath();
         return new File(cachePath + File.separator + uniqueName);
     }
 
@@ -536,8 +534,23 @@ public class AccountSettingFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //startActivityForResult(Intent.createChooser(new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT), "Select picture"), REQUEST_PICTURE);
-                Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, REQUEST_PICTURE);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                // Set dialog properties
+                builder.setItems(new String[]{"Gallery", "Camera"}, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dlg, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        if (which == 0) { //select from gallery
+                            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            startActivityForResult(intent, REQUEST_PICTURE);
+                        } else if (which == 1) { //select to take a photo
+                            dispatchTakePictureIntent();
+                        }
+                    }
+                });
+                final AlertDialog dlg = builder.create();
+                dlg.show();
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -548,6 +561,55 @@ public class AccountSettingFragment extends Fragment {
         });
         final AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    /**
+     *  Save the Image file of photo captured
+     **/
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(parent.getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Log.i("IOException camera","IOException creating image file");
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                mCurrentPhotoUri = Uri.fromFile(photoFile);
+                //takePictureIntent.setData(tempUri);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCurrentPhotoUri);
+                startActivityForResult(takePictureIntent, REQUEST_CAMERA);
+            }
+        }
+    }
+
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        parent.sendBroadcast(mediaScanIntent);
     }
 
     private void saveAccountSetting(){
@@ -571,18 +633,15 @@ public class AccountSettingFragment extends Fragment {
             user.put("addressLine1",addressLine1String);
             user.put("addressLine2",addressLine2String);
             user.put("selfDescription",selfDescriptionString);
-            user.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    if(e == null) {
-                        Toast.makeText(getContext(), "Data Saved", Toast.LENGTH_SHORT).show();
-                        ((TextView) rootView.findViewById(R.id.profile_name_view)).setText(Utility.getProfileName(user));
-                    } else {
-                        Toast.makeText(getContext(), "Fail to save data", Toast.LENGTH_SHORT).show();
-                    }
-                    hideProgressBar();
-                }
-            });
+            try {
+                user.save();
+                Toast.makeText(getContext(), "Data Saved", Toast.LENGTH_SHORT).show();
+                ((TextView) rootView.findViewById(R.id.profile_name_view)).setText(Utility.getProfileName(user));
+            } catch (ParseException e){
+                Toast.makeText(getContext(), "Fail to save data", Toast.LENGTH_SHORT).show();
+                e.getStackTrace();
+            }
+            hideProgressBar();
         } else {
             Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
         }
@@ -592,6 +651,10 @@ public class AccountSettingFragment extends Fragment {
         View progressView = getActivity().findViewById(R.id.loadingPanel);
         if(progressView != null){
             progressView.setVisibility(View.VISIBLE);
+            progressView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) { }
+            });
         }
     }
 
@@ -647,7 +710,6 @@ public class AccountSettingFragment extends Fragment {
             user.fetchIfNeeded();
             ((TextView) rootView.findViewById(R.id.profile_name_view)).setText(Utility.getProfileName(user));
             ((TextView) rootView.findViewById(R.id.email)).setText((user.getEmail()));
-
             ((EditText)rootView.findViewById(R.id.profile_name)).setText(user.getString("profileName"));
             ((EditText)rootView.findViewById(R.id.first_name)).setText(user.getString("First_Name"));
             ((EditText)rootView.findViewById(R.id.last_name)).setText(user.getString("Last_Name"));
@@ -659,4 +721,5 @@ public class AccountSettingFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
 }

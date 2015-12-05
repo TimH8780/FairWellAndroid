@@ -78,7 +78,6 @@ public class ContentActivity extends AppCompatActivity{
     public static double OWE_BALANCE = 0.00;
 
     private boolean verification = false;
-
     protected MenuDrawer mMenuDrawer;
     private int mActivePosition = -1;
     private String mContentText;
@@ -137,9 +136,7 @@ public class ContentActivity extends AppCompatActivity{
         mMenuDrawer.setMenuView(mList);
         mMenuDrawer.setOnInterceptMoveEventListener(new MenuDrawer.OnInterceptMoveEventListener() {
             @Override
-            public boolean isViewDraggable(View v, int dx, int x, int y) {
-                return v instanceof SeekBar;
-            }
+            public boolean isViewDraggable(View v, int dx, int x, int y) {return v instanceof SeekBar;}
         });
 
         //Prompt Facebook and Twitter User to setup email
@@ -159,8 +156,8 @@ public class ContentActivity extends AppCompatActivity{
         new Thread(checkForUpdate).start();
 
         String notificationKey = getIntent().getStringExtra("notificationKey");
-        if(notificationKey!=null){
-            if(notificationKey.equals("FRIEND_REQUEST")||notificationKey.equals("FRIEND_REQUEST_ACCEPTED")){
+        if(notificationKey != null){
+            if(notificationKey.equals("FRIEND_REQUEST") || notificationKey.equals("FRIEND_REQUEST_ACCEPTED")){
                 switchFriends();
             }
         }
@@ -176,10 +173,6 @@ public class ContentActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        // We should save our menu so we can use it to reset our updater.
-        // mymenu = menu;
-
         return true;
     }
 

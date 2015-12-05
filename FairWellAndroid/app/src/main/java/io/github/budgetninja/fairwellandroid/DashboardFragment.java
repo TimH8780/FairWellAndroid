@@ -250,7 +250,6 @@ public class DashboardFragment extends ListFragment {
         super.onCreate(bundle);
         setHasOptionsMenu(true);
         parent = (ContentActivity)getActivity();
-
         adapter = new SimpleAdapter(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1);
     }
 
@@ -307,13 +306,9 @@ public class DashboardFragment extends ListFragment {
         setListAdapter(adapter);
     }
 
+    private class SimpleAdapter extends ArrayAdapter<Item> implements PinnedSectionListView.PinnedSectionListAdapter {
 
-    class SimpleAdapter extends ArrayAdapter<Item> implements PinnedSectionListView.PinnedSectionListAdapter {
-
-        private final int[] COLORS = new int[] {
-                R.color.green_light, R.color.orange_light,
-                R.color.blue_light, R.color.red_light
-        };
+        private final int[] COLORS = new int[] {R.color.green_light, R.color.orange_light, R.color.blue_light, R.color.red_light};
 
         public SimpleAdapter(Context context, int resource, int textViewResourceId) {
             super(context, resource, textViewResourceId);
@@ -336,10 +331,10 @@ public class DashboardFragment extends ListFragment {
             section.listPosition = listPosition++;
             add(section);
 
-            for (int i = data.size()-1; i >= 0; i--) {
+            for (int i = data.size() - 1; i >= 0; i--) {
                 int index = data.get(i).indexOf("|");
                 String month = data.get(i).substring(0, index - 1);
-                String message = data.get(i).substring(index+2);
+                String message = data.get(i).substring(index + 2);
                 if(!month.equals(currentMonth)){
                     currentMonth = month;
                     section = new Item(Item.SECTION, month);
@@ -391,11 +386,10 @@ public class DashboardFragment extends ListFragment {
         }
     }
 
-    static class Item {
+    private static class Item {
 
         public static final int ITEM = 0;
         public static final int SECTION = 1;
-
         public final int type;
         public final String text;
         public int sectionPosition;

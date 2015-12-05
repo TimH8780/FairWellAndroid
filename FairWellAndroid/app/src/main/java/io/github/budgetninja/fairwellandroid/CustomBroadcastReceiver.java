@@ -15,8 +15,8 @@ import org.json.JSONObject;
 
 public class CustomBroadcastReceiver extends ParsePushBroadcastReceiver {
 
-    int NOTIFY_ID_FRIEND_REQUEST=1;
-    int NOTIFY_ID_FRIEND_REQUEST_ACCEPTED=2;
+    int NOTIFY_ID_FRIEND_REQUEST = 1;
+    int NOTIFY_ID_FRIEND_REQUEST_ACCEPTED = 2;
 
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -35,14 +35,13 @@ public class CustomBroadcastReceiver extends ParsePushBroadcastReceiver {
 
                 Intent go_onClick = new Intent(context, ContentActivity.class);
                 go_onClick.putExtra("notificationKey", "FRIEND_REQUEST");
-                PendingIntent onClick_wrapper = PendingIntent.getActivity(context, 0, go_onClick,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent onClick_wrapper = PendingIntent.getActivity(context, 0, go_onClick, PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.setContentIntent(onClick_wrapper);
 
-                NotificationManager mNotifyMgr =
-                        (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 mNotifyMgr.notify(NOTIFY_ID_FRIEND_REQUEST, builder.build());
-            } else if (notificationKey.equals("FRIEND_REQUEST_ACCEPTED")){
+            }
+            else if (notificationKey.equals("FRIEND_REQUEST_ACCEPTED")){
                 final String userTwoUsername = json.getString("userTwoUsername");
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
                 builder.setContentTitle("Fairwell");
@@ -55,12 +54,11 @@ public class CustomBroadcastReceiver extends ParsePushBroadcastReceiver {
                 PendingIntent onClick_wrapper = PendingIntent.getActivity(context, 0, go_onClick, PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.setContentIntent(onClick_wrapper);
 
-                NotificationManager mNotifyMgr =
-                        (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 mNotifyMgr.notify(NOTIFY_ID_FRIEND_REQUEST_ACCEPTED, builder.build());
             }
         } catch (JSONException e) {
-            Log.d("error", e.getMessage());
+            Log.d("Error", e.getMessage());
         }
     }
 }

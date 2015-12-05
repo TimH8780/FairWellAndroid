@@ -34,6 +34,7 @@
                     android:paddingTop="20dp"
                     android:paddingLeft="10dp"
                     android:textSize="25dp"
+                    android:text="Name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
@@ -41,6 +42,7 @@
                     android:id="@+id/email"
                     android:paddingLeft="10dp"
                     android:textSize="18dp"
+                    android:text="Email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
@@ -86,6 +88,7 @@
                     android:singleLine="true"
                     android:paddingLeft="10dp"
                     android:hint="Profile Name"
+                    android:inputType="textCapWords"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
@@ -113,6 +116,7 @@
                         android:layout_weight="1"
                         android:paddingLeft="10dp"
                         android:hint="First name"
+                        android:inputType="textPersonName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
 
@@ -122,6 +126,7 @@
                         android:layout_weight="1"
                         android:paddingLeft="10dp"
                         android:hint="Last name"
+                        android:inputType="textPersonName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
 
@@ -145,6 +150,7 @@
                     android:singleLine="true"
                     android:paddingLeft="10dp"
                     android:hint="Phone number"
+                    android:inputType="phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
@@ -166,6 +172,7 @@
                     android:singleLine="true"
                     android:paddingLeft="10dp"
                     android:hint="Address line 1"
+                    android:inputType="textPostalAddress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
@@ -182,11 +189,11 @@
                     android:layout_height="25dp"/>
 
                 <EditText
-
                     android:id="@+id/address_line_2"
                     android:singleLine="true"
                     android:paddingLeft="10dp"
                     android:hint="Address line 2"
+                    android:inputType="textPostalAddress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
@@ -211,6 +218,7 @@
                     android:maxLines="4"
                     android:paddingLeft="10dp"
                     android:hint="Something about yourself"
+                    android:inputType="textCapSentences"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 

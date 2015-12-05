@@ -4,25 +4,29 @@ package io.github.budgetninja.fairwellandroid;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
-import android.renderscript.ScriptGroup;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -33,7 +37,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -46,27 +49,41 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParseFile;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
 import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
 
+import static android.app.Activity.RESULT_OK;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_SUBMIT_STATEMENT_SUMMARY;
+import static io.github.budgetninja.fairwellandroid.Utility.getBytesFromBitmap;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class AddStatementFragment extends Fragment {
 
+    View rootView;
+    Spinner paidBySpinner;
+    Spinner modeSpinner;
+    Button addMemberButton;
+    Button addSnapshotButton;
+    Button addNoteButton;
+    Button confirmButton;
     private View previousState;
     private boolean pageCheck;
     private boolean isAmountChanged;
@@ -103,6 +120,13 @@ public class AddStatementFragment extends Fragment {
     public static final int SPLIT_EQUALLY = 0;
     public static final int SPLIT_UNEQUALLY = 1;
     public static final int SPLIT_BY_RATIO = 2;
+
+    private static int REQUEST_PICTURE =1;
+    private static int REQUEST_CAMERA = 3;
+    private String mCurrentPhotoPath;
+    private Uri mCurrentPhotoUri;
+    private ParseFile picture;
+    private String noteString = "";
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -141,8 +165,10 @@ public class AddStatementFragment extends Fragment {
         }
 
         // First item: User himself, Last item: hint
-        friendList.add(0, new Friend(null, null, user, "Self", null, -1, -1, false, true, true));
-        friendList.add(friendList.size(),new Friend(null, null, user, "Select Payer", null, -1, -1, false, true, true));
+        friendList.add(0, new Friend(null, null, user, "Self", null, -1, -1, false, true, true, null, null, null,
+                null, null, null));
+        friendList.add(friendList.size(),new Friend(null, null, user, "Select Payer", null, -1, -1, false, true, true, null, null,
+                null, null, null, null));
 
         friendSelected = new Double[friendList.size()];
 
@@ -175,13 +201,13 @@ public class AddStatementFragment extends Fragment {
             dateRecord.set(DEADLINE + YEAR, 2101);
         }
 
-        View rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
-        Spinner paidBySpinner = (Spinner) rootView.findViewById(R.id.spinner);
-        final Spinner modeSpinner = (Spinner) rootView.findViewById(R.id.spinner2);
-        Button addMemberButton = (Button) rootView.findViewById(R.id.addMemberButton);
-        Button addSnapshotButton = (Button) rootView.findViewById(R.id.addSnapshotButton);
-        Button addNoteButton = (Button) rootView.findViewById(R.id.addNoteButton);
-        Button confirmButton = (Button) rootView.findViewById(R.id.confirmButton);
+        rootView = inflater.inflate(R.layout.fragment_add_statement, container, false);
+        paidBySpinner = (Spinner) rootView.findViewById(R.id.spinner);
+        modeSpinner = (Spinner) rootView.findViewById(R.id.spinner2);
+        addMemberButton = (Button) rootView.findViewById(R.id.addMemberButton);
+        addSnapshotButton = (Button) rootView.findViewById(R.id.addSnapshotButton);
+        addNoteButton = (Button) rootView.findViewById(R.id.addNoteButton);
+        confirmButton = (Button) rootView.findViewById(R.id.confirmButton);
         moneyAmount = (EditText) rootView.findViewById(R.id.moneyAmount);
         description = (EditText) rootView.findViewById(R.id.statement_description);
         clickedText = (TextView) rootView.findViewById(R.id.clickText);
@@ -248,8 +274,7 @@ public class AddStatementFragment extends Fragment {
                 displayMemberSelected();
             }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { /* do nothing */ }
+            @Override public void onNothingSelected(AdapterView<?> parent) { /* do nothing */ }
         });
 
         modeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -265,8 +290,7 @@ public class AddStatementFragment extends Fragment {
                 displayMemberSelected();
             }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { /* do nothing */ }
+            @Override public void onNothingSelected(AdapterView<?> parent) { /* do nothing */ }
         });
 
         confirmButton.setOnClickListener(confirmButtonListener);
@@ -327,14 +351,28 @@ public class AddStatementFragment extends Fragment {
         addSnapshotButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(parent, "Unavailable now", Toast.LENGTH_SHORT).show();
+                promptUploadPhotoDialog();
             }
         });
 
         addNoteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(parent, "Unavailable now", Toast.LENGTH_SHORT).show();
+                final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                final EditText userInput = new EditText(getActivity());
+                builder.setTitle("Add Notes");
+                builder.setView(userInput);
+
+                builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        noteString = userInput.getText().toString();
+                        addNoteButton.setText("Notes added");
+                    }
+                });
+                builder.setNegativeButton("Cancel", null);
+                final AlertDialog dialog = builder.create();
+                dialog.show();
             }
         });
 
@@ -379,6 +417,114 @@ public class AddStatementFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Uri pictureUri;
+        if ((requestCode == REQUEST_PICTURE || requestCode == REQUEST_CAMERA) && resultCode == RESULT_OK) {
+            if(mCurrentPhotoPath != null){
+                pictureUri = Uri.fromFile(new File(mCurrentPhotoPath));
+                //galleryAddPic();  //add photo to gallery so that system media controller could access to it
+                mCurrentPhotoPath = null;
+            } else {
+                pictureUri = data.getData();
+            }
+            picture = new ParseFile("picture.JPEG", getBytesFromBitmap(getBitmapFromURI(pictureUri),25));
+            showProgressBar();
+            picture.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(com.parse.ParseException e) {
+                    if(e != null){
+                        Toast.makeText(getContext(),"Failed to upload image",Toast.LENGTH_SHORT).show();
+                    } else {
+                        addSnapshotButton.setText("Picture selected");
+                    }
+                    hideProgressBar();
+                }
+            });
+        }
+
+    }
+
+    public Bitmap getBitmapFromURI(Uri u){
+        try {
+            return MediaStore.Images.Media.getBitmap(parent.getContentResolver(), u);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void promptUploadPhotoDialog(){
+        //startActivityForResult(Intent.createChooser(new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT), "Select picture"), REQUEST_PICTURE);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        // Set dialog properties
+        builder.setItems(new String[]{"Gallery", "Camera"}, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dlg, int which) {
+                // The 'which' argument contains the index position of the selected item
+                if (which == 0) { //select from gallery
+                    Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(intent, REQUEST_PICTURE);
+                } else if (which == 1) { //select to take a photo
+                    dispatchTakePictureIntent();
+                }
+            }
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    /**
+     *  Save the Image file of photo captured
+     **/
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        galleryAddPic();
+        return image;
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(parent.getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Log.i("IOException camera", "IOException creating image file");
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                mCurrentPhotoUri = Uri.fromFile(photoFile);
+                //takePictureIntent.setData(tempUri);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCurrentPhotoUri);
+                startActivityForResult(takePictureIntent, REQUEST_CAMERA);
+            }
+        }
+    }
+
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        parent.sendBroadcast(mediaScanIntent);
+    }
+
     protected void setClickedIconText(String string) {
         if (!string.equals("")) {
             clickedText.setText(string);
@@ -414,7 +560,6 @@ public class AddStatementFragment extends Fragment {
                         data.append("(").append((int) this.counter).append(" non-Fairwell users)").append("\n");
                     }
                 }
-
             } else{
                 text.setText("Selected Member [" + Integer.toString(counter) + "]");
             }
@@ -424,8 +569,6 @@ public class AddStatementFragment extends Fragment {
         }
     }
 
-
-
     private View.OnClickListener confirmButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -433,6 +576,8 @@ public class AddStatementFragment extends Fragment {
                 Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
                 return;
             }
+            String note = noteString;
+            ParseFile pic = picture;
             String descr = description.getText().toString();
             String categ = clickedText.getText().toString();
             String amount = moneyAmount.getText().toString();
@@ -456,7 +601,6 @@ public class AddStatementFragment extends Fragment {
                         }
                     }
                 }
-
                 parent.layoutManage(INDEX_SUBMIT_STATEMENT_SUMMARY);
                 pageCheck = true;
 
@@ -490,9 +634,9 @@ public class AddStatementFragment extends Fragment {
                     if(modePosition == SPLIT_EQUALLY){ unknown = (int)counter; }
                     else if(modePosition == SPLIT_BY_RATIO){ unknown = 0; }
                     else { unknown = -1; }
-
-                    SummaryStatement summaryStatement = new SummaryStatement(descr, categ, format.parse(date), format.parse(deadline),
+                    SummaryStatement summaryStatement = new SummaryStatement(note, pic, descr, categ, format.parse(date), format.parse(deadline),
                             modePosition, unknown, Double.valueOf(amount), payee, selectedMember);
+
                     parent.setSubmitStatementSummaryData(summaryStatement);
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -727,11 +871,10 @@ public class AddStatementFragment extends Fragment {
     }
 
     private void setDate(int year, int month, int day, int viewSel) {
-        if(isValidDate(year, month, day, viewSel)) {
+        if(isValidDate(year, month, day, viewSel)){
             dateRecord.set(viewSel + YEAR, year);
             dateRecord.set(viewSel + MONTH, month);
             dateRecord.set(viewSel + DAY, day);
-
             StringBuilder data = new StringBuilder("");
             data.append(String.format("%02d",month + 1)).append("/").append(String.format("%02d", day)).append("/").append(year);
 
@@ -830,6 +973,7 @@ public class AddStatementFragment extends Fragment {
             private Button button;
 
             public RepeatUpdater(View v) { button = (Button) v; }
+
             public void run() {
                 if(mAutoIncrement){
                     Pair<Integer, Button> tag = (Pair) button.getTag();
@@ -922,6 +1066,7 @@ public class AddStatementFragment extends Fragment {
                     }
                 }
             });
+
             viewHolder.plus.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -930,6 +1075,7 @@ public class AddStatementFragment extends Fragment {
                     return false;
                 }
             });
+
             viewHolder.plus.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -965,6 +1111,7 @@ public class AddStatementFragment extends Fragment {
                     }
                 }
             });
+
             viewHolder.minus.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -973,6 +1120,7 @@ public class AddStatementFragment extends Fragment {
                     return false;
                 }
             });
+
             viewHolder.minus.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -1089,7 +1237,21 @@ public class AddStatementFragment extends Fragment {
         }
     }
 
+    private void showProgressBar(){
+        View progressView = getActivity().findViewById(R.id.loadingPanel);
+        if(progressView != null){
+            progressView.setVisibility(View.VISIBLE);
+            progressView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) { }
+            });
+        }
+    }
 
-
-
+    private void hideProgressBar(){
+        View progressView = getActivity().findViewById(R.id.loadingPanel);
+        if(progressView != null){
+            progressView.setVisibility(View.GONE);
+        }
+    }
 }
