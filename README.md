@@ -6,7 +6,6 @@ Chern Yee Chua <chernyee@buffalo.edu>
 <return>
 <return>
 
-Note from Tim: Most likely I will finish and upload all of my parts on Friday or Saturday
 
 ###### To-do Lists *(Updated on 12/04)*
 * **Tutorial Page** - Issac https://github.com/PaoloRotolo/AppIntro
