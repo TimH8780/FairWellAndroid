@@ -263,27 +263,6 @@ public class HomepageFragment extends Fragment {
         }
     }
 
-    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-        System.out.println("outHeight and outWidth" + height + "," + width);
-        if (height > reqHeight || width > reqWidth) {
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-        System.out.println("inSampleSize = " + inSampleSize);
-        return inSampleSize;
-    }
-
     public static Bitmap decodeSampledBitmapFromByteArray(byte[] res, int reqWidth, int reqHeight) {
         System.out.println("decodeSampleBitmapFromByteArray: reqWidth+reqHeight = " + reqWidth + "," + reqHeight);
         // First decode with inJustDecodeBounds=true to check dimensions
@@ -292,7 +271,7 @@ public class HomepageFragment extends Fragment {
         BitmapFactory.decodeByteArray(res, 0, res.length, options);
         System.out.println("decodeSampleBitmapFromByteArray InjustdecodeBounds: outWidth+outHeight = " + options.outWidth + "," + options.outHeight);
         // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+        options.inSampleSize = Utility.calculateInSampleSize(options, reqWidth, reqHeight);
         // Decode bitmap with inSampleSize set
         options.inJustDecodeBounds = false;
         Bitmap result = BitmapFactory.decodeByteArray(res, 0, res.length, options);

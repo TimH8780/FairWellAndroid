@@ -119,12 +119,12 @@ public class Utility {
                 try {
                     ParseObject object = rawList.get(i).fetch();
                     if (user.getObjectId().equals(object.getParseUser("userOne").getObjectId())) {
-                        user = object.getParseUser("userTwo");
+                        user = object.getParseUser("userTwo").fetch();
                         userowed = object.getDouble("owedByOne");
                         friendowed = object.getDouble("owedByTwo");
                         isUserOne = true;
                     } else {
-                        user = object.getParseUser("userOne");
+                        user = object.getParseUser("userOne").fetch();
                         userowed = object.getDouble("owedByTwo");
                         friendowed = object.getDouble("owedByOne");
                         isUserOne = false;
@@ -515,5 +515,26 @@ public class Utility {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, rate, stream);
         return stream.toByteArray();
+    }
+
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+        System.out.println("outHeight and outWidth" + height + "," + width);
+        if (height > reqHeight || width > reqWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        System.out.println("inSampleSize = " + inSampleSize);
+        return inSampleSize;
     }
 }

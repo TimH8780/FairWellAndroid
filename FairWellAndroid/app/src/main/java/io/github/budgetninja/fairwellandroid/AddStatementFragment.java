@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -436,7 +437,8 @@ public class AddStatementFragment extends Fragment {
             } else {
                 pictureUri = data.getData();
             }
-            picture = new ParseFile("picture.JPEG", getBytesFromBitmap(getBitmapFromURI(pictureUri),25));
+
+            picture = new ParseFile("picture.JPEG", getBytesFromBitmap(getBitmapFromURI(pictureUri),100));
             showProgressBar();
             picture.saveInBackground(new SaveCallback() {
                 @Override
@@ -453,13 +455,30 @@ public class AddStatementFragment extends Fragment {
 
     }
 
-    public Bitmap getBitmapFromURI(Uri u){
+/*    public Bitmap getBitmapFromURI(Uri u){
         try {
             return MediaStore.Images.Media.getBitmap(parent.getContentResolver(), u);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
+    }
+    */
+
+    public Bitmap getBitmapFromURI(Uri u){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
+        int imageHeight = options.outHeight;
+        int imageWidth = options.outWidth;
+        //String imageType = options.outMimeType;
+
+        int DPI = Utility.getDPI(parent.getApplicationContext());
+        int PIXEL_PHOTO = 500 * (DPI / 160);
+        options.inSampleSize = Utility.calculateInSampleSize(options, PIXEL_PHOTO, PIXEL_PHOTO);
+        options.inJustDecodeBounds = false;
+
+        return BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
     }
 
     public void promptUploadPhotoDialog(){

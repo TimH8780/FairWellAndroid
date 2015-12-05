@@ -59,6 +59,7 @@ public class FriendsFragment extends Fragment{
     private static final int IMAGE_WIDTH_HEIGHT = 80;
     private ParseUser user;
     private ContentActivity parent;
+    private List<Friend> friendList;
     private FriendAdaptor adapter;
     protected FragmentManager fragMgr;
     protected FragmentTransaction fragTrans;
@@ -83,7 +84,6 @@ public class FriendsFragment extends Fragment{
         }
         parent.setTitle("Friend");
 
-        final List<Friend> friendList;
         if(parent.isNetworkConnected()) { friendList = Utility.generateFriendArray(); }
         else { friendList = Utility.generateFriendArrayOffline(); }
 
@@ -488,6 +488,7 @@ public class FriendsFragment extends Fragment{
                     parent.mMenuDrawer.closeMenu(false);
                     parent.fragMgr.popBackStack();
                     return true;
+
                 default:
                     return super.onOptionsItemSelected(item);
             }
@@ -611,6 +612,8 @@ public class FriendsFragment extends Fragment{
                     } else {
                         address.setText(object.address_1);
                     }
+                } else if(object.address_2 != null && !object.address_2.isEmpty()) {
+                    address.setText(object.address_2);
                 }
             }
             if(object.selfDescription != null && !object.selfDescription.isEmpty()) {

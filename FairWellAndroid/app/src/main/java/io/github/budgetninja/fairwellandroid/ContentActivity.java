@@ -700,6 +700,7 @@ public class ContentActivity extends AppCompatActivity{
             else if(type == DASHBOARD_REFRESH){ dialog.setMessage("Refreshing Dashboard... Please Wait..."); }
             else if(type == FRIEND_REFRESH){ dialog.setMessage("Refreshing Friend List... Please Wait..."); }
             else{ dialog.setMessage("Refreshing Statement List... Please Wait..."); }
+
             dialog.show();
             dialog.setCancelable(false);
             checkForUpdate.pause();
