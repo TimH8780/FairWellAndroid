@@ -1,6 +1,10 @@
 package io.github.budgetninja.fairwellandroid;
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.widget.Toast;
 
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
@@ -11,13 +15,19 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.Arrays;
+import java.util.List;
+
+import static io.github.budgetninja.fairwellandroid.ContentActivity.OWE_BALANCE;
 
 /**
  *Created by Tim on 11/03/15.
  */
 public class FriendObject {
 
-    public static class Friend implements Comparable<Friend>{
+    public static class Friend implements Comparable<Friend> {
+
+        private static final int CONFIRM = 0;
+        private static final int DELETE = 1;
 
         private String parseObjectID;
         private ParseObject friendRelationship;
@@ -34,7 +44,7 @@ public class FriendObject {
 
         Friend(String parseObjectID, ParseObject friendRelation, ParseUser friend, String displayName, String email, double currentUserOwed,
                double friendOwed, boolean isPendingStatement, boolean confirm, boolean isUserOne, String firstName, String lastName,
-               String phoneNumber, String address_1, String address_2, String selfDescription){
+               String phoneNumber, String address_1, String address_2, String selfDescription) {
             this.friend = friend;
             obtainPhoto();
             this.parseObjectID = parseObjectID;
@@ -56,11 +66,11 @@ public class FriendObject {
         }
 
         @Override
-        public int compareTo(@NonNull Friend another){
+        public int compareTo(@NonNull Friend another) {
             return displayName.compareToIgnoreCase(another.displayName);
         }
 
-        private void obtainPhoto(){
+        private void obtainPhoto() {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -83,33 +93,33 @@ public class FriendObject {
             }).start();
         }
 
-        public boolean hasPhoto(){
-            if(photo != null){
+        public boolean hasPhoto() {
+            if (photo != null) {
                 reload = false;
                 return true;
             }
-            if(!reload){
+            if (!reload) {
                 obtainPhoto();
                 reload = true;
             }
             return false;
         }
 
-        protected ParseObject insertParseUser(ParseObject object, String key){
+        protected ParseObject insertParseUser(ParseObject object, String key) {
             object.put(key, friend);
             return object;
         }
 
-        protected ParseObject insertFriendship(ParseObject object, String key){
+        protected ParseObject insertFriendship(ParseObject object, String key) {
             object.put(key, friendRelationship);
             return object;
         }
 
-        public String getRealName(){
+        public String getRealName() {
             return firstName + " " + lastName;
         }
 
-        public ParseObject generateFriendToFriendRelationship(final Friend another){
+        public ParseObject generateFriendToFriendRelationship(final Friend another) {
             ParseQuery<ParseObject> query = ParseQuery.getQuery("FriendList");
             ParseUser[] list = {friend, another.friend};
             query.whereContainedIn("userOne", Arrays.asList(list));
@@ -135,43 +145,36 @@ public class FriendObject {
             }
         }
 
-        public void setConfirm(){
-            friendRelationship.put("confirmed", true);
-            friendRelationship.saveInBackground();
-            confirm = true;
-            Utility.editNewEntryField(friend, true, Utility.getName(user) + " confirmed your friend request");
-            Utility.editNewEntryField(user, "You confirmed the friend request from " + Utility.getName(friend));
+        public void setConfirm(Context context) {
+            FriendProcess task = new FriendProcess(context, CONFIRM, null, null);
+            task.execute();
         }
 
-        public void setPendingStatement(){
+        public void setPendingStatement() {
             try {
                 friendRelationship.put("pendingStatement", true);
                 isPendingStatement = true;
                 friendRelationship.save();
-            } catch (ParseException e){
+            } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
 
-        public void deleteFriend(String message_you, String message_friend){
-            ParseObject object = Utility.getRawListLocation();
-            object.getList("list").remove(friendRelationship);
-            object.pinInBackground();
-            friendRelationship.deleteInBackground();
+        public void deleteFriend(Context context, String message_you, String message_friend) {
+            FriendProcess task = new FriendProcess(context, DELETE, message_you, message_friend);
+            task.execute();
+        }
+
+        public void notifyChange(String message_you, String message_friend) {
             Utility.editNewEntryField(friend, true, message_friend);
             Utility.editNewEntryField(user, message_you);
         }
 
-        public void notifyChange(String message_you, String message_friend){
-            Utility.editNewEntryField(friend, true, message_friend);
-            Utility.editNewEntryField(user, message_you);
-        }
-
-        public String toString(){       //For arrayAdapter
+        public String toString() {       //For arrayAdapter
             return displayName;
         }
 
-        public String toStringAllData(){
+        public String toStringAllData() {
             StringBuilder builder = new StringBuilder();
             builder.append(displayName).append(" | ");
             builder.append(email).append(" | ");
@@ -190,12 +193,69 @@ public class FriendObject {
             return builder.toString();
         }
 
-        public boolean isEqual(Friend another){
+        public boolean isEqual(Friend another) {
             return parseObjectID.equals(another.parseObjectID);
         }
 
-        public boolean isSamePerson(ParseUser another){
+        public boolean isSamePerson(ParseUser another) {
             return friend.getObjectId().equals(another.getObjectId());
+        }
+
+        private class FriendProcess extends AsyncTask<Boolean, Void, Boolean> {
+            private ProgressDialog dialog;
+            private Context activity;
+            private int type;
+            private String message_you, message_friend;
+
+            public FriendProcess(Context activity, int type, String message_you, String message_friend) {
+                dialog = new ProgressDialog(activity);
+                this.activity = activity;
+                this.type = type;
+                this.message_you = message_you;
+                this.message_friend = message_friend;
+            }
+
+            @Override
+            protected void onPreExecute() {
+                dialog.setMessage("Processing... Please Wait...");
+                dialog.setCancelable(false);
+                dialog.show();
+            }
+
+            @Override
+            protected Boolean doInBackground(Boolean... params) {
+                if (type == CONFIRM) {
+                    friendRelationship.put("confirmed", true);
+                    friendRelationship.saveInBackground();
+                    confirm = true;
+                    Utility.editNewEntryField(friend, true, Utility.getName(user) + " confirmed your friend request");
+                    Utility.editNewEntryField(user, "You confirmed the friend request from " + Utility.getName(friend));
+                }
+
+                if (type == DELETE) {
+                    ParseObject object = Utility.getRawListLocation();
+                    object.getList("list").remove(friendRelationship);
+                    object.pinInBackground();
+                    friendRelationship.deleteInBackground();
+                    Utility.editNewEntryField(friend, true, message_friend);
+                    Utility.editNewEntryField(user, message_you);
+                }
+                return true;
+            }
+
+            @Override
+            protected void onPostExecute(Boolean result) {
+                if (dialog.isShowing()) {
+                    dialog.dismiss();
+                }
+                if(type == CONFIRM){
+                    FriendsFragment.FriendDetailFragment fragment =
+                            (FriendsFragment.FriendDetailFragment)((ContentActivity) activity).fragMgr.findFragmentByTag("Friend_Detail");
+                    if(fragment != null){
+                        fragment.dataDisplay();
+                    }
+                }
+            }
         }
     }
 

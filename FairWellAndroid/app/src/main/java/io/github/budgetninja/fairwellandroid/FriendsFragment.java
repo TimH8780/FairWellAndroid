@@ -416,9 +416,14 @@ public class FriendsFragment extends Fragment{
         private Button confirm, reject, delete;
         private ImageView picture;
         private TextView name, email, profileName, realName, phone, address, description;
+        private View previousView;
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            if(previousView != null){
+                return previousView;
+            }
+
             final View rootView = inflater.inflate(R.layout.fragment_friend_detail, container, false);
             ActionBar actionBar = parent.getSupportActionBar();
             if (actionBar != null) {
@@ -440,6 +445,7 @@ public class FriendsFragment extends Fragment{
             description = (TextView) rootView.findViewById(R.id.description_view);
             picture = (ImageView) rootView.findViewById(R.id.picture);
 
+            previousView = rootView;
             return rootView;
         }
 
@@ -447,6 +453,7 @@ public class FriendsFragment extends Fragment{
         public void onCreate( Bundle savedInstanceState) {
             parent = (ContentActivity)getActivity();
             setHasOptionsMenu(true);
+            previousView = null;
             super.onCreate(savedInstanceState);
         }
 
@@ -493,7 +500,7 @@ public class FriendsFragment extends Fragment{
                         Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    object.setConfirm();
+                    object.setConfirm(parent);
                     confirm.setVisibility(View.GONE);
                     reject.setVisibility(View.GONE);
                     delete.setVisibility(View.VISIBLE);
@@ -521,7 +528,7 @@ public class FriendsFragment extends Fragment{
                             if (object.currentUserOwed > 0 || object.friendOwed > 0 || object.isPendingStatement) {
                                 Toast.makeText(parent, "You can't delete friend with non-zero balance/ pending statement!", Toast.LENGTH_LONG).show();
                             } else {
-                                object.deleteFriend("You denied the friend request from " + object.getRealName(), null);
+                                object.deleteFriend(parent, "You denied the friend request from " + object.getRealName(), null);
                                 Utility.removeFromExistingFriendList(object);
                                 parent.fragMgr.popBackStack();
                             }
@@ -553,7 +560,7 @@ public class FriendsFragment extends Fragment{
                             if (object.currentUserOwed > 0 || object.friendOwed > 0 || object.isPendingStatement) {
                                 Toast.makeText(parent, "You can't delete friend with non-zero balance/ pending statement!", Toast.LENGTH_LONG).show();
                             } else {
-                                object.deleteFriend("You deleted the friendship with " + object.getRealName(), null);
+                                object.deleteFriend(parent, "You deleted the friendship with " + object.getRealName(), null);
                                 Utility.removeFromExistingFriendList(object);
                                 parent.fragMgr.popBackStack();
                             }
@@ -566,7 +573,7 @@ public class FriendsFragment extends Fragment{
             });
         }
 
-        private void dataDisplay(){
+        public void dataDisplay(){
             if(object.hasPhoto()){
                 int DPI = getDPI(parent);
                 int pixel = IMAGE_WIDTH_HEIGHT * (DPI / 160);
@@ -577,14 +584,16 @@ public class FriendsFragment extends Fragment{
             email.setText(object.email);
             profileName.setText(object.displayName);
             realName.setText(object.getRealName());
-            if(object.phoneNumber != null && !object.phoneNumber.isEmpty()) {
-                phone.setText(object.phoneNumber);
-            }
-            if(object.address_1 != null && !object.address_1.isEmpty()){
-                if(object.address_2 != null && !object.address_2.isEmpty()){
-                    address.setText(object.address_1 + "\n" + object.address_2);
-                } else {
-                    address.setText(object.address_1);
+            if(object.confirm) {
+                if (object.phoneNumber != null && !object.phoneNumber.isEmpty()) {
+                    phone.setText(object.phoneNumber);
+                }
+                if (object.address_1 != null && !object.address_1.isEmpty()) {
+                    if (object.address_2 != null && !object.address_2.isEmpty()) {
+                        address.setText(object.address_1 + "\n" + object.address_2);
+                    } else {
+                        address.setText(object.address_1);
+                    }
                 }
             }
             if(object.selfDescription != null && !object.selfDescription.isEmpty()) {

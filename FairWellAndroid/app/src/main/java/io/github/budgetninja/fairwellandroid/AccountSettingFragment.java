@@ -644,6 +644,12 @@ public class AccountSettingFragment extends Fragment {
                 Toast.makeText(getContext(), "Fail to save data", Toast.LENGTH_SHORT).show();
                 e.getStackTrace();
             }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Utility.setNewEntryFieldForAllFriend();
+                }
+            }).start();
             hideProgressBar();
         } else {
             Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();

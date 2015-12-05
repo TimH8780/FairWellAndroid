@@ -216,7 +216,8 @@ public class Utility {
             int pos = searchPosition(0, pFriendList.size(), newItem);
             pFriendList.add(pos, newItem);
         }
-        newItem.notifyChange("You sent a friend request to " + newItem.getRealName(), newItem.getRealName() + " sent you a friend request");
+        newItem.notifyChange("You sent a friend request to " + newItem.getRealName(),
+                getName(ParseUser.getCurrentUser()) + " sent you a friend request");
     }
 
     private static int searchPosition(int start, int end, Friend item){
