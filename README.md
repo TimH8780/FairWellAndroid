@@ -8,7 +8,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
 
 Note from Tim: Most likely I will finish and upload all of my parts on Friday or Saturday
 
-###### To-do Lists *(Updated on 12/03)*
+###### To-do Lists *(Updated on 12/04)*
 * **Tutorial Page** - Issac https://github.com/PaoloRotolo/AppIntro
 * ~~**Login Page**~~
   * ~~Login~~
@@ -28,9 +28,9 @@ Note from Tim: Most likely I will finish and upload all of my parts on Friday or
   * Change Buttons Layout - *Will not do it for this semester*
 * ~~**Dashboard Page**~~
   * ~~Design~~
-  * ~~Offline Support~~ (*Done but not uploaded*)
-  * ~~Display Data~~ (*Done but not uploaded*)
-* **Friend Page**
+  * ~~Offline Support~~
+  * ~~Display Data~~
+* ~~**Friend Page**~~
   * ~~Search~~
   * ~~Add New Friend~~
   * ~~Remove Friend~~
@@ -39,7 +39,7 @@ Note from Tim: Most likely I will finish and upload all of my parts on Friday or
   * ~~Friend Information Display~~
   * ~~Progress Bar~~
   * ~~Display Detailed Information when Clicked~~
-  * Friend Profile - Tim
+  * ~~Friend Profile~~
 * **Smart Solve Page** - *Will not do it for this semester*
 * ~~**Account Setting Page**~~
   * ~~Offline Support~~
@@ -67,11 +67,11 @@ Note from Tim: Most likely I will finish and upload all of my parts on Friday or
   * ~~Data Check~~
   * ~~Progress Bar~~
   * ~~Submit Statement under Split Equally Mode~~
-  * ~~Submit Statement under Split Unequally Mode~~ (*Done but not uploaded*)
-  * ~~Submit Statement under Split By Ratio Mode~~ (*Done but not uploaded*)
+  * ~~Submit Statement under Split Unequally Mode~~
+  * ~~Submit Statement under Split By Ratio Mode~~
+  * ~~Add Snapshot~~
+  * ~~Add Note~~
   * Icon - Issac (I already have those awesome icons!)
-  * Add Snapshot - Mengpei
-  * Add Note - Tim
 * ~~**View Statement Summary Page**~~
   * ~~Progress Bar~~
   * ~~Cancel Statement~~
