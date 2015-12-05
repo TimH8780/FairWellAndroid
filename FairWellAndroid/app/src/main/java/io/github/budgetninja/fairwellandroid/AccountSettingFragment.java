@@ -182,6 +182,7 @@ public class AccountSettingFragment extends Fragment {
                 parent.fragMgr.popBackStack();
                 return true;
             case R.id.action_save:
+                parent.mMenuDrawer.closeMenu(false);
                 saveAccountSetting();
                 return true;
             default:

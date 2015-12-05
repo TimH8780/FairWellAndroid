@@ -360,6 +360,9 @@ public class AddStatementFragment extends Fragment {
             public void onClick(View v) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 final EditText userInput = new EditText(getActivity());
+                if(noteString != null){
+                    userInput.setText(noteString);
+                }
                 builder.setTitle("Add Notes");
                 builder.setView(userInput);
 
@@ -367,7 +370,11 @@ public class AddStatementFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         noteString = userInput.getText().toString();
-                        addNoteButton.setText("Notes added");
+                        if(noteString.isEmpty()){
+                            addNoteButton.setText("Add Notes");
+                        } else {
+                            addNoteButton.setText("Notes Added");
+                        }
                     }
                 });
                 builder.setNegativeButton("Cancel", null);

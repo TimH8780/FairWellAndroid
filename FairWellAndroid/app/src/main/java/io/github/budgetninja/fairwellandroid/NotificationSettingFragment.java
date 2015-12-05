@@ -323,6 +323,7 @@ public class NotificationSettingFragment extends Fragment {
                 return true;
 
             case R.id.action_save:
+                parent.mMenuDrawer.closeMenu(false);
                 Toast.makeText(parent, "Not function yet", Toast.LENGTH_SHORT).show();
                 return true;
 

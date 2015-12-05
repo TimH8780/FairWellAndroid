@@ -288,6 +288,7 @@ public class DashboardFragment extends ListFragment {
             return true;
         }
         if(id == R.id.action_refresh){
+            parent.mMenuDrawer.closeMenu(false);
             ContentActivity.UpdateInBackground task = parent.new UpdateInBackground(parent, DASHBOARD_REFRESH);
             task.execute();
             return true;
