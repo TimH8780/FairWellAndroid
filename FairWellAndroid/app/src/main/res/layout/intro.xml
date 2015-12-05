@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#222222"
+    android:background="#499a15"
     android:layout_weight="10"
     android:id="@+id/main">
 
@@ -18,7 +18,7 @@
         android:textColor="#ffffff"
         android:paddingRight="32dp"
         android:textSize="28sp"
-        android:text="Slide 1 title"/>
+        android:text="Welcome, Fairwell User!"/>
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -33,7 +33,7 @@
             android:layout_gravity="center"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:src="@drawable/ic_slide1"/>
+            android:src="@drawable/app_logo_small"/>
 
     </LinearLayout>
 
@@ -44,10 +44,10 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:textColor="#ffffff"
-        android:paddingLeft="64dp"
-        android:paddingRight="64dp"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
         android:textSize="16sp"
-        android:text="Loooooooooooooooo[...]ooooooooong descreption here"/>
+        android:text="Fairwell is a free app that allows users to manage their debt issues with friends easily."/>
 
     <TextView
         android:layout_width="fill_parent"

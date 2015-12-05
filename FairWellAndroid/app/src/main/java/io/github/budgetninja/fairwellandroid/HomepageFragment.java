@@ -123,9 +123,14 @@ public class HomepageFragment extends Fragment {
         parent.setTitle("Fairwell");
 
         oweBalanceView = (TextView) view.findViewById(R.id.homepage_balance_owe);
-        oweBalanceView.setText(format.format(OWE_BALANCE));
+        if (OWE_BALANCE >= 0){
+            oweBalanceView.setText("- " + format.format(OWE_BALANCE));
+        } else{
+            oweBalanceView.setText(format.format(OWE_BALANCE));
+        }
+
         ownBalanceView = (TextView) view.findViewById(R.id.homepage_balance_own);
-        ownBalanceView.setText(format.format(OWN_BALANCE));
+        ownBalanceView.setText("+ " +format.format(OWN_BALANCE));
 
         //3 Buttons Functions
         Button addStatementButton = (Button) view.findViewById(R.id.addStatementButton);
@@ -237,10 +242,14 @@ public class HomepageFragment extends Fragment {
 
     protected void setBalance(){
         if(oweBalanceView !=null) {
-            oweBalanceView.setText(format.format(OWE_BALANCE));
+            if(OWE_BALANCE >= 0){
+                oweBalanceView.setText("- " + format.format(OWE_BALANCE));
+            } else{
+                oweBalanceView.setText(format.format(OWE_BALANCE));
+            }
         }
         if(ownBalanceView != null){
-            ownBalanceView.setText(format.format(OWN_BALANCE));
+            ownBalanceView.setText("+ " +format.format(OWN_BALANCE));
         }
     }
 
