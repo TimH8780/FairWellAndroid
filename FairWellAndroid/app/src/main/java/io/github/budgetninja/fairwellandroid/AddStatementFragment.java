@@ -352,7 +352,7 @@ public class AddStatementFragment extends Fragment {
         addSnapshotButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                promptUploadPhotoDialog();
+                dispatchTakePictureIntent();
             }
         });
 
@@ -469,18 +469,12 @@ public class AddStatementFragment extends Fragment {
     */
 
     public Bitmap getBitmapFromURI(Uri u){
+
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
-        int imageHeight = options.outHeight;
-        int imageWidth = options.outWidth;
-        //String imageType = options.outMimeType;
 
         int DPI = Utility.getDPI(parent.getApplicationContext());
         int PIXEL_PHOTO = 500 * (DPI / 160);
         options.inSampleSize = Utility.calculateInSampleSize(options, PIXEL_PHOTO, PIXEL_PHOTO);
-        options.inJustDecodeBounds = false;
-
         return BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
     }
 
