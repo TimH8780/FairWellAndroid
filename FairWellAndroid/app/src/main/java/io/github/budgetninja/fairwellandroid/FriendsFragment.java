@@ -47,6 +47,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.github.budgetninja.fairwellandroid.FriendObject.Friend;
+
+import static io.github.budgetninja.fairwellandroid.ContentActivity.FRIEND_REFRESH;
 import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 /**
@@ -98,7 +100,7 @@ public class FriendsFragment extends Fragment{
                 fragTrans.commit();
                 fragMgr.executePendingTransactions();
                 FriendDetailFragment fragment = (FriendDetailFragment) fragMgr.findFragmentByTag("Friend_Detail");
-                if(fragment != null){
+                if (fragment != null) {
                     fragment.setDate(friendList.get(position));
                 }
             }
@@ -129,6 +131,7 @@ public class FriendsFragment extends Fragment{
                 adapter.getFilter().filter(query.toLowerCase());
                 return false;
             }
+
             @Override
             public boolean onQueryTextChange(String newText) {
                 parent.mMenuDrawer.closeMenu(false);
@@ -172,6 +175,12 @@ public class FriendsFragment extends Fragment{
         if(id == android.R.id.home){
             parent.mMenuDrawer.closeMenu(false);
             parent.fragMgr.popBackStack();
+            return true;
+        }
+        if(id == R.id.action_refresh){
+            parent.mMenuDrawer.closeMenu(false);
+            ContentActivity.UpdateInBackground task = parent.new UpdateInBackground(parent, FRIEND_REFRESH);
+            task.execute();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -242,6 +251,14 @@ public class FriendsFragment extends Fragment{
         catch (ParseException e) {
             e.printStackTrace();
             return true;
+        }
+    }
+
+    public void notifyAdaptor(){
+        if(parent.isNetworkConnected()){
+            adapter.updateData(Utility.generateFriendArray());
+        } else {
+            adapter.updateData(Utility.generateFriendArrayOffline());
         }
     }
 

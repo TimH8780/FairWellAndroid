@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parse.ParseUser;
 
@@ -29,6 +30,8 @@ import java.util.Locale;
 
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
 import io.github.budgetninja.fairwellandroid.StatementObject.SubStatement;
+
+import static io.github.budgetninja.fairwellandroid.ContentActivity.STATEMENT_REFRESH;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_STATEMENT_SUMMARY;
 
 /**
@@ -39,6 +42,7 @@ public class ViewStatementsFragment extends Fragment {
     private ContentActivity parent;
     private List<Statement> statementList;
     private DateFormat dateFormat;
+    private StatementAdaptor adapter;
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -75,7 +79,7 @@ public class ViewStatementsFragment extends Fragment {
         }
 
         ListView view = (ListView) rootView.findViewById(R.id.viewStatementsListView);
-        StatementAdaptor adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList);
+        adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList);
         view.setAdapter(adapter);
 
         LinearLayout layout = (LinearLayout) rootView.findViewById(R.id.EmptyListView);
@@ -96,9 +100,23 @@ public class ViewStatementsFragment extends Fragment {
                 parent.fragMgr.popBackStack();
                 return true;
 
+            case R.id.action_refresh:
+                if(!parent.isNetworkConnected()){
+                    Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                parent.mMenuDrawer.closeMenu(false);
+                ContentActivity.UpdateInBackground task = parent.new UpdateInBackground(parent, STATEMENT_REFRESH);
+                task.execute();
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void notifyAdaptor(){
+        adapter.updateData(Utility.generateStatementArray());
     }
 
     private class StatementAdaptor extends ArrayAdapter<Statement>{
@@ -112,6 +130,11 @@ public class ViewStatementsFragment extends Fragment {
             mContext = context;
             mResource = resource;
             mData = objects;
+        }
+
+        private void updateData(List<Statement> data){
+            mData = data;
+            StatementAdaptor.this.notifyDataSetChanged();
         }
 
         private class ViewHolder{

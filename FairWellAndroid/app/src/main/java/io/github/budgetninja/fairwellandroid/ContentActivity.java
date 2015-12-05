@@ -59,6 +59,8 @@ public class ContentActivity extends AppCompatActivity{
     public static final int TWITTER_USER = 2;
     public static final int ALL_REFRESH = 0;
     public static final int DASHBOARD_REFRESH = 1;
+    public static final int FRIEND_REFRESH = 2;
+    public static final int STATEMENT_REFRESH = 3;
     public static final int POSITION_HOME = 0;
     private static final int POSITION_FRIENDS = 2;
     private static final int POSITION_DASHBOARD = 3;
@@ -695,7 +697,9 @@ public class ContentActivity extends AppCompatActivity{
         @Override
         protected void onPreExecute() {
             if(type == ALL_REFRESH){ dialog.setMessage("Loading Data... Please Wait..."); }
-            else{ dialog.setMessage("Refreshing Dashboard... Please Wait..."); }
+            else if(type == DASHBOARD_REFRESH){ dialog.setMessage("Refreshing Dashboard... Please Wait..."); }
+            else if(type == FRIEND_REFRESH){ dialog.setMessage("Refreshing Friend List... Please Wait..."); }
+            else{ dialog.setMessage("Refreshing Statement List... Please Wait..."); }
             dialog.show();
             dialog.setCancelable(false);
             checkForUpdate.pause();
@@ -705,18 +709,26 @@ public class ContentActivity extends AppCompatActivity{
         protected Void doInBackground(Void... params) {
             try {
                 if(isNetworkConnected()){
-                    if(type == ALL_REFRESH){
+                    if(type == ALL_REFRESH || type == STATEMENT_REFRESH){
                         Utility.generateRawStatementList(user);
+                    }
+                    if(type == ALL_REFRESH || type == FRIEND_REFRESH){
                         Utility.generateRawFriendList(user);
+                    }
+                    if(type == ALL_REFRESH || type == DASHBOARD_REFRESH){
+                        Utility.setChangedRecordDashboard();
+                        Utility.getDashboardData();
+                    }
+                    if(type == ALL_REFRESH) {
                         emailVerificationCheck();
                     }
-                    Utility.setChangedRecordDashboard();
-                    Utility.getDashboardData();
                 } else {
-                    if(type == ALL_REFRESH){
+                    if(type == ALL_REFRESH || type == FRIEND_REFRESH){
                         Utility.generateFriendArrayOffline();
                     }
-                    Utility.getDashboardDataOffline();
+                    if(type == ALL_REFRESH || type == DASHBOARD_REFRESH){
+                        Utility.getDashboardDataOffline();
+                    }
                 }
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -728,11 +740,19 @@ public class ContentActivity extends AppCompatActivity{
         protected void onPostExecute(Void result) {
             HomepageFragment child_1 = (HomepageFragment) getSupportFragmentManager().findFragmentByTag("Home");
             DashboardFragment child_2 = (DashboardFragment) getSupportFragmentManager().findFragmentByTag("Dashboard");
+            FriendsFragment child_3 = (FriendsFragment) getSupportFragmentManager().findFragmentByTag("Friend");
+            ViewStatementsFragment child_4 = (ViewStatementsFragment) getSupportFragmentManager().findFragmentByTag("Dashboard");
             if(child_1 != null){
                 child_1.setBalance();
             }
             if(child_2 != null){
                 child_2.notifyAdaptor();
+            }
+            if(child_3 != null){
+                child_3.notifyAdaptor();
+            }
+            if(child_4 != null){
+                child_4.notifyAdaptor();
             }
 
             if (dialog.isShowing()) {
