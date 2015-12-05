@@ -236,6 +236,7 @@ public class SubmitStatementSummaryFragment extends Fragment {
 
         if(picture != null) {
             showProgressBar();
+            /*
             pictureView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -258,7 +259,7 @@ public class SubmitStatementSummaryFragment extends Fragment {
                         pictureView.setScaleType(ImageView.ScaleType.FIT_XY);
                     }
                 }
-            });
+            });*/
             loadParseFiletoImageView(picture, pictureView, picture.getName().substring(0, 48));
         } else {
             ((LinearLayout)pictureView.getParent()).setVisibility(View.GONE);

@@ -198,9 +198,10 @@ public class StatementSummaryFragment extends Fragment{
     private void displayData(){
         if(data.picture != null) {
             showProgressBar();
-            pictureView.setOnClickListener(new View.OnClickListener() {
+            /*pictureView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
                     LinearLayout.LayoutParams params;
                     if (isImageFitToScreen) {
                         isImageFitToScreen = false;
@@ -220,7 +221,7 @@ public class StatementSummaryFragment extends Fragment{
                         pictureView.setScaleType(ImageView.ScaleType.FIT_XY);
                     }
                 }
-            });
+            });*/
             loadParseFiletoImageView(data.picture, pictureView, data.picture.getName().substring(0, 48));
         } else {
             ((LinearLayout)pictureView.getParent()).setVisibility(View.GONE);
