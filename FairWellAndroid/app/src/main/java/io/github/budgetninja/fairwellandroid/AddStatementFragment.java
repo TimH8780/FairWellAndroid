@@ -372,9 +372,11 @@ public class AddStatementFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int which) {
                         noteString = userInput.getText().toString();
                         if(noteString.isEmpty()){
-                            addNoteButton.setText("Add Notes");
+                            addNoteButton.setText("Add Note");
+                            addNoteButton.setBackgroundResource(R.color.windowBackground);
                         } else {
-                            addNoteButton.setText("Notes Added");
+                            addNoteButton.setText("Note Added");
+                            addNoteButton.setBackgroundResource(R.color.windowBackgroundDark);
                         }
                     }
                 });
@@ -446,7 +448,8 @@ public class AddStatementFragment extends Fragment {
                     if(e != null){
                         Toast.makeText(getContext(),"Failed to upload image",Toast.LENGTH_SHORT).show();
                     } else {
-                        addSnapshotButton.setText("Picture selected");
+                        addSnapshotButton.setText("Snapshot Added");
+                        addSnapshotButton.setBackgroundResource(R.color.windowBackgroundDark);
                     }
                     hideProgressBar();
                 }
@@ -906,8 +909,10 @@ public class AddStatementFragment extends Fragment {
 
             if (viewSel == DATE) {
                 dateFieldButton.setText(data.toString());
+                dateFieldButton.setBackgroundResource(R.color.windowBackgroundDark);
             } else {
                 deadlineFieldButton.setText(data.toString());
+                deadlineFieldButton.setBackgroundResource(R.color.windowBackgroundDark);
             }
             return;
         }

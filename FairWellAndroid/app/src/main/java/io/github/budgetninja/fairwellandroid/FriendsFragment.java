@@ -6,7 +6,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -125,6 +128,11 @@ public class FriendsFragment extends Fragment{
         // search box in friend activity's action bar
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+
+
+        ((EditText) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text)).setTextColor(Color.WHITE);
+        ((EditText) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text)).setHintTextColor(Color.WHITE);
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -157,7 +165,15 @@ public class FriendsFragment extends Fragment{
         SearchView mSearchView = (SearchView) MenuItemCompat.getActionView(searchViewMenuItem);
         int searchImgId = android.support.v7.appcompat.R.id.search_button;
         ImageView v = (ImageView) mSearchView.findViewById(searchImgId);
-        v.setImageResource(R.drawable.ic_search_white);
+
+        Drawable dr = getResources().getDrawable(R.drawable.ic_search_white_24dp);
+        Bitmap bitmap = ((BitmapDrawable) dr).getBitmap();
+
+        Drawable d = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 75, 75, true));
+
+        v.setImageDrawable(d);
+
+        //v.setImageResource(R.drawable.ic_search_white);
     }
 
     @Override

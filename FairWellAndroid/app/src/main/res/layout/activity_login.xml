@@ -3,29 +3,34 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/simple_background_small">
+    android:background="@drawable/simple"
+    >
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
-            android:paddingBottom="40dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:layout_gravity="center_horizontal" />
+
 
         <ImageView
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="30dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="90dp"
+            android:layout_marginRight="90dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:src="@drawable/ninja_text"
+            android:src="@drawable/app_logo_small"
             android:id="@+id/loginTitleTextView"
             android:layout_gravity="center_horizontal" />
+
+        <ImageView
+
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:src="@drawable/title_logo_no_icon"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"/>
 
         <LinearLayout
             android:background="#50000000"
@@ -64,7 +69,7 @@
                 android:inputType="textPassword"
                 android:textColor="#FFF"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="20dp"/>
+                android:layout_marginBottom="10dp"/>
 
             <Button
                 android:layout_width="250dp"

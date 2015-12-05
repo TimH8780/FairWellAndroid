@@ -28,10 +28,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -51,6 +55,8 @@ import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
 import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
 
 public class ContentActivity extends AppCompatActivity{
+
+    public static String tempString = "";
 
     private static final String STATE_ACTIVE_POSITION = "net.simonvt.menudrawer.samples.ContentActivity.activePosition";
     private static final String STATE_CONTENT_TEXT = "net.simonvt.menudrawer.samples.ContentActivity.contentText";
@@ -209,15 +215,147 @@ public class ContentActivity extends AppCompatActivity{
         }, 2000);
     }
 
-    public void iconClick(View view){
+    public void iconClick(final View view){
         String clicked = "";
-        if(view == findViewById(R.id.icon_1)){ clicked = "Food"; }
-        else if(view == findViewById(R.id.icon_2)){ clicked = "Movie"; }
-        else if(view == findViewById(R.id.icon_3)){ clicked = "Travel"; }
-        else if(view == findViewById(R.id.icon_4)){ clicked = "Grocery"; }
-        else if(view == findViewById(R.id.icon_5)){ clicked = "Utility"; }
-        else if(view == findViewById(R.id.icon_6)){ clicked = "Entertainment"; }
-        else if(view == findViewById(R.id.icon_7)){ clicked = "Other"; }
+        if(view == findViewById(R.id.icon_1)){
+            ((ImageView) view).setImageResource(R.drawable.i01on);
+            ((ImageView) findViewById(R.id.icon_2)).setImageResource(R.drawable.i02);
+            ((ImageView) findViewById(R.id.icon_3)).setImageResource(R.drawable.i03);
+            ((ImageView) findViewById(R.id.icon_4)).setImageResource(R.drawable.i04);
+            ((ImageView) findViewById(R.id.icon_5)).setImageResource(R.drawable.i05);
+            ((ImageView) findViewById(R.id.icon_6)).setImageResource(R.drawable.i06);
+            ((ImageView) findViewById(R.id.icon_7)).setImageResource(R.drawable.i07);
+
+            clicked = "Food";
+        }
+        else if(view == findViewById(R.id.icon_2)){
+            ((ImageView) view).setImageResource(R.drawable.i02on);
+            ((ImageView) findViewById(R.id.icon_1)).setImageResource(R.drawable.i01);
+            ((ImageView) findViewById(R.id.icon_3)).setImageResource(R.drawable.i03);
+            ((ImageView) findViewById(R.id.icon_4)).setImageResource(R.drawable.i04);
+            ((ImageView) findViewById(R.id.icon_5)).setImageResource(R.drawable.i05);
+            ((ImageView) findViewById(R.id.icon_6)).setImageResource(R.drawable.i06);
+            ((ImageView) findViewById(R.id.icon_7)).setImageResource(R.drawable.i07);
+            clicked = "Movie";
+        }
+        else if(view == findViewById(R.id.icon_3)){
+            ((ImageView) view).setImageResource(R.drawable.i03on);
+            ((ImageView) findViewById(R.id.icon_1)).setImageResource(R.drawable.i01);
+            ((ImageView) findViewById(R.id.icon_2)).setImageResource(R.drawable.i02);
+            ((ImageView) findViewById(R.id.icon_4)).setImageResource(R.drawable.i04);
+            ((ImageView) findViewById(R.id.icon_5)).setImageResource(R.drawable.i05);
+            ((ImageView) findViewById(R.id.icon_6)).setImageResource(R.drawable.i06);
+            ((ImageView) findViewById(R.id.icon_7)).setImageResource(R.drawable.i07);
+            clicked = "Travel";
+        }
+        else if(view == findViewById(R.id.icon_4)){
+            ((ImageView) view).setImageResource(R.drawable.i04on);
+            ((ImageView) findViewById(R.id.icon_1)).setImageResource(R.drawable.i01);
+            ((ImageView) findViewById(R.id.icon_2)).setImageResource(R.drawable.i02);
+            ((ImageView) findViewById(R.id.icon_3)).setImageResource(R.drawable.i03);
+            ((ImageView) findViewById(R.id.icon_5)).setImageResource(R.drawable.i05);
+            ((ImageView) findViewById(R.id.icon_6)).setImageResource(R.drawable.i06);
+            ((ImageView) findViewById(R.id.icon_7)).setImageResource(R.drawable.i07);
+            clicked = "Grocery";
+        }
+        else if(view == findViewById(R.id.icon_5)){
+            ((ImageView) view).setImageResource(R.drawable.i05on);
+            ((ImageView) findViewById(R.id.icon_1)).setImageResource(R.drawable.i01);
+            ((ImageView) findViewById(R.id.icon_2)).setImageResource(R.drawable.i02);
+            ((ImageView) findViewById(R.id.icon_3)).setImageResource(R.drawable.i03);
+            ((ImageView) findViewById(R.id.icon_4)).setImageResource(R.drawable.i04);
+            ((ImageView) findViewById(R.id.icon_6)).setImageResource(R.drawable.i06);
+            ((ImageView) findViewById(R.id.icon_7)).setImageResource(R.drawable.i07);
+            clicked = "Utility";
+        }
+        else if(view == findViewById(R.id.icon_6)){
+            ((ImageView) view).setImageResource(R.drawable.i06on);
+            ((ImageView) findViewById(R.id.icon_1)).setImageResource(R.drawable.i01);
+            ((ImageView) findViewById(R.id.icon_2)).setImageResource(R.drawable.i02);
+            ((ImageView) findViewById(R.id.icon_3)).setImageResource(R.drawable.i03);
+            ((ImageView) findViewById(R.id.icon_4)).setImageResource(R.drawable.i04);
+            ((ImageView) findViewById(R.id.icon_5)).setImageResource(R.drawable.i05);
+            ((ImageView) findViewById(R.id.icon_7)).setImageResource(R.drawable.i07);
+            clicked = "Entertainment";
+        }
+        else if(view == findViewById(R.id.icon_7)){
+            ((ImageView) view).setImageResource(R.drawable.i07on);
+            ((ImageView) findViewById(R.id.icon_1)).setImageResource(R.drawable.i01);
+            ((ImageView) findViewById(R.id.icon_2)).setImageResource(R.drawable.i02);
+            ((ImageView) findViewById(R.id.icon_3)).setImageResource(R.drawable.i03);
+            ((ImageView) findViewById(R.id.icon_4)).setImageResource(R.drawable.i04);
+            ((ImageView) findViewById(R.id.icon_5)).setImageResource(R.drawable.i05);
+            ((ImageView) findViewById(R.id.icon_6)).setImageResource(R.drawable.i06);
+
+
+
+
+            final CategoryItem[] items = {
+
+                    new CategoryItem("Phone Bill", R.drawable.i08, R.drawable.i08on),
+                    new CategoryItem("Money", R.drawable.i09, R.drawable.i09on),
+                    new CategoryItem("Gift", R.drawable.i10, R.drawable.i10on),
+                    new CategoryItem("Shopping", R.drawable.i11, R.drawable.i11on),
+                    new CategoryItem("Maintenance", R.drawable.i12, R.drawable.i12on),
+                    new CategoryItem("Credit bills", R.drawable.i13, R.drawable.i13on),
+                    new CategoryItem("Restaurant", R.drawable.i14, R.drawable.i14on),
+            };
+
+            final ListAdapter adapter = new ArrayAdapter<CategoryItem>(
+                    this,
+                    android.R.layout.select_dialog_item,
+                    android.R.id.text1,
+                    items){
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    //Use super class to create the View
+                    View v = super.getView(position, convertView, parent);
+
+
+                    TextView tv = (TextView)v.findViewById(android.R.id.text1);
+
+                    Drawable img  = ContextCompat.getDrawable(getApplicationContext(), items[position].icon);
+                    img.setBounds(0, 0, 100, 100);
+                    //Put the image on the TextView
+                    tv.setCompoundDrawables(img, null, null, null);
+
+                 //   tv.setCompoundDrawablesWithIntrinsicBounds(items[position].icon, 0, 0, 0);
+
+                    //Add margin between image and text (support various screen densities)
+                    int dp5 = (int) (5 * getResources().getDisplayMetrics().density + 0.5f);
+                    tv.setCompoundDrawablePadding(dp5);
+               //     tv.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, 100 /* this is item height */));
+
+                    return v;
+                }
+            };
+
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Select category")
+                    .setAdapter(adapter, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int item) {
+
+
+                            ((ImageView) view).setImageResource(items[item].icon_selected);
+                            ((AddStatementFragment)getSupportFragmentManager().
+                                    findFragmentByTag("Add")).setClickedIconText(items[item].text);
+
+
+                            //...
+                        }
+                    }).show();
+
+
+
+
+
+
+
+
+
+            clicked = "Other";
+        }
+
         ((AddStatementFragment)getSupportFragmentManager().findFragmentByTag("Add")).setClickedIconText(clicked);
     }
 
@@ -596,6 +734,26 @@ public class ContentActivity extends AppCompatActivity{
         dialog.show();
     }
 
+
+    public static class CategoryItem{
+        public final String text;
+        public final int icon;
+        public final int icon_selected;
+        public CategoryItem(String text, Integer icon , Integer icon_selected) {
+            this.text = text;
+            this.icon = icon;
+            this.icon_selected = icon_selected;
+        }
+        @Override
+        public String toString() {
+            return text;
+        }
+    }
+
+
+
+
+
     //Related to Side-Menu
     private static class Item {
         String mTitle;
@@ -742,7 +900,7 @@ public class ContentActivity extends AppCompatActivity{
             HomepageFragment child_1 = (HomepageFragment) getSupportFragmentManager().findFragmentByTag("Home");
             DashboardFragment child_2 = (DashboardFragment) getSupportFragmentManager().findFragmentByTag("Dashboard");
             FriendsFragment child_3 = (FriendsFragment) getSupportFragmentManager().findFragmentByTag("Friend");
-            ViewStatementsFragment child_4 = (ViewStatementsFragment) getSupportFragmentManager().findFragmentByTag("Dashboard");
+            ViewStatementsFragment child_4 = (ViewStatementsFragment) getSupportFragmentManager().findFragmentByTag("ViewStatements");
             if(child_1 != null){
                 child_1.setBalance();
             }

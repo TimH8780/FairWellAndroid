@@ -58,7 +58,7 @@
 
             <Button
                 android:id="@+id/button_change_pw"
-                android:text="Change Password"
+                android:text="Reset Password"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>

@@ -6,6 +6,6 @@
         android:color="@color/white" />
     <item
         android:state_pressed="true"
-        android:color="@color/black" />
+        android:color="@color/facebookButtonPressed" />
 
 </selector>

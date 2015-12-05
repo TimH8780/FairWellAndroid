@@ -95,7 +95,7 @@
                     android:layout_gravity="center"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/icon_1"
+                    android:src="@drawable/i01"
                     android:clickable="true"
                     android:onClick="iconClick"
                     android:layout_weight="1"/>
@@ -105,7 +105,7 @@
                     android:layout_gravity="center"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/icon_2"
+                    android:src="@drawable/i02"
                     android:clickable="true"
                     android:onClick="iconClick"
                     android:layout_weight="1"/>
@@ -115,7 +115,7 @@
                     android:layout_gravity="center"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/icon_3"
+                    android:src="@drawable/i03"
                     android:clickable="true"
                     android:onClick="iconClick"
                     android:layout_weight="1"/>
@@ -125,7 +125,7 @@
                     android:layout_gravity="center"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/icon_4"
+                    android:src="@drawable/i04"
                     android:clickable="true"
                     android:onClick="iconClick"
                     android:layout_weight="1"/>
@@ -135,7 +135,7 @@
                     android:layout_gravity="center"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/icon_5"
+                    android:src="@drawable/i05"
                     android:clickable="true"
                     android:onClick="iconClick"
                     android:layout_weight="1"/>
@@ -145,17 +145,27 @@
                     android:layout_gravity="center"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/icon_6"
+                    android:src="@drawable/i06"
                     android:clickable="true"
                     android:onClick="iconClick"
                     android:layout_weight="1"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:paddingBottom="2dp"
+                    android:text="|"
+                    android:textSize="25sp"
+                    android:layout_weight="0.5"
+                    android:gravity="center_vertical"
+                    />
 
                 <ImageView
                     android:id="@+id/icon_7"
                     android:layout_gravity="center"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/icon_7"
+                    android:src="@drawable/i07"
                     android:clickable="true"
                     android:onClick="iconClick"
                     android:layout_weight="1"/>
@@ -388,10 +398,8 @@
 
         </LinearLayout>
 
-        cd <Button
+        <Button
             android:id="@+id/confirmButton"
-            android:padding="10dp"
-            android:layout_margin="5dp"
             android:textColor="@color/coolBackground"
             android:background="@color/orange_light"
             android:layout_width="match_parent"
