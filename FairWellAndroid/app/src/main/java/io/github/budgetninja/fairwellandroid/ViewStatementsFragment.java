@@ -119,7 +119,11 @@ public class ViewStatementsFragment extends Fragment {
 
         view.setOnItemClickListener(viewItemClickListener);
 
-        TextView subtitle_1 = (TextView) rootView.findViewById(R.id.coltitle_1);
+        final TextView subtitle_1 = (TextView) rootView.findViewById(R.id.coltitle_1);
+        final TextView subtitle_2 = (TextView) rootView.findViewById(R.id.coltitle_2);
+        final TextView subtitle_3 = (TextView) rootView.findViewById(R.id.coltitle_3);
+
+
         subtitle_1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,34 +131,47 @@ public class ViewStatementsFragment extends Fragment {
                 if (statementList_by_name == null) {
                     statementList_by_name = new ArrayList<>((statementList_by_amount == null) ? statementList_by_deadline : statementList_by_amount);
                     Collections.sort(statementList_by_name);
+
                 }
                 adapter.updateData(statementList_by_name);
+                subtitle_1.setBackgroundResource(R.color.green_dark);
+                subtitle_2.setBackgroundResource(R.color.orange_light);
+                subtitle_3.setBackgroundResource(R.color.blue_light);
+
             }
         });
 
-        TextView subtitle_2 = (TextView) rootView.findViewById(R.id.coltitle_2);
+
         subtitle_2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 SORT_TYPE = BY_DEADLINE;
-                if(statementList_by_deadline == null){
+                if (statementList_by_deadline == null) {
                     statementList_by_deadline = new ArrayList<>((statementList_by_amount == null) ? statementList_by_name : statementList_by_amount);
                     Collections.sort(statementList_by_deadline);
+
                 }
                 adapter.updateData(statementList_by_deadline);
+                subtitle_1.setBackgroundResource(R.color.green_light);
+                subtitle_2.setBackgroundResource(R.color.orange_dark);
+                subtitle_3.setBackgroundResource(R.color.blue_light);
             }
         });
 
-        TextView subtitle_3 = (TextView) rootView.findViewById(R.id.coltitle_3);
+
         subtitle_3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 SORT_TYPE = BY_AMOUNT;
-                if(statementList_by_amount == null){
+                if (statementList_by_amount == null) {
                     statementList_by_amount = new ArrayList<>((statementList_by_name == null) ? statementList_by_deadline : statementList_by_name);
                     Collections.sort(statementList_by_amount);
+
                 }
                 adapter.updateData(statementList_by_amount);
+                subtitle_1.setBackgroundResource(R.color.green_light);
+                subtitle_2.setBackgroundResource(R.color.orange_light);
+                subtitle_3.setBackgroundResource(R.color.blue_dark);
             }
         });
 
