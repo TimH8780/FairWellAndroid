@@ -16,6 +16,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +46,7 @@ import java.util.List;
 
 import static io.github.budgetninja.fairwellandroid.ContentActivity.FACEBOOK_USER;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.TWITTER_USER;
+import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 public class LoginActivity extends Activity {
 
@@ -65,17 +67,36 @@ public class LoginActivity extends Activity {
         password = (EditText) findViewById(R.id.loginPassword);
         TextView forgetPass = (TextView) findViewById(R.id.forgetPassword);
 
+
+        int DPI = getDPI(this.getApplicationContext());
+
+
+        if(DPI < 300){
+            ImageView icon_logo = (ImageView) findViewById(R.id.icon_logo);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(170, 0, 170, 0);
+            icon_logo.setLayoutParams(lp);
+        }
+
+        double size_double = 75 * DPI / 480;
+        int size = (int) size_double;
+        double fb_height_double = 65 * DPI / 480;
+        int fb_height = (int) fb_height_double;
+        double tw_hieght_double = 58 * DPI / 480;
+        int tw_height = (int) tw_hieght_double;
+
+
         Drawable img = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_lock_outline_white_24dp);
-        img.setBounds( 0, 0, 75, 75 );
+        img.setBounds( 0, 0, size, size );
         password.setCompoundDrawables( img, null, null, null );
         Drawable img2 = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_account_circle_white_24dp);
-        img2.setBounds( 0, 0, 75, 75 );
+        img2.setBounds( 0, 0, size, size );
         username.setCompoundDrawables( img2, null, null, null );
         Drawable img3 = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_facebook);
-        img3.setBounds( 0, 0, 75, 65 );     //facebook has different size
+        img3.setBounds( 0, 0, size, fb_height );     //facebook has different size
         facebookLoginBut.setCompoundDrawables( img3, null, null, null );
         Drawable img4 = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_twitter);
-        img4.setBounds( 0, 0, 75, 58 );     //twitter has different size
+        img4.setBounds( 0, 0, size, tw_height );     //twitter has different size
         twitterLoginBut.setCompoundDrawables( img4, null, null, null );
 
         //Login Button

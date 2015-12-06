@@ -28,15 +28,16 @@
 
                 <TextView
                     android:id="@+id/friend_detail_name"
-                    android:paddingTop="10dp"
+                    android:paddingTop="5dp"
                     android:paddingLeft="10dp"
-                    android:textSize="25dp"
+                    android:textSize="20dp"
                     android:textStyle="bold"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Name"/>
 
                 <TextView
+                    android:textStyle="italic"
                     android:id="@+id/friend_detail_email"
                     android:paddingLeft="10dp"
                     android:textSize="18dp"
@@ -53,6 +54,7 @@
             android:layout_height="wrap_content">
 
             <Button
+                android:textSize="14sp"
                 android:id="@+id/friend_detail_confirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -63,6 +65,7 @@
                 android:layout_toLeftOf="@+id/friend_detail_reject"/>
 
             <Button
+                android:textSize="14sp"
                 android:id="@+id/friend_detail_reject"
                 android:text="Reject Friendship"
                 android:layout_width="wrap_content"
@@ -72,6 +75,7 @@
                 android:layout_alignParentEnd="true" />
 
             <Button
+                android:textSize="14sp"
                 android:id="@+id/friend_detail_delete"
                 android:text="Delete Friendship"
                 android:layout_width="wrap_content"
@@ -102,7 +106,7 @@
 
                 <TextView
                     android:id="@+id/profile_name_view"
-                    android:textSize="18dp"
+                    android:textSize="16dp"
                     android:paddingLeft="10dp"
                     android:text="Profile Name"
                     android:layout_width="match_parent"
@@ -124,7 +128,7 @@
 
                 <TextView
                     android:id="@+id/real_name_view"
-                    android:textSize="18dp"
+                    android:textSize="16dp"
                     android:paddingLeft="10dp"
                     android:text="First Last"
                     android:layout_width="match_parent"
@@ -146,7 +150,7 @@
 
                 <TextView
                     android:id="@+id/phone_number_view"
-                    android:textSize="18dp"
+                    android:textSize="16dp"
                     android:singleLine="true"
                     android:paddingLeft="10dp"
                     android:text="(N/A)"
@@ -169,7 +173,7 @@
 
                 <TextView
                     android:id="@+id/address_view"
-                    android:textSize="18dp"
+                    android:textSize="16dp"
                     android:text="(N/A)"
                     android:paddingLeft="10dp"
                     android:layout_width="match_parent"
@@ -192,7 +196,7 @@
                 <TextView
                     android:id="@+id/description_view"
                     android:text="(N/A)"
-                    android:textSize="18dp"
+                    android:textSize="16dp"
                     android:gravity="top"
                     android:paddingLeft="10dp"
                     android:layout_width="match_parent"

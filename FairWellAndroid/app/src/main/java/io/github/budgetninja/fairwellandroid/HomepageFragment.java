@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -171,6 +172,20 @@ public class HomepageFragment extends Fragment {
                 }
             }
         });
+
+        int DPI = getDPI(parent.getApplication());
+
+        if(DPI < 300){
+//            ImageView icon_logo = (ImageView) view.findViewById(R.id.user_photo);
+//            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+//            lp.setMargins(120, 10, 0, 10);
+//
+//            icon_logo.setLayoutParams(lp);
+        }
+
+
+
+
         if(user != null){
             ParseFile userPhotoFile = user.getParseFile("photo");
             if(userPhotoFile != null) {

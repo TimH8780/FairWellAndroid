@@ -16,7 +16,7 @@
             <TextView
                 android:id="@+id/name"
                 android:textStyle="bold"
-                android:textSize="30sp"
+                android:textSize="25sp"
                 android:layout_gravity="center"
                 android:gravity="center_horizontal"
                 android:layout_width="wrap_content"
@@ -24,17 +24,21 @@
                 android:text="Name"/>
 
             <ImageView
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="70dp"
+                android:layout_marginRight="70dp"
+                android:adjustViewBounds="true"
                 android:id="@+id/user_photo"
-                android:layout_gravity="center"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:src="@drawable/profilepic"
                 android:layout_marginBottom="10dp"
                 android:scaleType="centerCrop"/>
 
             <TextView
                 android:textStyle="bold"
-                android:textSize="23sp"
+                android:textSize="22sp"
                 android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -47,6 +51,7 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:textColor="@color/green_dark"
                     android:id="@+id/homepage_balance_own"
                     android:layout_weight="1"
                     android:textSize="20sp"
@@ -63,10 +68,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="   |   "
-                    android:textColor="@color/red_dark"
+                    android:textColor="@color/blue_dark"
                     android:layout_marginBottom="10dp"/>
 
                 <TextView
+                    android:textColor="@color/red_dark"
                     android:id="@+id/homepage_balance_owe"
                     android:layout_weight="1"
                     android:textSize="20sp"
@@ -79,35 +85,44 @@
             </LinearLayout>
 
             <Button
+                android:textSize="14sp"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="50dp"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_gravity="center"
-                android:layout_width="240dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/button_custom_1"
                 android:textColor="@color/white"
-                android:text="View Statements"
+                android:text="VIEW STATEMENTS"
                 android:layout_marginBottom="4dp"
                 android:id="@+id/viewStatementButton"/>
 
             <Button
+                android:textSize="14sp"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="50dp"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_gravity="center"
-                android:layout_width="240dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/button_custom_2"
                 android:textColor="@color/white"
-                android:text="Add Statement"
+                android:text="ADD STATEMENT"
                 android:id="@+id/addStatementButton"
                 android:layout_marginBottom="4dp"/>
 
             <Button
+                android:textSize="14sp"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="50dp"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_gravity="center"
-                android:layout_width="240dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/button_custom_3"
                 android:textColor="@color/white"
-                android:text="Resolve Statements"
+                android:text="RESOLVE STATEMENTS"
                 android:id="@+id/resolveStatementButton"
                 android:layout_marginBottom="4dp"/>
 

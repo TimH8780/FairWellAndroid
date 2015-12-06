@@ -72,6 +72,7 @@ import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
 import static android.app.Activity.RESULT_OK;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_SUBMIT_STATEMENT_SUMMARY;
 import static io.github.budgetninja.fairwellandroid.Utility.getBytesFromBitmap;
+import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -402,23 +403,28 @@ public class AddStatementFragment extends Fragment {
         TextView text3 = (TextView) rootView.findViewById(R.id.text3);
         TextView text4 = (TextView) rootView.findViewById(R.id.text4);
 
+        int DPI = getDPI(this.getContext());
+
+        double size_double = 75 * DPI / 480;
+        int size = (int) size_double;
+
         Drawable img = ContextCompat.getDrawable(getContext(), R.drawable.ic_label_outline_white_24dp);
-        img.setBounds(0, 0, 75, 75);
+        img.setBounds(0, 0, size, size);
         text0.setCompoundDrawables(img, null, null, null);
         img = ContextCompat.getDrawable(getContext(), R.drawable.ic_call_split_white_24dp);
-        img.setBounds(0, 0, 75, 75);
+        img.setBounds(0, 0, size, size);
         text1.setCompoundDrawables(img, null, null, null);
         img = ContextCompat.getDrawable(getContext(), R.drawable.ic_date_range_white_24dp);
-        img.setBounds(0, 0, 75, 75);
+        img.setBounds(0, 0, size, size);
         text2.setCompoundDrawables(img, null, null, null);
         img = ContextCompat.getDrawable(getContext(), R.drawable.ic_wc_white_24dp);
-        img.setBounds(0, 0, 75, 75);
+        img.setBounds(0, 0, size, size);
         text3.setCompoundDrawables(img, null, null, null);
         img = ContextCompat.getDrawable(getContext(), R.drawable.ic_info_outline_white_24dp);
-        img.setBounds(0, 0, 75, 75);
+        img.setBounds(0, 0, size, size);
         text4.setCompoundDrawables(img, null, null, null);
         img = ContextCompat.getDrawable(getContext(), R.drawable.ic_description_black_24dp);
-        img.setBounds(0, 0, 75, 75);
+        img.setBounds(0, 0, size, size);
         description.setCompoundDrawables(img, null, null, null);
 
         previousState = rootView;
@@ -450,7 +456,7 @@ public class AddStatementFragment extends Fragment {
                 pictureUri = data.getData();
             }
 
-            picture = new ParseFile("picture.JPEG", getBytesFromBitmap(getBitmapFromURI(pictureUri),100));
+            picture = new ParseFile("picture.JPEG", getBytesFromBitmap(getBitmapFromURI(pictureUri),25));
             showProgressBar();
             picture.saveInBackground(new SaveCallback() {
                 @Override

@@ -30,15 +30,17 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:textStyle="bold"
                     android:id="@+id/profile_name_view"
-                    android:paddingTop="20dp"
+                    android:paddingTop="5dp"
                     android:paddingLeft="10dp"
-                    android:textSize="25dp"
+                    android:textSize="20dp"
                     android:text="Name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
                 <TextView
+                    android:textStyle="italic"
                     android:id="@+id/email"
                     android:paddingLeft="10dp"
                     android:textSize="18dp"
@@ -57,6 +59,7 @@
 
 
             <Button
+                android:textSize="14sp"
                 android:id="@+id/button_change_pw"
                 android:text="Reset Password"
                 android:layout_weight="1"
@@ -64,6 +67,7 @@
                 android:layout_height="wrap_content"/>
 
             <Button
+                android:textSize="14sp"
                 android:id="@+id/button_add_email"
                 android:text="Link Email"
                 android:layout_weight="1"
@@ -90,6 +94,7 @@
                     android:src="@drawable/ic_picture_in_picture_black_24dp"/>
 
                 <EditText
+                    android:textSize="16sp"
                     android:id="@+id/profile_name"
                     android:singleLine="true"
                     android:paddingLeft="10dp"
@@ -117,6 +122,7 @@
                     android:orientation="horizontal">
 
                     <EditText
+                        android:textSize="16sp"
                         android:id="@+id/first_name"
                         android:singleLine="true"
                         android:layout_weight="1"
@@ -127,6 +133,7 @@
                         android:layout_height="wrap_content"/>
 
                     <EditText
+                        android:textSize="16sp"
                         android:id="@+id/last_name"
                         android:singleLine="true"
                         android:layout_weight="1"
@@ -152,6 +159,7 @@
                     android:src="@drawable/ic_phone_black_24dp"/>
 
                 <EditText
+                    android:textSize="16sp"
                     android:id="@+id/phone_number"
                     android:singleLine="true"
                     android:paddingLeft="10dp"
@@ -174,6 +182,7 @@
                     android:src="@drawable/ic_home_black_24dp"/>
 
                 <EditText
+                    android:textSize="16sp"
                     android:id="@+id/address_line_1"
                     android:singleLine="true"
                     android:paddingLeft="10dp"
@@ -195,6 +204,7 @@
                     android:layout_height="25dp"/>
 
                 <EditText
+                    android:textSize="16sp"
                     android:id="@+id/address_line_2"
                     android:singleLine="true"
                     android:paddingLeft="10dp"
@@ -217,6 +227,7 @@
                     android:src="@drawable/ic_description_black_24dp"/>
 
                 <EditText
+                    android:textSize="16sp"
                     android:id="@+id/self_description"
                     android:gravity="top"
                     android:singleLine="false"

@@ -53,6 +53,8 @@ import java.util.List;
 import io.github.budgetninja.fairwellandroid.StatementObject.Statement;
 import io.github.budgetninja.fairwellandroid.StatementObject.SummaryStatement;
 
+import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
+
 public class ContentActivity extends AppCompatActivity{
 
     private static final String STATE_ACTIVE_POSITION = "net.simonvt.menudrawer.samples.ContentActivity.activePosition";
@@ -302,8 +304,13 @@ public class ContentActivity extends AppCompatActivity{
                     View v = super.getView(position, convertView, parent);
                     TextView tv = (TextView)v.findViewById(android.R.id.text1);
 
+                    int DPI = getDPI(this.getContext());
+
+                    double size_double = 100 * DPI / 480;
+                    int size = (int) size_double;
+
                     Drawable img  = ContextCompat.getDrawable(getApplicationContext(), items[position].icon);
-                    img.setBounds(0, 0, 100, 100);
+                    img.setBounds(0, 0, size, size);
                     //Put the image on the TextView
                     tv.setCompoundDrawables(img, null, null, null);
                     //tv.setCompoundDrawablesWithIntrinsicBounds(items[position].icon, 0, 0, 0);
@@ -803,7 +810,11 @@ public class ContentActivity extends AppCompatActivity{
                 tv.setCompoundDrawablesWithIntrinsicBounds(((Item) item).mIconRes, 0, 0, 0);
 
                 Drawable img = ContextCompat.getDrawable(getApplicationContext(), ((Item) item).mIconRes);
-                img.setBounds(0, 0, 75, 75);
+
+                int DPI = getDPI(parent.getContext());
+                double size_double = 75 * DPI / 480;
+                int size = (int) size_double;
+                img.setBounds(0, 0, size, size);
                 tv.setCompoundDrawables(img, null, null, null);
             }
 
