@@ -16,7 +16,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="Select/ Deselect All"/>
 
         <TextView
@@ -35,7 +35,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a friend request is received"/>
 
         <CheckedTextView
@@ -45,7 +45,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a friend request is accepted"/>
 
         <CheckedTextView
@@ -55,7 +55,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a friend request is declined"/>
 
         <CheckedTextView
@@ -65,7 +65,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a statement is added"/>
 
         <CheckedTextView
@@ -75,7 +75,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a statement is resolved"/>
 
         <CheckedTextView
@@ -85,7 +85,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a statement is due"/>
 
         <CheckedTextView
@@ -95,7 +95,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a statement is rejected"/>
 
         <CheckedTextView
@@ -105,7 +105,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a statement is confirmed"/>
 
         <CheckedTextView
@@ -115,7 +115,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a monthly summary is ready"/>
 
         <TextView
@@ -134,7 +134,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a friend request is received"/>
 
         <CheckedTextView
@@ -144,7 +144,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a friend request is accepted"/>
 
         <CheckedTextView
@@ -154,7 +154,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a friend request is declined"/>
 
         <CheckedTextView
@@ -164,7 +164,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a statement is added"/>
 
         <CheckedTextView
@@ -174,7 +174,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a statement is resolved"/>
 
         <CheckedTextView
@@ -184,7 +184,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a statement is due"/>
 
         <CheckedTextView
@@ -194,7 +194,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a statement is rejected"/>
 
         <CheckedTextView
@@ -204,7 +204,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a statement is confirmed"/>
 
         <CheckedTextView
@@ -214,7 +214,7 @@
             android:gravity="center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:checked="true"
-            android:textSize="15dp"
+            android:textSize="14sp"
             android:text="When a monthly summary is ready"/>
 
     </LinearLayout>

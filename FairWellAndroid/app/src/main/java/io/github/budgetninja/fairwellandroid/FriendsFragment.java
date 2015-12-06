@@ -169,7 +169,12 @@ public class FriendsFragment extends Fragment{
         Drawable dr = getResources().getDrawable(R.drawable.ic_search_white_24dp);
         Bitmap bitmap = ((BitmapDrawable) dr).getBitmap();
 
-        Drawable d = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, 75, 75, true));
+        int DPI = getDPI(this.getContext());
+
+        double size_double = 75 * DPI / 480;
+        int size = (int) size_double;
+
+        Drawable d = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, size, size, true));
 
         v.setImageDrawable(d);
 

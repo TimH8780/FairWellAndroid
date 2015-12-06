@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import static io.github.budgetninja.fairwellandroid.ContentActivity.DASHBOARD_REFRESH;
+import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 
 public class DashboardFragment extends ListFragment {
@@ -360,7 +361,11 @@ public class DashboardFragment extends ListFragment {
             Item item = getItem(position);
             if (item.type == Item.SECTION) {
                 Drawable img = ContextCompat.getDrawable(getContext(), R.drawable.ic_date_range_black_24dp);
-                img.setBounds(0, 0, 75, 75);
+
+                int DPI = getDPI(this.getContext());
+                double size_double = 75 * DPI / 480;
+                int size = (int) size_double;
+                img.setBounds(0, 0, size, size);
                 view.setCompoundDrawablePadding(10);
                 view.setCompoundDrawables(img, null, null, null);
                 view.setTypeface(null, Typeface.BOLD);

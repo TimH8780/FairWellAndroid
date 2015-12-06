@@ -21,14 +21,14 @@
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:src="@drawable/app_logo_small"
-            android:id="@+id/loginTitleTextView"
+            android:id="@+id/icon_logo"
             android:layout_gravity="center_horizontal" />
 
         <ImageView
 
             android:layout_width="300dp"
             android:layout_height="50dp"
-            android:src="@drawable/title_logo_no_icon"
+            android:src="@drawable/new_title1"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="10dp"/>
 
@@ -41,14 +41,17 @@
             android:orientation="vertical">
 
             <EditText
+                android:textSize="16sp"
                 android:alpha="0.8"
                 android:layout_marginTop="20dp"
                 android:drawablePadding="3dip"
                 android:padding="10dp"
                 android:textColorHint="#FFFFFF"
                 android:background="@drawable/border"
-                android:layout_width="250dp"
-                android:layout_height="40dp"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_height="wrap_content"
                 android:id="@+id/loginUsername"
                 android:textColor="#FFF"
                 android:inputType="text"
@@ -57,14 +60,17 @@
                 android:layout_marginBottom="7dp"/>
 
             <EditText
+                android:textSize="16sp"
                 android:alpha="0.8"
                 android:drawablePadding="3dip"
                 android:textColorHint="#FFFFFF"
                 android:fontFamily="sans-serif"
                 android:background="@drawable/border"
                 android:padding="10dp"
-                android:layout_width="250dp"
-                android:layout_height="40dp"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_height="wrap_content"
                 android:id="@+id/loginPassword"
                 android:hint="Password"
                 android:inputType="textPassword"
@@ -73,8 +79,11 @@
                 android:layout_marginBottom="10dp"/>
 
             <Button
-                android:layout_width="250dp"
-                android:layout_height="46dp"
+                android:textSize="14sp"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_height="wrap_content"
                 android:background="@drawable/button_custom_4"
                 android:text="Login"
                 android:textColor="#FFF"
@@ -83,9 +92,12 @@
                 android:layout_marginBottom="7dp"/>
 
             <Button
+                android:textSize="14sp"
                 android:padding="11dp"
-                android:layout_width="250dp"
-                android:layout_height="46dp"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_height="wrap_content"
                 android:background="@drawable/button_custom_5"
                 android:textColor="#FFF"
                 android:text="Login with Facebook"
@@ -94,9 +106,12 @@
                 android:layout_marginBottom="7dp" />
 
             <Button
+                android:textSize="14sp"
                 android:padding="11dp"
-                android:layout_width="250dp"
-                android:layout_height="46dp"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_height="wrap_content"
                 android:background="@drawable/button_custom_6"
                 android:textColor="#FFF"
                 android:text="Login with Twitter"
@@ -110,6 +125,7 @@
                 android:padding="20dp">
 
                 <TextView
+                    android:textSize="14sp"
                     android:layout_weight="1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -128,6 +144,7 @@
                     android:text="|" />
 
                 <TextView
+                    android:textSize="14sp"
                     android:layout_weight="1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
