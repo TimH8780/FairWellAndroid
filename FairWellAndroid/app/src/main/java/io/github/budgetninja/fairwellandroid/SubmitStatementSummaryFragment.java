@@ -293,7 +293,7 @@ public class SubmitStatementSummaryFragment extends Fragment {
                     if(unknownNum == 1) { entry = "(1 non-user)"; }
                     else{ entry = "(" + Integer.toString(unknownNum) + " non-users)"; }
 
-                    memberRow = new TableRow(parent);
+                    memberRow = new LinearLayout(parent);
                     memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
 
                     payee = new TextView(parent);
@@ -322,7 +322,7 @@ public class SubmitStatementSummaryFragment extends Fragment {
                 modeView.setText("Split Unequally");
 
                 if(runningDif > 0.009){
-                    memberRow = new TableRow(parent);
+                    memberRow = new LinearLayout(parent);
                     memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
 
                     payee = new TextView(parent);
