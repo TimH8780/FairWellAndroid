@@ -8,7 +8,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
 
 
 ###### To-do Lists *(Updated on 12/04)*
-* **Tutorial Page** - Issac https://github.com/PaoloRotolo/AppIntro
+* ~~**Tutorial Page** - Issac https://github.com/PaoloRotolo/AppIntro~~
 * ~~**Login Page**~~
   * ~~Login~~
   * ~~Login via Facebook~~
@@ -24,7 +24,6 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Name Display~~
   * ~~Image Upload and Display~~
   * ~~Buttons Function~~
-  * Change Buttons Layout - *Will not do it for this semester*
 * ~~**Dashboard Page**~~
   * ~~Design~~
   * ~~Offline Support~~
@@ -70,7 +69,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Submit Statement under Split By Ratio Mode~~
   * ~~Add Snapshot~~
   * ~~Add Note~~
-  * Icon - Issac (I already have those awesome icons!)
+  * ~~Icon - Issac (I already have those awesome icons!)~~
 * ~~**View Statement Summary Page**~~
   * ~~Progress Bar~~
   * ~~Cancel Statement~~
