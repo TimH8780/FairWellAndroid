@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -129,6 +130,7 @@ public class ViewStatementsFragment extends Fragment {
             public void onClick(View v) {
                 SORT_TYPE = BY_DISPLAY_NAME;
                 if (statementList_by_name == null) {
+                    Log.d("Sorting", "Enter_NA");
                     statementList_by_name = new ArrayList<>((statementList_by_amount == null) ? statementList_by_deadline : statementList_by_amount);
                     Collections.sort(statementList_by_name);
 
@@ -147,6 +149,7 @@ public class ViewStatementsFragment extends Fragment {
             public void onClick(View v) {
                 SORT_TYPE = BY_DEADLINE;
                 if (statementList_by_deadline == null) {
+                    Log.d("Sorting", "Enter_DL");
                     statementList_by_deadline = new ArrayList<>((statementList_by_amount == null) ? statementList_by_name : statementList_by_amount);
                     Collections.sort(statementList_by_deadline);
 
@@ -164,6 +167,7 @@ public class ViewStatementsFragment extends Fragment {
             public void onClick(View v) {
                 SORT_TYPE = BY_AMOUNT;
                 if (statementList_by_amount == null) {
+                    Log.d("Sorting", "Enter_AM");
                     statementList_by_amount = new ArrayList<>((statementList_by_name == null) ? statementList_by_deadline : statementList_by_name);
                     Collections.sort(statementList_by_amount);
 
