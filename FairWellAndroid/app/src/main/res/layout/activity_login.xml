@@ -60,6 +60,7 @@
                 android:alpha="0.8"
                 android:drawablePadding="3dip"
                 android:textColorHint="#FFFFFF"
+                android:fontFamily="sans-serif"
                 android:background="@drawable/border"
                 android:padding="10dp"
                 android:layout_width="250dp"

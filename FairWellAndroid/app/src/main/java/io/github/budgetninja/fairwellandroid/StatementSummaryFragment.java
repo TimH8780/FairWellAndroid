@@ -140,7 +140,7 @@ public class StatementSummaryFragment extends Fragment{
             upArrow.setColorFilter(ContextCompat.getColor(getContext(), R.color.coolBackground), PorterDuff.Mode.SRC_ATOP);
             actionBar.setHomeAsUpIndicator(upArrow);
         }
-        parent.setTitle("Summary");
+        parent.setTitle("Statement Summary");
         if (previousState != null) {
             return previousState;
         }
