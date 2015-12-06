@@ -7,7 +7,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
 <return>
 
 
-###### To-do Lists *(Updated on 12/05)*
+###### To-do Lists *(Updated on 12/06)*
 * ~~**Tutorial Page**~~
 * ~~**Login Page**~~
   * ~~Login~~
@@ -75,7 +75,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Cancel Statement~~
   * ~~Modify Statement~~
   * ~~Submit Statement~~
-  * Design - Issac
+  * ~~Design~~
 * ~~**Resolve Statement Page**~~
   * ~~Progress Bar~~
   * ~~Friend (with non-zero balance) Display~~
@@ -83,8 +83,8 @@ Chern Yee Chua <chernyee@buffalo.edu>
 * **Other**
   * ~~Check Email Verification~~
   * ~~Check Friend Verification~~
-  * Overall UI layout and Graphic Design - Issac
+  * ~~Overall UI layout and Graphic Design~~
+  * ~~Adjust Images based on Device Resolution~~
   * Store String in String.xml
   * Notification - *Will not do it for this semester*
-  * Adjust Images based on Device Resolution - *Will not do it for this semester*
   * Payment Option - *Will not do it for this semester*
