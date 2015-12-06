@@ -251,7 +251,7 @@
             android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:padding="10dp"
@@ -275,6 +275,14 @@
                     android:adjustViewBounds="true"
                     android:layout_gravity="center_horizontal" />
             </LinearLayout>
+
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -302,6 +310,7 @@
                     android:textSize="15sp"/>
 
             </LinearLayout>
+
 
         </LinearLayout>
 

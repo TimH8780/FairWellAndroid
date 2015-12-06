@@ -41,8 +41,8 @@ public class MyIntro extends AppIntro {
 
         // OPTIONAL METHODS
         // Override bar/separator color
-        setBarColor(Color.parseColor("#3F51B5"));
-        setSeparatorColor(Color.parseColor("#2196F3"));
+        //setBarColor(Color.parseColor("#3F51B5"));
+        //setSeparatorColor(Color.parseColor("#2196F3"));
 
         // Hide Skip/Done button
         showSkipButton(true);
@@ -58,7 +58,6 @@ public class MyIntro extends AppIntro {
     public void onSkipPressed() {
         // Do something when users tap on Skip button.
         loadMainActivity();
-        Toast.makeText(getApplicationContext(), "WHY SKIPPP!!", Toast.LENGTH_SHORT).show();
     }
 
     private void loadMainActivity() {
