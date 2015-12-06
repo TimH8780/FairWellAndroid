@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#4CAF50"
+    android:background="#4d2a70"
     android:layout_weight="10"
     android:id="@+id/main">
 
@@ -11,20 +11,20 @@
         android:layout_height="0dp"
         android:layout_gravity="center"
         android:gravity="center"
-        android:paddingLeft="32dp"
+        android:paddingLeft="20dp"
         android:layout_weight="3"
         android:fontFamily="sans-serif-thin"
         android:textColor="#ffffff"
-        android:paddingRight="32dp"
+        android:paddingRight="20dp"
         android:textSize="28sp"
-        android:text="Slide 4 title"/>
+        android:text="Ready to let Fairwell taking care of your business?"/>
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
         android:gravity="center"
-        android:layout_weight="5">
+        android:layout_weight="6">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -32,14 +32,14 @@
             android:layout_gravity="center"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:src="@drawable/ic_slide4"/>
+            android:src="@drawable/app_logo2"/>
 
     </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="3"
+        android:layout_weight="2"
         android:layout_gravity="center"
         android:gravity="center"
         android:textColor="#ffffff"
@@ -48,7 +48,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         android:onClick="getStarted"
-        android:text="GET STARTED"/>
+        android:text="LET'S GET STARTED"/>
 
     <TextView
         android:layout_width="fill_parent"

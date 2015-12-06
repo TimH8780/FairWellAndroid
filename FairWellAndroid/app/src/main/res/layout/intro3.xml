@@ -18,7 +18,7 @@
         android:textColor="#ffffff"
         android:paddingRight="32dp"
         android:textSize="28sp"
-        android:text="Slide 3 title"/>
+        android:text="Clean and simple UI"/>
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -27,27 +27,45 @@
         android:gravity="center"
         android:layout_weight="5">
 
-        <ImageView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:src="@drawable/ic_slide3"/>
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:src="@drawable/snapshot"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:src="@drawable/snapshot2"/>
+
+
+        </LinearLayout>
+
+
 
     </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="3"
+        android:layout_weight="1"
         android:layout_gravity="center"
         android:gravity="center"
         android:textColor="#ffffff"
-        android:paddingLeft="64dp"
-        android:paddingRight="64dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
         android:textSize="16sp"
-        android:text="Loooooooooooooooo[...]ooooooooong descreption here"/>
+        android:text="Swipe to the right for more options!"/>
 
     <TextView
         android:layout_width="fill_parent"
