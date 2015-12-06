@@ -177,15 +177,20 @@ public class ViewStatementsFragment extends Fragment {
 
                 if(currentItem.payeeConfirm){
                     boolean check = true;
+                    boolean required = false;
                     for(int i = 0; i < currentItem.payerList.size(); i++){
                         SubStatement temp = currentItem.payerList.get(i);
                         check = temp.payerPaid || temp.payerReject;
-                        if(!check){
+                        required = temp.paymentPending;
+                        if(required){
+                            holder.statusText.setText("Required");
+                            break;
+                        } else if(!check){
                             holder.statusText.setText("Pending");
                             break;
                         }
                     }
-                    if(check){ holder.statusText.setText("Settled"); }
+                    if(check && !required){ holder.statusText.setText("Settled"); }
                 } else {
                     holder.statusText.setText("Required");
                 }
