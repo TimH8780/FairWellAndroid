@@ -10,7 +10,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp">
+        android:layout_margin="10dp">
 
 
         <TableLayout
@@ -32,9 +32,9 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:text="Description:"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/com_facebook_blue"/>
+                    android:textColor="@color/primary_dark"/>
 
                 <TextView
                     android:id="@+id/summary_description"
@@ -56,9 +56,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Category:"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/com_facebook_blue"/>
+                    android:textColor="@color/primary_dark"/>
 
                 <TextView
                     android:id="@+id/summary_category"
@@ -79,9 +79,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Date:"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/com_facebook_blue"/>
+                    android:textColor="@color/primary_dark"/>
 
                 <TextView
                     android:id="@+id/summary_date"
@@ -102,9 +102,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Deadline:"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/com_facebook_blue"/>
+                    android:textColor="@color/primary_dark"/>
 
                 <TextView
                     android:id="@+id/summary_deadline"
@@ -125,9 +125,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Total Payment:"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/com_facebook_blue"/>
+                    android:textColor="@color/primary_dark"/>
 
                 <TextView
                     android:id="@+id/summary_totalAmount"
@@ -148,9 +148,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Payment Mode:"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/com_facebook_blue"/>
+                    android:textColor="@color/primary_dark"/>
 
                 <TextView
                     android:id="@+id/summary_mode"
@@ -171,9 +171,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Submitted By:"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/com_facebook_blue"/>
+                    android:textColor="@color/primary_dark"/>
 
                 <TextView
                     android:id="@+id/summary_submitBy"
@@ -190,7 +190,7 @@
             android:id="@+id/summary_tableLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
+            android:layout_margin="10dp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -206,7 +206,7 @@
                     android:layout_weight="1"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/purple"/>
+                    android:textColor="@color/primary_dark"/>
 
                 <TextView
                     android:id="@+id/summary_payee_subtitle"
@@ -217,7 +217,7 @@
                     android:layout_weight="1"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/purple"/>
+                    android:textColor="@color/primary_dark"/>
 
                 <TextView
                     android:id="@+id/summary_amount_subtitle"
@@ -228,7 +228,7 @@
                     android:layout_weight="1"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/purple"/>
+                    android:textColor="@color/primary_dark"/>
 
             </LinearLayout>
 
@@ -254,7 +254,7 @@
                     android:layout_gravity="top"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/red_dark"/>
+                    android:textColor="@color/primary_dark"/>
 
                 <TextView
                     android:id="@+id/summary_note"
@@ -288,7 +288,7 @@
                     android:layout_gravity="top"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/red_dark"/>
+                    android:textColor="@color/primary_dark"/>
 
                 <ImageView
                     android:layout_width="match_parent"
@@ -305,12 +305,7 @@
             android:id="@+id/button_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="20dp">
-
-
+            android:layout_margin="5dp">
 
             <Button
                 android:id="@+id/summary_cancelButton"
@@ -408,10 +403,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="50dp">
+            android:layout_margin="5dp">
 
             <Button
                 android:id="@+id/denyPendingPaymentButton"

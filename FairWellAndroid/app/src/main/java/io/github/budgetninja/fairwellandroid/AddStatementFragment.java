@@ -359,12 +359,23 @@ public class AddStatementFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+
+                LinearLayout layout = new LinearLayout(getActivity());
+                layout.setOrientation(LinearLayout.VERTICAL);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                params.setMargins(50, 0, 50, 0);
+
                 final EditText userInput = new EditText(getActivity());
+
                 if(noteString != null){
                     userInput.setText(noteString);
                 }
-                builder.setTitle("Add Notes");
-                builder.setView(userInput);
+                builder.setTitle("Add Note");
+
+                layout.addView(userInput, params);
+                builder.setView(layout);
 
                 builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                     @Override

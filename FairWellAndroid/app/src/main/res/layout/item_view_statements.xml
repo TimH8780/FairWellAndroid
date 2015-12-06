@@ -16,8 +16,6 @@
         android:text="|" />
 
     <TextView
-        android:paddingLeft="1dp"
-        android:paddingRight="0.5dp"
         android:id="@+id/payee"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -37,8 +35,6 @@
         android:text="|" />
 
     <TextView
-        android:paddingLeft="0.5dp"
-        android:paddingRight="0.5dp"
         android:id="@+id/dueDate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -58,9 +54,6 @@
         android:text="|" />
 
     <TextView
-        android:paddingLeft="0.5dp"
-        android:paddingRight="0.5dp"
-
         android:id="@+id/amount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -80,8 +73,6 @@
         android:text="|" />
 
     <TextView
-        android:paddingLeft="0.5dp"
-        android:paddingRight="1dp"
         android:id="@+id/status"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
