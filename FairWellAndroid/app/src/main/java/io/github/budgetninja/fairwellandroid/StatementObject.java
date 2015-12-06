@@ -149,7 +149,7 @@ public class StatementObject {
         @Override
         public int compareTo(@NonNull Statement another) {
             switch (SORT_TYPE) {
-                case 0:
+                case BY_DISPLAY_NAME:
                     if(payee == ParseUser.getCurrentUser()){
                         if(another.payee == ParseUser.getCurrentUser()){
                             return 0;
@@ -162,10 +162,10 @@ public class StatementObject {
                         return (Utility.getProfileName(payee).compareTo(Utility.getProfileName(another.payee))) * -1;
                     }
 
-                case 1:
+                case BY_DEADLINE:
                     return deadline.compareTo(another.deadline);
 
-                case 2:
+                case BY_AMOUNT:
                     SubStatement temp, temp2;
                     if(payee == ParseUser.getCurrentUser()){
                         if(another.payee == ParseUser.getCurrentUser()){

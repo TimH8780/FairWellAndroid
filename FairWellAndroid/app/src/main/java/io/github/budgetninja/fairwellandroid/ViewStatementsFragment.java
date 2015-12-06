@@ -25,6 +25,7 @@ import com.parse.ParseUser;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -48,6 +49,7 @@ public class ViewStatementsFragment extends Fragment {
     private List<Statement> statementList_by_name;
     private List<Statement> statementList_by_amount;
     private DateFormat dateFormat;
+    private View previousView;
     private StatementAdaptor adapter;
 
     @Override
@@ -63,7 +65,8 @@ public class ViewStatementsFragment extends Fragment {
         super.onCreate(bundle);
         setHasOptionsMenu(true);
         parent = (ContentActivity)getActivity();
-        dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
+        previousView = null;
+        dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
     }
 
     @Override
@@ -76,6 +79,10 @@ public class ViewStatementsFragment extends Fragment {
             actionBar.setHomeAsUpIndicator(upArrow);
         }
         parent.setTitle("View Statement");
+
+        if(previousView != null){
+            return previousView;
+        }
 
         List<Statement> temp = Utility.generateStatementArray();
         List<Statement> temp2 = new ArrayList<>();
@@ -112,6 +119,46 @@ public class ViewStatementsFragment extends Fragment {
 
         view.setOnItemClickListener(viewItemClickListener);
 
+        TextView subtitle_1 = (TextView) rootView.findViewById(R.id.coltitle_1);
+        subtitle_1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SORT_TYPE = BY_DISPLAY_NAME;
+                if (statementList_by_name == null) {
+                    statementList_by_name = new ArrayList<>((statementList_by_amount == null) ? statementList_by_deadline : statementList_by_amount);
+                    Collections.sort(statementList_by_name);
+                }
+                adapter.updateData(statementList_by_name);
+            }
+        });
+
+        TextView subtitle_2 = (TextView) rootView.findViewById(R.id.coltitle_2);
+        subtitle_2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SORT_TYPE = BY_DEADLINE;
+                if(statementList_by_deadline == null){
+                    statementList_by_deadline = new ArrayList<>((statementList_by_amount == null) ? statementList_by_name : statementList_by_amount);
+                    Collections.sort(statementList_by_deadline);
+                }
+                adapter.updateData(statementList_by_deadline);
+            }
+        });
+
+        TextView subtitle_3 = (TextView) rootView.findViewById(R.id.coltitle_3);
+        subtitle_3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SORT_TYPE = BY_AMOUNT;
+                if(statementList_by_amount == null){
+                    statementList_by_amount = new ArrayList<>((statementList_by_name == null) ? statementList_by_deadline : statementList_by_name);
+                    Collections.sort(statementList_by_amount);
+                }
+                adapter.updateData(statementList_by_amount);
+            }
+        });
+
+        previousView = rootView;
         return rootView;
     }
 
@@ -249,7 +296,19 @@ public class ViewStatementsFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parentView, View view, int position, long id) {
             parent.layoutManage(INDEX_STATEMENT_SUMMARY);
-            parent.setStatementSummaryData(statementList_by_deadline.get(position));
+            switch (SORT_TYPE) {
+                case BY_DISPLAY_NAME:
+                    parent.setStatementSummaryData(statementList_by_name.get(position));
+                    break;
+
+                case BY_DEADLINE:
+                    parent.setStatementSummaryData(statementList_by_deadline.get(position));
+                    break;
+
+                case BY_AMOUNT:
+                    parent.setStatementSummaryData(statementList_by_amount.get(position));
+                    break;
+            }
         }
     };
 }
