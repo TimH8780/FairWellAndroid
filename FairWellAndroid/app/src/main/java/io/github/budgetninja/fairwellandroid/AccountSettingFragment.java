@@ -67,11 +67,10 @@ import static io.github.budgetninja.fairwellandroid.Utility.getDPI;
 
 public class AccountSettingFragment extends Fragment {
 
-    private static int REQUEST_PICTURE =1;
-    private static int REQUEST_CROP_PICTURE = 2;
-    private static int REQUEST_CAMERA =3;
+    private final static int REQUEST_PICTURE =1;
+    private final static int REQUEST_CROP_PICTURE = 2;
+    private final static int REQUEST_CAMERA =3;
 
-    private int DPI;
     private int PIXEL_PHOTO;
     private LruCache<String, Bitmap> mMemoryCache;
     private DiskLruCache mDiskLruCache;
@@ -81,7 +80,6 @@ public class AccountSettingFragment extends Fragment {
     private View rootView;
 
     private String mCurrentPhotoPath;
-    private Uri mCurrentPhotoUri;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -116,7 +114,7 @@ public class AccountSettingFragment extends Fragment {
         // Initialize disk cache on background thread
         File cacheDir = getDiskCacheDir(parent.getApplicationContext(), FairwellApplication.DISK_CACHE_SUBDIR);
         new InitDiskCacheTask().execute(cacheDir);
-        DPI = getDPI(parent.getApplicationContext());
+        int DPI = getDPI(parent.getApplicationContext());
         PIXEL_PHOTO = 100 * (DPI / 160);
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -489,7 +487,7 @@ public class AccountSettingFragment extends Fragment {
                     }
                     inputStream = snapshot.getInputStream(FairwellApplication.DISK_CACHE_INDEX);
                     if (inputStream != null) {
-                        FileDescriptor fd = ((FileInputStream) inputStream).getFD();
+                        //FileDescriptor fd = ((FileInputStream) inputStream).getFD();
 
                         // Decode bitmap, but we don't want to sample so give
                         // MAX_VALUE as the target dimensions
@@ -600,7 +598,7 @@ public class AccountSettingFragment extends Fragment {
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                mCurrentPhotoUri = Uri.fromFile(photoFile);
+                Uri mCurrentPhotoUri = Uri.fromFile(photoFile);
                 //takePictureIntent.setData(tempUri);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCurrentPhotoUri);
                 startActivityForResult(takePictureIntent, REQUEST_CAMERA);

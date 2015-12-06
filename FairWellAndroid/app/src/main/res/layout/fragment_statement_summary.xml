@@ -196,21 +196,20 @@
 
         </TableLayout>
 
-        <TableLayout
+        <LinearLayout
             android:id="@+id/summary_tableLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="20dp"
-            android:stretchColumns="0, 1, 2">
+            android:layout_marginBottom="10dp"
+            android:orientation="vertical">
 
-            <TableRow
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="Payer"
                     android:gravity="center"
@@ -221,7 +220,7 @@
 
                 <TextView
                     android:id="@+id/summary_payee_subtitle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="Payee"
                     android:gravity="center"
@@ -232,7 +231,7 @@
 
                 <TextView
                     android:id="@+id/summary_amount_subtitle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="Amount"
                     android:gravity="center"
@@ -241,45 +240,18 @@
                     android:textStyle="bold"
                     android:textColor="@color/purple"/>
 
-            </TableRow>
+            </LinearLayout>
 
-        </TableLayout>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:padding="10dp"
-                android:orientation="vertical"
-                android:layout_gravity="center_horizontal">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Snapshot"
-                    android:gravity="center"
-                    android:layout_gravity="top"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/red_dark"/>
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/picture"
-                    android:adjustViewBounds="true"
-                    android:layout_gravity="center_horizontal" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:padding="10dp"
                 android:orientation="vertical"
                 android:layout_gravity="center_horizontal">
@@ -300,6 +272,31 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:textSize="15sp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:orientation="vertical"
+                android:layout_gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Snapshot"
+                    android:gravity="center"
+                    android:layout_gravity="top"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/red_dark"/>
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/picture"
+                    android:layout_gravity="center_horizontal" />
 
             </LinearLayout>
 

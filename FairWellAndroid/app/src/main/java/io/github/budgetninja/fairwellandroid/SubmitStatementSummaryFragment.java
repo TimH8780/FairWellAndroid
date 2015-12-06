@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -91,13 +90,11 @@ public class SubmitStatementSummaryFragment extends Fragment {
     private List<Pair<Friend, Double>> payer;
     private TextView noteView, descriptionView, categoryView, dateView, deadlineView, totalAmountView, modeView, sumbitByView;
     private ImageView pictureView;
-    private TableLayout layout;
+    private LinearLayout layout;
     private LruCache<String, Bitmap> mMemoryCache;
     private DiskLruCache mDiskLruCache;
 
-    private int DPI;
     private int PIXEL_PHOTO;
-    private boolean isImageFitToScreen;
 
     @Override
     public void onCreate(Bundle bundle){
@@ -108,7 +105,6 @@ public class SubmitStatementSummaryFragment extends Fragment {
         dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.ENGLISH);
         previousState = null;
         runningDif = 0.00;
-        isImageFitToScreen = false;
 
         // Get max available VM memory, exceeding this capacity will throw an
         // OutOfMemory exception. Stored in kilobytes as LruCache takes an
@@ -129,7 +125,7 @@ public class SubmitStatementSummaryFragment extends Fragment {
         // Initialize disk cache on background thread
         File cacheDir = getDiskCacheDir(parent.getApplicationContext(), FairwellApplication.DISK_CACHE_SUBDIR);
         new InitDiskCacheTask().execute(cacheDir);
-        DPI = getDPI(parent.getApplicationContext());
+        int DPI = getDPI(parent.getApplicationContext());
         PIXEL_PHOTO = 100 * (DPI / 160);
     }
 
@@ -156,7 +152,7 @@ public class SubmitStatementSummaryFragment extends Fragment {
         pictureView = (ImageView) view.findViewById(R.id.picture);
         modeView = (TextView) view.findViewById(R.id.summary_mode);
         sumbitByView = (TextView) view.findViewById(R.id.summary_submitBy);
-        layout = (TableLayout) view.findViewById(R.id.summary_tableLayout);
+        layout = (LinearLayout) view.findViewById(R.id.summary_tableLayout);
         Button cancelButton = (Button) view.findViewById(R.id.summary_cancelButton);
         Button modifyButton = (Button) view.findViewById(R.id.summary_modifyButton);
         Button submitButton = (Button) view.findViewById(R.id.summary_submitButton);
@@ -236,30 +232,6 @@ public class SubmitStatementSummaryFragment extends Fragment {
 
         if(picture != null) {
             showProgressBar();
-            /*
-            pictureView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    LinearLayout.LayoutParams params;
-                    if(isImageFitToScreen) {
-                        isImageFitToScreen = false;
-                        if(noteText != null){
-                            if(!noteText.isEmpty()){ ((LinearLayout)noteView.getParent()).setVisibility(View.VISIBLE); }
-                        }
-                        params = new LinearLayout.LayoutParams(Utility.getPixel(100, getResources()), Utility.getPixel(100, getResources()));
-                        params.gravity = Gravity.CENTER_HORIZONTAL;
-                        pictureView.setLayoutParams(params);
-                        pictureView.setAdjustViewBounds(true);
-                    } else {
-                        isImageFitToScreen = true;
-                        ((LinearLayout)noteView.getParent()).setVisibility(View.GONE);
-                        params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                        params.gravity = Gravity.CENTER_HORIZONTAL;
-                        pictureView.setLayoutParams(params);
-                        pictureView.setScaleType(ImageView.ScaleType.FIT_XY);
-                    }
-                }
-            });*/
             loadParseFiletoImageView(picture, pictureView, picture.getName().substring(0, 48));
         } else {
             ((LinearLayout)pictureView.getParent()).setVisibility(View.GONE);
@@ -276,31 +248,38 @@ public class SubmitStatementSummaryFragment extends Fragment {
         if(this.payee == null){ payeeName = "YOU"; }
         else { payeeName = this.payee.displayName; }
 
-        TableRow memberRow;
+        LinearLayout memberRow;
         TextView payee, payer, amount;
         runningDif = this.amountNum;
 
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER_VERTICAL;
+        params.weight = 1f;
+
         for(int i = 0; i < this.payer.size(); i++){
             String payerName = this.payer.get(i).first.displayName;
-            memberRow = new TableRow(parent);
+            memberRow = new LinearLayout(parent);
             memberRow.setPadding(0, 0, 0,Utility.getPixel(2, getResources()));
 
             payee = new TextView(parent);
             payee.setGravity(Gravity.CENTER);
             payee.setText(payeeName);
+            payee.setLayoutParams(params);
 
             payer = new TextView(parent);
             payer.setGravity(Gravity.CENTER);
             payer.setText(payerName.equals("Self") ? "YOU" : payerName);
+            payer.setLayoutParams(params);
 
             amount = new TextView(parent);
             amount.setGravity(Gravity.CENTER);
             amount.setText("$ " + String.format("%.2f", this.payer.get(i).second));
+            amount.setLayoutParams(params);
             runningDif -= this.payer.get(i).second;
 
-            memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            memberRow.addView(payee, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            memberRow.addView(payer);
+            memberRow.addView(payee);
+            memberRow.addView(amount);
             layout.addView(memberRow);
         }
         if(runningDif > -0.009 && runningDif < 0.009 ) { runningDif = 0.00; }
@@ -467,8 +446,9 @@ public class SubmitStatementSummaryFragment extends Fragment {
                     Utility.editNewEntryField(user, "A new statement, <" + descriptionText + ">, was added");
                     for (int i = 0; i < payer.size(); i++) {
                         Pair<Friend, Double> item = payer.get(i);
-                        if (item.first.displayName.equals("Self")) { continue; }
-                        else { item.first.notifyChange(null, "A new statement, <" + descriptionText + ">, was added"); }
+                        if (!item.first.displayName.equals("Self")) {
+                            item.first.notifyChange(null, "A new statement, <" + descriptionText + ">, was added");
+                        }
                     }
                 }
                 else{ payee.notifyChange(null, "A new statement, <" + descriptionText + ">, was added"); }
@@ -708,7 +688,7 @@ public class SubmitStatementSummaryFragment extends Fragment {
                     }
                     inputStream = snapshot.getInputStream(FairwellApplication.DISK_CACHE_INDEX);
                     if (inputStream != null) {
-                        FileDescriptor fd = ((FileInputStream) inputStream).getFD();
+                        //FileDescriptor fd = ((FileInputStream) inputStream).getFD();
 
                         // Decode bitmap, but we don't want to sample so give
                         // MAX_VALUE as the target dimensions

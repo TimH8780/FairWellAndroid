@@ -503,14 +503,6 @@ public class Utility {
         return pDashBoardData;
     }
 
-    public static Bitmap bitmapCompress(Bitmap b, int rate){
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        b.compress(Bitmap.CompressFormat.JPEG, rate, stream);
-        //BitmapFactory.Options o = new BitmapFactory.Options();
-        //o.inJustDecodeBounds = true;
-        return BitmapFactory.decodeByteArray(stream.toByteArray(), 0, stream.toByteArray().length);
-    }
-
     public static byte[] getBytesFromBitmap(Bitmap bitmap, int rate) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, rate, stream);
