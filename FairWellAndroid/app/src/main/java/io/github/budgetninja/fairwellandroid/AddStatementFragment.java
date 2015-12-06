@@ -1169,6 +1169,13 @@ public class AddStatementFragment extends Fragment {
                                 public void onClick(View v) {
                                     String newValueInString = editText.getText().toString();
                                     Double oldValue = Double.valueOf(button.getText().toString());
+                                    if(newValueInString.isEmpty()){
+                                        if(mType == SPLIT_BY_RATIO) {
+                                            newValueInString = String.format("%.0f",oldValue);
+                                        } else {
+                                            newValueInString = String.format("%.2f",oldValue);
+                                        }
+                                    }
                                     if(mType == SPLIT_BY_RATIO){
                                         button.setText(newValueInString);
                                         counter = counter - oldValue.intValue() + Double.valueOf(newValueInString).intValue();
