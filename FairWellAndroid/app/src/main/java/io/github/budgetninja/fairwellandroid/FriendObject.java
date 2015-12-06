@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.widget.Toast;
 
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
@@ -221,21 +222,27 @@ public class FriendObject {
 
             @Override
             protected Boolean doInBackground(Boolean... params) {
-                if (type == CONFIRM) {
-                    friendRelationship.put("confirmed", true);
-                    friendRelationship.saveInBackground();
-                    confirm = true;
-                    Utility.editNewEntryField(friend, true, Utility.getName(user) + " confirmed your friend request");
-                    Utility.editNewEntryField(user, "You confirmed the friend request from " + Utility.getName(friend));
-                }
+                try {
+                    if (type == CONFIRM) {
+                        friendRelationship.put("confirmed", true);
+                        friendRelationship.save();
+                        confirm = true;
+                        Utility.editNewEntryField(friend, true, Utility.getName(user) + " confirmed your friend request");
+                        Utility.editNewEntryField(user, "You confirmed the friend request from " + Utility.getName(friend));
+                    }
 
-                if (type == DELETE) {
-                    ParseObject object = Utility.getRawListLocation();
-                    object.getList("list").remove(friendRelationship);
-                    object.pinInBackground();
-                    friendRelationship.deleteInBackground();
-                    Utility.editNewEntryField(friend, true, message_friend);
-                    Utility.editNewEntryField(user, message_you);
+                    if (type == DELETE) {
+                        ParseObject object = Utility.getRawListLocation();
+                        object.getList("list").remove(friendRelationship);
+                        object.pinInBackground();
+                        friendRelationship.delete();
+                        Utility.editNewEntryField(friend, true, message_friend);
+                        Utility.editNewEntryField(user, message_you);
+                        Utility.removeFromExistingFriendList(Friend.this);
+                    }
+                } catch (ParseException e){
+                    e.printStackTrace();
+                    return false;
                 }
                 return true;
             }
@@ -245,12 +252,19 @@ public class FriendObject {
                 if (dialog.isShowing()) {
                     dialog.dismiss();
                 }
-                if(type == CONFIRM){
-                    FriendsFragment.FriendDetailFragment fragment =
-                            (FriendsFragment.FriendDetailFragment)((ContentActivity) activity).fragMgr.findFragmentByTag("Friend_Detail");
-                    if(fragment != null){
-                        fragment.dataDisplay();
+                if(result) {
+                    if (type == CONFIRM) {
+                        FriendsFragment.FriendDetailFragment fragment =
+                                (FriendsFragment.FriendDetailFragment) ((ContentActivity) activity).fragMgr.findFragmentByTag("Friend_Detail");
+                        if (fragment != null) {
+                            fragment.dataDisplay();
+                        }
+                        Toast.makeText(activity, "Confirmed", Toast.LENGTH_SHORT).show();
+                    } else {
+                        ((ContentActivity)activity).fragMgr.popBackStack();
                     }
+                } else {
+                    Toast.makeText(activity, "Failed to complete", Toast.LENGTH_SHORT).show();
                 }
             }
         }

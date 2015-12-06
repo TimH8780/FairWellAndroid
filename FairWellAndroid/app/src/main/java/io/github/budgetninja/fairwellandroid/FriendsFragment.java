@@ -539,11 +539,10 @@ public class FriendsFragment extends Fragment{
                         Toast.makeText(parent, "Check Internet Connection", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    object.setConfirm(parent);
                     confirm.setVisibility(View.GONE);
                     reject.setVisibility(View.GONE);
                     delete.setVisibility(View.VISIBLE);
-                    Toast.makeText(parent, "Confirmed", Toast.LENGTH_SHORT).show();
+                    object.setConfirm(parent);
                     }
                 });
 
@@ -568,8 +567,6 @@ public class FriendsFragment extends Fragment{
                                 Toast.makeText(parent, "You can't delete friend with non-zero balance/ pending statement!", Toast.LENGTH_LONG).show();
                             } else {
                                 object.deleteFriend(parent, "You denied the friend request from " + object.getRealName(), null);
-                                Utility.removeFromExistingFriendList(object);
-                                parent.fragMgr.popBackStack();
                             }
                         }
                     });
@@ -600,8 +597,6 @@ public class FriendsFragment extends Fragment{
                                 Toast.makeText(parent, "You can't delete friend with non-zero balance/ pending statement!", Toast.LENGTH_LONG).show();
                             } else {
                                 object.deleteFriend(parent, "You deleted the friendship with " + object.getRealName(), null);
-                                Utility.removeFromExistingFriendList(object);
-                                parent.fragMgr.popBackStack();
                             }
                         }
                     });
