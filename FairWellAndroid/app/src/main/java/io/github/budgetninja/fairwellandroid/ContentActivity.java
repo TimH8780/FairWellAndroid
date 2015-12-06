@@ -289,8 +289,9 @@ public class ContentActivity extends AppCompatActivity{
                     new CategoryItem("Gift", R.drawable.i10, R.drawable.i10on),
                     new CategoryItem("Shopping", R.drawable.i11, R.drawable.i11on),
                     new CategoryItem("Maintenance", R.drawable.i12, R.drawable.i12on),
-                    new CategoryItem("Credit bills", R.drawable.i13, R.drawable.i13on),
-                    new CategoryItem("Restaurant", R.drawable.i14, R.drawable.i14on),
+                    new CategoryItem("Credit bill", R.drawable.i13, R.drawable.i13on),
+                    new CategoryItem("High-class restaurant", R.drawable.i14, R.drawable.i14on),
+                    new CategoryItem("Other", R.drawable.i07, R.drawable.i07on),
             };
 
             final ListAdapter adapter = new ArrayAdapter<CategoryItem>(this,
@@ -387,6 +388,7 @@ public class ContentActivity extends AppCompatActivity{
         if(fragment != null){
             if(fragment.isVisible()) { return; }
         }
+        Toast.makeText(ContentActivity.this, "Not functional yet", Toast.LENGTH_LONG).show();
         fragTrans.replace(R.id.container, new SmartSolveFragment(), "Solve").addToBackStack("Solve");
         fragTrans.commit();
         fragMgr.executePendingTransactions();
@@ -411,6 +413,7 @@ public class ContentActivity extends AppCompatActivity{
         if(fragment != null){
             if(fragment.isVisible()) { return; }
         }
+        Toast.makeText(ContentActivity.this, "Not functional yet", Toast.LENGTH_LONG).show();
         fragTrans.replace(R.id.container, new NotificationSettingFragment(), "Notification").addToBackStack("Notification");
         fragTrans.commit();
         fragMgr.executePendingTransactions();

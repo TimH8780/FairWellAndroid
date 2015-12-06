@@ -7,6 +7,17 @@
     android:paddingBottom="10dp">
 
     <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.02"
+        android:textSize="12sp"
+        android:text="|" />
+
+    <TextView
+        android:paddingLeft="1dp"
+        android:paddingRight="0.5dp"
         android:id="@+id/payee"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -17,6 +28,17 @@
         android:text="Name" />
 
     <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.02"
+        android:textSize="12sp"
+        android:text="|" />
+
+    <TextView
+        android:paddingLeft="0.5dp"
+        android:paddingRight="0.5dp"
         android:id="@+id/dueDate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -27,6 +49,18 @@
         android:text="Due Date" />
 
     <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.02"
+        android:textSize="12sp"
+        android:text="|" />
+
+    <TextView
+        android:paddingLeft="0.5dp"
+        android:paddingRight="0.5dp"
+
         android:id="@+id/amount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -37,6 +71,17 @@
         android:text="Amount" />
 
     <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.02"
+        android:textSize="12sp"
+        android:text="|" />
+
+    <TextView
+        android:paddingLeft="0.5dp"
+        android:paddingRight="1dp"
         android:id="@+id/status"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -45,5 +90,14 @@
         android:layout_weight="1"
         android:textSize="12sp"
         android:text="Action" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.02"
+        android:textSize="12sp"
+        android:text="|" />
 
 </LinearLayout>
