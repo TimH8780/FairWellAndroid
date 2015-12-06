@@ -33,6 +33,10 @@ import io.github.budgetninja.fairwellandroid.StatementObject.SubStatement;
 
 import static io.github.budgetninja.fairwellandroid.ContentActivity.STATEMENT_REFRESH;
 import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_STATEMENT_SUMMARY;
+import static io.github.budgetninja.fairwellandroid.StatementObject.BY_DISPLAY_NAME;
+import static io.github.budgetninja.fairwellandroid.StatementObject.BY_DEADLINE;
+import static io.github.budgetninja.fairwellandroid.StatementObject.BY_AMOUNT;
+import static io.github.budgetninja.fairwellandroid.StatementObject.SORT_TYPE;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -40,7 +44,9 @@ import static io.github.budgetninja.fairwellandroid.ContentActivity.INDEX_STATEM
 public class ViewStatementsFragment extends Fragment {
 
     private ContentActivity parent;
-    private List<Statement> statementList;
+    private List<Statement> statementList_by_deadline;
+    private List<Statement> statementList_by_name;
+    private List<Statement> statementList_by_amount;
     private DateFormat dateFormat;
     private StatementAdaptor adapter;
 
@@ -71,16 +77,32 @@ public class ViewStatementsFragment extends Fragment {
         }
         parent.setTitle("View Statement");
 
-        statementList = new ArrayList<>();
         List<Statement> temp = Utility.generateStatementArray();
+        List<Statement> temp2 = new ArrayList<>();
         for(int i = 0; i < temp.size(); i++){
             if(temp.get(i).payeeConfirm || temp.get(i).payee == ParseUser.getCurrentUser()){
-                statementList.add(temp.get(i));
+                temp2.add(temp.get(i));
             }
         }
 
+        if(SORT_TYPE == BY_DISPLAY_NAME) {
+            statementList_by_name = new ArrayList<>(temp2);
+            statementList_by_deadline = null;
+            statementList_by_amount = null;
+            adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList_by_name);
+        } else if(SORT_TYPE == BY_DEADLINE){
+            statementList_by_name = null;
+            statementList_by_deadline = new ArrayList<>(temp2);
+            statementList_by_amount = null;
+            adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList_by_deadline);
+        } else {
+            statementList_by_name = null;
+            statementList_by_deadline = null;
+            statementList_by_amount = new ArrayList<>(temp2);
+            adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList_by_amount);
+        }
+
         ListView view = (ListView) rootView.findViewById(R.id.viewStatementsListView);
-        adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList);
         view.setAdapter(adapter);
 
         LinearLayout layout = (LinearLayout) rootView.findViewById(R.id.EmptyListView);
@@ -117,7 +139,30 @@ public class ViewStatementsFragment extends Fragment {
     }
 
     public void notifyAdaptor(){
-        adapter.updateData(Utility.generateStatementArray());
+        List<Statement> temp = Utility.generateStatementArray();
+        List<Statement> temp2 = new ArrayList<>();
+        for(int i = 0; i < temp.size(); i++){
+            if(temp.get(i).payeeConfirm || temp.get(i).payee == ParseUser.getCurrentUser()){
+                temp2.add(temp.get(i));
+            }
+        }
+
+        if(SORT_TYPE == BY_DISPLAY_NAME) {
+            statementList_by_name = new ArrayList<>(temp2);
+            statementList_by_deadline = null;
+            statementList_by_amount = null;
+            adapter.updateData(statementList_by_name);
+        } else if(SORT_TYPE == BY_DEADLINE){
+            statementList_by_name = null;
+            statementList_by_deadline = new ArrayList<>(temp2);
+            statementList_by_amount = null;
+            adapter.updateData(statementList_by_deadline);
+        } else {
+            statementList_by_name = null;
+            statementList_by_deadline = null;
+            statementList_by_amount = new ArrayList<>(temp2);
+            adapter.updateData(statementList_by_amount);
+        }
     }
 
     private class StatementAdaptor extends ArrayAdapter<Statement>{
@@ -204,7 +249,7 @@ public class ViewStatementsFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parentView, View view, int position, long id) {
             parent.layoutManage(INDEX_STATEMENT_SUMMARY);
-            parent.setStatementSummaryData(statementList.get(position));
+            parent.setStatementSummaryData(statementList_by_deadline.get(position));
         }
     };
 }

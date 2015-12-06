@@ -30,6 +30,11 @@ public class StatementObject {
     public static final int CONFIRM = 0;
     public static final int REJECT = 1;
     public static final int DELETE = 2;
+    public static final int BY_DISPLAY_NAME = 0;
+    public static final int BY_DEADLINE = 1;
+    public static final int BY_AMOUNT = 2;
+
+    public static int SORT_TYPE = BY_DEADLINE;
 
     public static class SummaryStatement {
         String note;
@@ -143,7 +148,50 @@ public class StatementObject {
 
         @Override
         public int compareTo(@NonNull Statement another) {
-            return deadline.compareTo(another.deadline);
+            switch (SORT_TYPE) {
+                case 0:
+                    if(payee == ParseUser.getCurrentUser()){
+                        if(another.payee == ParseUser.getCurrentUser()){
+                            return 0;
+                        }
+                        return ("YOU".compareTo(Utility.getProfileName(another.payee))) * -1;
+                    } else {
+                        if(another.payee == ParseUser.getCurrentUser()){
+                            return (Utility.getProfileName(payee).compareTo("YOU")) * -1;
+                        }
+                        return (Utility.getProfileName(payee).compareTo(Utility.getProfileName(another.payee))) * -1;
+                    }
+
+                case 1:
+                    return deadline.compareTo(another.deadline);
+
+                case 2:
+                    SubStatement temp, temp2;
+                    if(payee == ParseUser.getCurrentUser()){
+                        if(another.payee == ParseUser.getCurrentUser()){
+                            return Double.valueOf(totalAmount).compareTo(another.totalAmount);
+                        }
+                        temp = another.findPayerStatement(ParseUser.getCurrentUser());
+                        if(temp != null) {
+                            return Double.valueOf(totalAmount).compareTo(temp.payerAmount);
+                        }
+                        return 1;
+                    } else {
+                        temp = findPayerStatement(ParseUser.getCurrentUser());
+                        if(temp != null) {
+                            if (another.payee == ParseUser.getCurrentUser()) {
+                                return Double.valueOf(temp.payerAmount).compareTo(another.totalAmount);
+                            }
+                            temp2 = another.findPayerStatement(ParseUser.getCurrentUser());
+                            if(temp2 != null) {
+                                return Double.valueOf(temp.payerAmount).compareTo(temp2.payerAmount);
+                            }
+                            return 1;
+                        }
+                        return -1;
+                    }
+            }
+            return 0;
         }
 
         public void setPayeeConfirm(ContentActivity activity) {
