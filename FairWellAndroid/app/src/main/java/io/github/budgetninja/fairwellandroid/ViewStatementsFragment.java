@@ -47,7 +47,8 @@ public class ViewStatementsFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         MenuItem item = menu.findItem(R.id.action_refresh);
-        item.setVisible(false);
+        item.setVisible(true);
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -174,20 +175,20 @@ public class ViewStatementsFragment extends Fragment {
                 holder.dueDateText.setText(dateFormat.format(currentItem.deadline));
                 holder.amountText.setText("$ " + String.format("%.2f", currentItem.totalAmount));
 
-                boolean actionRequire = !currentItem.payeeConfirm;
-                boolean check = true;
-                if(!actionRequire){
+                if(currentItem.payeeConfirm){
+                    boolean check = true;
                     for(int i = 0; i < currentItem.payerList.size(); i++){
                         SubStatement temp = currentItem.payerList.get(i);
-                        actionRequire = temp.paymentPending;
-                        if(check) {
-                            check = temp.payerPaid || temp.payerReject;
+                        check = temp.payerPaid || temp.payerReject;
+                        if(!check){
+                            holder.statusText.setText("Pending");
+                            break;
                         }
-                        if(actionRequire){ break; }
                     }
-                    if(!actionRequire){ actionRequire = check; }
+                    if(check){ holder.statusText.setText("Settled"); }
+                } else {
+                    holder.statusText.setText("Required");
                 }
-                holder.statusText.setText(!actionRequire ? "      " : "Required");
             }
 
             return convertView;

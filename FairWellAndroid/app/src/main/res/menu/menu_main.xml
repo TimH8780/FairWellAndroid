@@ -15,7 +15,5 @@
         android:id="@+id/action_refresh"
         android:title="Refresh"
         app:showAsAction="always"
-        android:icon="@drawable/ic_autorenew_white_24dp"
-        ></item>
-
+        android:icon="@drawable/ic_autorenew_white_24dp" />
 </menu>

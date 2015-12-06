@@ -31,8 +31,6 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -79,7 +77,7 @@ public class StatementSummaryFragment extends Fragment{
     private TextView payeeField, amountField;
     private LinearLayout paymentOptionLayout;
     private Button confirmButton, rejectButton, deleteButton, confirmPaymentButton, denyPaymentButton;
-    private TableLayout layout;
+    private LinearLayout layout;
     private DateFormat dateFormat;
     private Statement data;
     private ParseUser user;
@@ -89,9 +87,7 @@ public class StatementSummaryFragment extends Fragment{
     private LruCache<String, Bitmap> mMemoryCache;
     private DiskLruCache mDiskLruCache;
 
-    private int DPI;
     private int PIXEL_PHOTO;
-    private boolean isImageFitToScreen;
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -108,7 +104,6 @@ public class StatementSummaryFragment extends Fragment{
         dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
         user = ParseUser.getCurrentUser();
         previousState = null;
-        isImageFitToScreen = false;
         // Get max available VM memory, exceeding this capacity will throw an
         // OutOfMemory exception. Stored in kilobytes as LruCache takes an
         // int in its constructor.
@@ -128,7 +123,7 @@ public class StatementSummaryFragment extends Fragment{
         // Initialize disk cache on background thread
         File cacheDir = getDiskCacheDir(parent.getApplicationContext(), FairwellApplication.DISK_CACHE_SUBDIR);
         new InitDiskCacheTask().execute(cacheDir);
-        DPI = getDPI(parent.getApplicationContext());
+        int DPI = getDPI(parent.getApplicationContext());
         PIXEL_PHOTO = 100 * (DPI / 160);
     }
 
@@ -158,7 +153,7 @@ public class StatementSummaryFragment extends Fragment{
         sumbitByView = (TextView) view.findViewById(R.id.summary_submitBy);
         payeeField = (TextView) view.findViewById(R.id.summary_payee_subtitle);
         amountField = (TextView) view.findViewById(R.id.summary_amount_subtitle);
-        layout = (TableLayout) view.findViewById(R.id.summary_tableLayout);
+        layout = (LinearLayout) view.findViewById(R.id.summary_tableLayout);
         paymentOptionLayout = (LinearLayout) view.findViewById(R.id.resolve_Option_layout);
         confirmPaymentButton = (Button) view.findViewById(R.id.confirmPendingPaymentButton);
         denyPaymentButton = (Button) view.findViewById(R.id.denyPendingPaymentButton);
@@ -198,30 +193,6 @@ public class StatementSummaryFragment extends Fragment{
     private void displayData(){
         if(data.picture != null) {
             showProgressBar();
-            /*pictureView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    LinearLayout.LayoutParams params;
-                    if (isImageFitToScreen) {
-                        isImageFitToScreen = false;
-                        if(data.note != null){
-                            if(!data.note.isEmpty()){ ((LinearLayout)noteView.getParent()).setVisibility(View.VISIBLE); }
-                        }
-                        params = new LinearLayout.LayoutParams(Utility.getPixel(100, getResources()), Utility.getPixel(100, getResources()));
-                        params.gravity = Gravity.CENTER_HORIZONTAL;
-                        pictureView.setLayoutParams(params);
-                        pictureView.setAdjustViewBounds(true);
-                    } else {
-                        isImageFitToScreen = true;
-                        ((LinearLayout)noteView.getParent()).setVisibility(View.GONE);
-                        params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                        params.gravity = Gravity.CENTER_HORIZONTAL;
-                        pictureView.setLayoutParams(params);
-                        pictureView.setScaleType(ImageView.ScaleType.FIT_XY);
-                    }
-                }
-            });*/
             loadParseFiletoImageView(data.picture, pictureView, data.picture.getName().substring(0, 48));
         } else {
             ((LinearLayout)pictureView.getParent()).setVisibility(View.GONE);
@@ -260,25 +231,32 @@ public class StatementSummaryFragment extends Fragment{
     }
 
     private void displayDataPayer(){
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER_VERTICAL;
+        params.weight = 1f;
+
         final SubStatement subStatement = data.findPayerStatement(user);
-        TableRow memberRow = new TableRow(parent);
+        LinearLayout memberRow = new LinearLayout(parent);
         memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
 
         TextView payee = new TextView(parent);
         payee.setGravity(Gravity.CENTER);
         payee.setText(subStatement.payerName);
+        payee.setLayoutParams(params);
 
         TextView payer = new TextView(parent);
         payer.setGravity(Gravity.CENTER);
         payer.setText("YOU");
+        payer.setLayoutParams(params);
 
         TextView amount = new TextView(parent);
         amount.setGravity(Gravity.CENTER);
         amount.setText("$ " + String.format("%.2f", subStatement.payerAmount));
+        amount.setLayoutParams(params);
 
-        memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        memberRow.addView(payee, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        memberRow.addView(payer);
+        memberRow.addView(payee);
+        memberRow.addView(amount);
         layout.addView(memberRow);
         deleteButton.setVisibility(View.GONE);
         paymentOptionLayout.setVisibility(View.GONE);
@@ -308,24 +286,29 @@ public class StatementSummaryFragment extends Fragment{
     private void displayDataPayee(){
         payeeField.setText("Amount");
         amountField.setText("Status");
-        TableRow memberRow;
+        LinearLayout memberRow;
         TextView payer, amount, status;
         boolean deletable = true;
         boolean pendingPayment = false;
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER_VERTICAL;
+        params.weight = 1f;
 
         for(int i = 0; i < data.payerList.size(); i++){
             SubStatement item = data.payerList.get(i);
 
-            memberRow = new TableRow(parent);
+            memberRow = new LinearLayout(parent);
             memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
 
             payer = new TextView(parent);
             payer.setGravity(Gravity.CENTER);
             payer.setText(item.payerName);
+            payer.setLayoutParams(params);
 
             amount = new TextView(parent);
             amount.setGravity(Gravity.CENTER);
             amount.setText("$ " + String.format("%.2f", item.payerAmount));
+            amount.setLayoutParams(params);
 
             status = new TextView(parent);
             status.setGravity(Gravity.CENTER);
@@ -346,15 +329,16 @@ public class StatementSummaryFragment extends Fragment{
                 status.setText("Pending");
                 deletable = false;
             }
+            status.setLayoutParams(params);
 
-            memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            memberRow.addView(status, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            memberRow.addView(payer);
+            memberRow.addView(amount);
+            memberRow.addView(status);
             layout.addView(memberRow);
         }
 
         if(data.unknown != 0){
-            memberRow = new TableRow(parent);
+            memberRow = new LinearLayout(parent);
             memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
 
             payer = new TextView(parent);
@@ -366,18 +350,21 @@ public class StatementSummaryFragment extends Fragment{
             } else {
                 payer.setText("(Some non-users)");
             }
+            payer.setLayoutParams(params);
 
             amount = new TextView(parent);
             amount.setGravity(Gravity.CENTER);
             amount.setText("$ " + String.format("%.2f", data.unknownAmount));
+            amount.setLayoutParams(params);
 
             status = new TextView(parent);
             status.setGravity(Gravity.CENTER);
             status.setText("N/A");
+            status.setLayoutParams(params);
 
-            memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            memberRow.addView(status, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            memberRow.addView(payer);
+            memberRow.addView(amount);
+            memberRow.addView(status);
             layout.addView(memberRow);
         }
 
@@ -800,7 +787,7 @@ public class StatementSummaryFragment extends Fragment{
                         }
                         inputStream = snapshot.getInputStream(FairwellApplication.DISK_CACHE_INDEX);
                         if (inputStream != null) {
-                            FileDescriptor fd = ((FileInputStream) inputStream).getFD();
+                            //FileDescriptor fd = ((FileInputStream) inputStream).getFD();
                             // Decode bitmap, but we don't want to sample so give
                             // MAX_VALUE as the target dimensions
                             bitmap = getBitmapFromByte(IOUtils.toByteArray(inputStream));

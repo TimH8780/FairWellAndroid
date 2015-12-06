@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.widget.Toast;
 
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
@@ -15,9 +14,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.Arrays;
-import java.util.List;
 
-import static io.github.budgetninja.fairwellandroid.ContentActivity.OWE_BALANCE;
 
 /**
  *Created by Tim on 11/03/15.

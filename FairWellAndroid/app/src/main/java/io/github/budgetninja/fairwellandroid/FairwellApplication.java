@@ -14,7 +14,6 @@ import com.parse.ParseTwitterUtils;
 public class FairwellApplication extends Application{
 
     public final static int APP_VERSION = 1;
-
     public static final int DISK_CACHE_COUNT = 1;
     public static final long DISK_CACHE_SIZE = 1024 * 1024 * 10; // 10MB
     public static final String TAG = "ImageCache";

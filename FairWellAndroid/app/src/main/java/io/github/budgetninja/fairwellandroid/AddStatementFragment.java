@@ -125,7 +125,6 @@ public class AddStatementFragment extends Fragment {
     private static int REQUEST_PICTURE =1;
     private static int REQUEST_CAMERA = 3;
     private String mCurrentPhotoPath;
-    private Uri mCurrentPhotoUri;
     private ParseFile picture;
     private String noteString = "";
 
@@ -431,7 +430,7 @@ public class AddStatementFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Uri pictureUri;
-        if ((requestCode == REQUEST_PICTURE || requestCode == REQUEST_CAMERA) && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
             if(mCurrentPhotoPath != null){
                 pictureUri = Uri.fromFile(new File(mCurrentPhotoPath));
                 //galleryAddPic();  //add photo to gallery so that system media controller could access to it
@@ -446,7 +445,7 @@ public class AddStatementFragment extends Fragment {
                 @Override
                 public void done(com.parse.ParseException e) {
                     if(e != null){
-                        Toast.makeText(getContext(),"Failed to upload image",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(),"Failed to load image",Toast.LENGTH_SHORT).show();
                     } else {
                         addSnapshotButton.setText("Snapshot Added");
                         addSnapshotButton.setBackgroundResource(R.color.windowBackgroundDark);
@@ -458,44 +457,16 @@ public class AddStatementFragment extends Fragment {
 
     }
 
-/*    public Bitmap getBitmapFromURI(Uri u){
-        try {
-            return MediaStore.Images.Media.getBitmap(parent.getContentResolver(), u);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    */
-
     public Bitmap getBitmapFromURI(Uri u){
-
         BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
 
         int DPI = Utility.getDPI(parent.getApplicationContext());
         int PIXEL_PHOTO = 500 * (DPI / 160);
         options.inSampleSize = Utility.calculateInSampleSize(options, PIXEL_PHOTO, PIXEL_PHOTO);
+        options.inJustDecodeBounds = false;
         return BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
-    }
-
-    public void promptUploadPhotoDialog(){
-        //startActivityForResult(Intent.createChooser(new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT), "Select picture"), REQUEST_PICTURE);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-        // Set dialog properties
-        builder.setItems(new String[]{"Gallery", "Camera"}, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dlg, int which) {
-                // The 'which' argument contains the index position of the selected item
-                if (which == 0) { //select from gallery
-                    Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(intent, REQUEST_PICTURE);
-                } else if (which == 1) { //select to take a photo
-                    dispatchTakePictureIntent();
-                }
-            }
-        });
-        final AlertDialog dialog = builder.create();
-        dialog.show();
     }
 
     /**
@@ -532,7 +503,7 @@ public class AddStatementFragment extends Fragment {
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                mCurrentPhotoUri = Uri.fromFile(photoFile);
+                Uri mCurrentPhotoUri = Uri.fromFile(photoFile);
                 //takePictureIntent.setData(tempUri);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCurrentPhotoUri);
                 startActivityForResult(takePictureIntent, REQUEST_CAMERA);
@@ -1198,6 +1169,13 @@ public class AddStatementFragment extends Fragment {
                                 public void onClick(View v) {
                                     String newValueInString = editText.getText().toString();
                                     Double oldValue = Double.valueOf(button.getText().toString());
+                                    if(newValueInString.isEmpty()){
+                                        if(mType == SPLIT_BY_RATIO) {
+                                            newValueInString = String.format("%.0f",oldValue);
+                                        } else {
+                                            newValueInString = String.format("%.2f",oldValue);
+                                        }
+                                    }
                                     if(mType == SPLIT_BY_RATIO){
                                         button.setText(newValueInString);
                                         counter = counter - oldValue.intValue() + Double.valueOf(newValueInString).intValue();
