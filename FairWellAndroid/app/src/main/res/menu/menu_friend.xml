@@ -13,4 +13,10 @@
         android:icon="@drawable/ic_person_add_white_24dp"
         android:title="Add friend"
         yourapp:showAsAction="always"/>
+
+    <item
+        android:id="@+id/action_refresh"
+        android:title="Refresh"
+        yourapp:showAsAction="always"
+        android:icon="@drawable/ic_autorenew_white_24dp" />
 </menu>

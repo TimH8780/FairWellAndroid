@@ -47,7 +47,8 @@ public class ViewStatementsFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         MenuItem item = menu.findItem(R.id.action_refresh);
-        item.setVisible(false);
+        item.setVisible(true);
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
