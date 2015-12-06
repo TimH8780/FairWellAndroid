@@ -293,24 +293,27 @@ public class SubmitStatementSummaryFragment extends Fragment {
                     if(unknownNum == 1) { entry = "(1 non-user)"; }
                     else{ entry = "(" + Integer.toString(unknownNum) + " non-users)"; }
 
-                    memberRow = new TableRow(parent);
+                    memberRow = new LinearLayout(parent);
                     memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
 
                     payee = new TextView(parent);
                     payee.setGravity(Gravity.CENTER);
                     payee.setText(payeeName);
+                    payee.setLayoutParams(params);
 
                     payer = new TextView(parent);
                     payer.setGravity(Gravity.CENTER);
                     payer.setText(entry);
+                    payer.setLayoutParams(params);
 
                     amount = new TextView(parent);
                     amount.setGravity(Gravity.CENTER);
                     amount.setText("$ " + String.format("%.2f", runningDif));
+                    amount.setLayoutParams(params);
 
-                    memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    memberRow.addView(payee, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    memberRow.addView(payer);
+                    memberRow.addView(payee);
+                    memberRow.addView(amount);
                     layout.addView(memberRow);
                 }
                 break;
@@ -319,24 +322,27 @@ public class SubmitStatementSummaryFragment extends Fragment {
                 modeView.setText("Split Unequally");
 
                 if(runningDif > 0.009){
-                    memberRow = new TableRow(parent);
+                    memberRow = new LinearLayout(parent);
                     memberRow.setPadding(0, 0, 0, Utility.getPixel(2, getResources()));
 
                     payee = new TextView(parent);
                     payee.setGravity(Gravity.CENTER);
                     payee.setText(payeeName);
+                    payee.setLayoutParams(params);
 
                     payer = new TextView(parent);
                     payer.setGravity(Gravity.CENTER);
                     payer.setText("(Some non-users)");
+                    payer.setLayoutParams(params);
 
                     amount = new TextView(parent);
                     amount.setGravity(Gravity.CENTER);
                     amount.setText("$ " + String.format("%.2f", runningDif));
+                    amount.setLayoutParams(params);
 
-                    memberRow.addView(payer, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    memberRow.addView(payee, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    memberRow.addView(amount, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    memberRow.addView(payer);
+                    memberRow.addView(payee);
+                    memberRow.addView(amount);
                     layout.addView(memberRow);
                 }
                 break;

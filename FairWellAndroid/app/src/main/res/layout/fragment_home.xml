@@ -18,6 +18,7 @@
                 android:textStyle="bold"
                 android:textSize="30sp"
                 android:layout_gravity="center"
+                android:gravity="center_horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Name"/>

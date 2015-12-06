@@ -458,15 +458,26 @@ public class AddStatementFragment extends Fragment {
     }
 
     public Bitmap getBitmapFromURI(Uri u){
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
 
-        int DPI = Utility.getDPI(parent.getApplicationContext());
-        int PIXEL_PHOTO = 500 * (DPI / 160);
-        options.inSampleSize = Utility.calculateInSampleSize(options, PIXEL_PHOTO, PIXEL_PHOTO);
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
+            int DPI = Utility.getDPI(parent.getApplicationContext());
+            int PIXEL_PHOTO = 500 * (DPI / 160);
+            options.inSampleSize = Utility.calculateInSampleSize(options, PIXEL_PHOTO, PIXEL_PHOTO);
+
+            return BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
+        }
+        catch (OutOfMemoryError e){
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
+
+            int DPI = Utility.getDPI(parent.getApplicationContext());
+            int PIXEL_PHOTO = 500 * (DPI / 160);
+            options.inSampleSize = Utility.calculateInSampleSize(options, PIXEL_PHOTO, PIXEL_PHOTO);
+            options.inJustDecodeBounds = false;
+            return BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
+        }
     }
 
     /**

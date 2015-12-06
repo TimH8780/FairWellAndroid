@@ -355,7 +355,6 @@ public class StatementObject {
                         ParseQuery query = ParseQuery.getQuery("Statement");
                         query.whereEqualTo("payerConfirm", false);
                         query.whereEqualTo("payerReject", false);
-                        query.whereEqualTo("payerPaid", false);
                         query.whereEqualTo("friendship", payerRelation);
                         if (query.count() == 1) {
                             payerRelation.put("pendingStatement", false);
