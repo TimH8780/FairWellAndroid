@@ -7,8 +7,8 @@ Chern Yee Chua <chernyee@buffalo.edu>
 <return>
 
 
-###### To-do Lists *(Updated on 12/04)*
-* ~~**Tutorial Page** - Issac https://github.com/PaoloRotolo/AppIntro~~
+###### To-do Lists *(Updated on 12/05)*
+* ~~**Tutorial Page**~~
 * ~~**Login Page**~~
   * ~~Login~~
   * ~~Login via Facebook~~
@@ -18,7 +18,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Term and Conditions~~
   * ~~Password Length Restriction~~
   * ~~Register Function~~
-* **Home Page**
+* ~~**Home Page**~~
   * ~~Display Balance~~
   * ~~Change Balance Layout~~
   * ~~Name Display~~
@@ -60,7 +60,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Deny Resolve Request~~
   * ~~Delete completed Statement~~
   * ~~Data Display~~
-* **Add Statement Page**
+* ~~**Add Statement Page**~~
   * ~~Design~~
   * ~~Data Check~~
   * ~~Progress Bar~~
@@ -69,7 +69,7 @@ Chern Yee Chua <chernyee@buffalo.edu>
   * ~~Submit Statement under Split By Ratio Mode~~
   * ~~Add Snapshot~~
   * ~~Add Note~~
-  * ~~Icon - Issac (I already have those awesome icons!)~~
+  * ~~Icon~~
 * ~~**View Statement Summary Page**~~
   * ~~Progress Bar~~
   * ~~Cancel Statement~~
@@ -83,8 +83,8 @@ Chern Yee Chua <chernyee@buffalo.edu>
 * **Other**
   * ~~Check Email Verification~~
   * ~~Check Friend Verification~~
-  * Notification - Mengpei
   * Overall UI layout and Graphic Design - Issac
   * Store String in String.xml
+  * Notification - *Will not do it for this semester*
   * Adjust Images based on Device Resolution - *Will not do it for this semester*
   * Payment Option - *Will not do it for this semester*
