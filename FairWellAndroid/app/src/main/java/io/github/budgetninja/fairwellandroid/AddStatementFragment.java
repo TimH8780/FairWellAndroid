@@ -352,7 +352,7 @@ public class AddStatementFragment extends Fragment {
         addSnapshotButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dispatchTakePictureIntent();
+                promptUploadPhotoDialog();
             }
         });
 
@@ -503,7 +503,7 @@ public class AddStatementFragment extends Fragment {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return null;   
+            return null;
         }
     }
 
@@ -1278,6 +1278,49 @@ public class AddStatementFragment extends Fragment {
             ((AddStatementFragment)getActivity().getSupportFragmentManager().findFragmentByTag("Add")).setDate(year, month, day, viewIndex);
         }
     }
+    public void promptUploadPhotoDialog() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Upload a New Picture as Profile Photo?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //startActivityForResult(Intent.createChooser(new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT), "Select picture"), REQUEST_PICTURE);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+
+                // Set dialog properties
+                builder.setItems(new String[]{"Gallery", "Camera"}, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dlg, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        if (which == 0) { //select from gallery
+
+
+                            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            startActivityForResult(intent, REQUEST_PICTURE);
+                        } else if (which == 1) { //select to take a photo
+                            dispatchTakePictureIntent();
+                        }
+
+
+                    }
+                });
+                final AlertDialog dlg = builder.create();
+                dlg.show();
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
+
 
     private void showProgressBar(){
         View progressView = getActivity().findViewById(R.id.loadingPanel);
