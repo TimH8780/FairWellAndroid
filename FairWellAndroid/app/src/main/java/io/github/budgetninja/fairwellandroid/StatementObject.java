@@ -278,7 +278,7 @@ public class StatementObject {
         private ParseObject payerRelation;
         private ParseUser payee;
         private ParseUser payer;
-        String payerName;
+        String payerName, payeeName;
         boolean payerConfirm, payerReject, payerPaid, paymentPending;
         double payerAmount;
 
@@ -289,6 +289,7 @@ public class StatementObject {
             this.payee = payee;
             this.payer = payer;
             this.payerName = Utility.getProfileName(payer);
+            this.payeeName = Utility.getProfileName(payee);
             this.payerConfirm = payerConfirm;
             this.payerReject = payerReject;
             this.payerPaid = payerPaid;

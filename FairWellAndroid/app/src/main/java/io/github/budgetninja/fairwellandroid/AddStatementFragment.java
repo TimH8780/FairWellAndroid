@@ -655,7 +655,7 @@ public class AddStatementFragment extends Fragment {
                     int unknown;
                     if(modePosition == SPLIT_EQUALLY){ unknown = (int)counter; }
                     else if(modePosition == SPLIT_BY_RATIO){ unknown = 0; }
-                    else { unknown = -1; }
+                    else { unknown = (counter == 0.00) ? 0 : -1; }
                     SummaryStatement summaryStatement = new SummaryStatement(note, pic, descr, categ, format.parse(date), format.parse(deadline),
                             modePosition, unknown, Double.valueOf(amount), payee, selectedMember);
 

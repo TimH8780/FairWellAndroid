@@ -241,7 +241,7 @@ public class StatementSummaryFragment extends Fragment{
 
         TextView payee = new TextView(parent);
         payee.setGravity(Gravity.CENTER);
-        payee.setText(subStatement.payerName);
+        payee.setText(subStatement.payeeName);
         payee.setLayoutParams(params);
 
         TextView payer = new TextView(parent);
