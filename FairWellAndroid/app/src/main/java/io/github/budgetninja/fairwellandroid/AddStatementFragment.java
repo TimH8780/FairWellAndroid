@@ -360,8 +360,6 @@ public class AddStatementFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-
                 LinearLayout layout = new LinearLayout(getActivity());
                 layout.setOrientation(LinearLayout.VERTICAL);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -447,37 +445,42 @@ public class AddStatementFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Uri pictureUri;
-        if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
+        if ((requestCode == REQUEST_CAMERA || requestCode == REQUEST_PICTURE) && resultCode == RESULT_OK) {
             if(mCurrentPhotoPath != null){
                 pictureUri = Uri.fromFile(new File(mCurrentPhotoPath));
                 //galleryAddPic();  //add photo to gallery so that system media controller could access to it
-
+                mCurrentPhotoPath = null;
             } else {
                 pictureUri = data.getData();
             }
 
-            picture = new ParseFile("picture.JPEG", getBytesFromBitmap(getBitmapFromURI(pictureUri),25));
-            mCurrentPhotoPath = null;
-            showProgressBar();
-            picture.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(com.parse.ParseException e) {
-                    if(e != null){
-                        Toast.makeText(getContext(),"Failed to load image",Toast.LENGTH_SHORT).show();
-                    } else {
-                        addSnapshotButton.setText("Snapshot Added");
-                        addSnapshotButton.setBackgroundResource(R.color.windowBackgroundDark);
+            Bitmap bitmap = getBitmapFromURI(pictureUri, requestCode);
+            if(bitmap != null) {
+                picture = new ParseFile("picture.JPEG", getBytesFromBitmap(bitmap, 25));
+                mCurrentPhotoPath = null;
+                showProgressBar();
+                picture.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(com.parse.ParseException e) {
+                        if (e != null) {
+                            Toast.makeText(getContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
+                        } else {
+                            addSnapshotButton.setText("Snapshot Added");
+                            addSnapshotButton.setBackgroundResource(R.color.windowBackgroundDark);
+                        }
+                        hideProgressBar();
                     }
-                    hideProgressBar();
-                }
-            });
+                });
+            } else {
+                Toast.makeText(parent, "Your phone doesn't support to load a large " +
+                        "image due to memory size", Toast.LENGTH_SHORT).show();
+            }
         }
 
     }
 
-    public Bitmap getBitmapFromURI(Uri u) {
-        if (mCurrentPhotoPath != null) {
-
+    public Bitmap getBitmapFromURI(Uri u, int request_code) {
+        if (request_code == REQUEST_CAMERA) {
             try {
                 BitmapFactory.Options options = new BitmapFactory.Options();
 
@@ -497,16 +500,15 @@ public class AddStatementFragment extends Fragment {
                 options.inJustDecodeBounds = false;
                 return BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
             }
-        }else {
+        } else {
             try {
                 return MediaStore.Images.Media.getBitmap(parent.getContentResolver(), u);
-            } catch (IOException e) {
+            } catch (IOException|OutOfMemoryError e) {
                 e.printStackTrace();
+                return null;
             }
-            return null;
         }
     }
-
 
     /**
      *  Save the Image file of photo captured
@@ -1279,44 +1281,22 @@ public class AddStatementFragment extends Fragment {
         }
     }
     public void promptUploadPhotoDialog() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Upload a New Picture as Profile Photo?");
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //startActivityForResult(Intent.createChooser(new Intent().setType("image/*").setAction(Intent.ACTION_GET_CONTENT), "Select picture"), REQUEST_PICTURE);
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-
-                // Set dialog properties
-                builder.setItems(new String[]{"Gallery", "Camera"}, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dlg, int which) {
-                        // The 'which' argument contains the index position
-                        // of the selected item
-                        if (which == 0) { //select from gallery
-
-
-                            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                            startActivityForResult(intent, REQUEST_PICTURE);
-                        } else if (which == 1) { //select to take a photo
-                            dispatchTakePictureIntent();
-                        }
-
-
-                    }
-                });
-                final AlertDialog dlg = builder.create();
-                dlg.show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        // Set dialog properties
+        builder.setItems(new String[]{"Gallery", "Camera"}, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dlg, int which) {
+                // The 'which' argument contains the index position
+                // of the selected item
+                if (which == 0) { //select from gallery
+                    Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(intent, REQUEST_PICTURE);
+                } else if (which == 1) { //select to take a photo
+                    dispatchTakePictureIntent();
+                }
             }
         });
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        final AlertDialog dialog = builder.create();
-        dialog.show();
+        AlertDialog dlg = builder.create();
+        dlg.show();
     }
 
 
