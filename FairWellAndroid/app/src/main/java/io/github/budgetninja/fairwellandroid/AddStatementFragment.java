@@ -447,7 +447,7 @@ public class AddStatementFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Uri pictureUri;
-        if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
+        if ((requestCode == REQUEST_CAMERA || requestCode == REQUEST_PICTURE )&& resultCode == RESULT_OK) {
             if(mCurrentPhotoPath != null){
                 pictureUri = Uri.fromFile(new File(mCurrentPhotoPath));
                 //galleryAddPic();  //add photo to gallery so that system media controller could access to it
