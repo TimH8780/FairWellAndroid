@@ -85,6 +85,11 @@ public class ViewStatementsFragment extends Fragment {
             return previousView;
         }
 
+		
+        final TextView subtitle_1 = (TextView) rootView.findViewById(R.id.coltitle_1);
+        final TextView subtitle_2 = (TextView) rootView.findViewById(R.id.coltitle_2);
+        final TextView subtitle_3 = (TextView) rootView.findViewById(R.id.coltitle_3);
+		
         List<Statement> temp = Utility.generateStatementArray();
         List<Statement> temp2 = new ArrayList<>();
         for(int i = 0; i < temp.size(); i++){
@@ -97,16 +102,19 @@ public class ViewStatementsFragment extends Fragment {
             statementList_by_name = new ArrayList<>(temp2);
             statementList_by_deadline = null;
             statementList_by_amount = null;
+			subtitle_1.setBackgroundResource(R.color.green_dark);
             adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList_by_name);
         } else if(SORT_TYPE == BY_DEADLINE){
             statementList_by_name = null;
             statementList_by_deadline = new ArrayList<>(temp2);
             statementList_by_amount = null;
+			subtitle_2.setBackgroundResource(R.color.orange_dark);
             adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList_by_deadline);
         } else {
             statementList_by_name = null;
             statementList_by_deadline = null;
             statementList_by_amount = new ArrayList<>(temp2);
+			subtitle_3.setBackgroundResource(R.color.blue_dark);
             adapter = new StatementAdaptor(parent, R.layout.item_view_statements, statementList_by_amount);
         }
 
@@ -119,11 +127,6 @@ public class ViewStatementsFragment extends Fragment {
         view.setEmptyView(layout);
 
         view.setOnItemClickListener(viewItemClickListener);
-
-        final TextView subtitle_1 = (TextView) rootView.findViewById(R.id.coltitle_1);
-        final TextView subtitle_2 = (TextView) rootView.findViewById(R.id.coltitle_2);
-        final TextView subtitle_3 = (TextView) rootView.findViewById(R.id.coltitle_3);
-
 
         subtitle_1.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -851,11 +851,12 @@ public class ContentActivity extends AppCompatActivity{
         protected Void doInBackground(Void... params) {
             try {
                 if(isNetworkConnected()){
+					boolean modify = (type == ALL_REFRESH);
                     if(type == ALL_REFRESH || type == STATEMENT_REFRESH){
-                        Utility.generateRawStatementList(user);
+                        Utility.generateRawStatementList(user, modify);
                     }
                     if(type == ALL_REFRESH || type == FRIEND_REFRESH){
-                        Utility.generateRawFriendList(user);
+                        Utility.generateRawFriendList(user, modify);
                     }
                     if(type == ALL_REFRESH || type == DASHBOARD_REFRESH){
                         Utility.setChangedRecordDashboard();
@@ -923,9 +924,9 @@ public class ContentActivity extends AppCompatActivity{
                Log.d("Update", "Check");
                if(Utility.checkNewEntryField()){
                    if(paused){ continue; }
-                   Utility.generateRawStatementList(user);
+                   Utility.generateRawStatementList(user, true);
                    if(paused){ continue; }
-                   Utility.generateRawFriendList(user);
+                   Utility.generateRawFriendList(user, true);
                    if(paused){ continue; }
                    Utility.setChangedRecordDashboard();
                    Utility.getDashboardData();

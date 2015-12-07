@@ -154,12 +154,12 @@ public class StatementObject {
                         if(another.payee == ParseUser.getCurrentUser()){
                             return 0;
                         }
-                        return ("YOU".compareTo(Utility.getProfileName(another.payee))) * -1;
+                        return "YOU".compareTo(Utility.getProfileName(another.payee));
                     } else {
                         if(another.payee == ParseUser.getCurrentUser()){
-                            return (Utility.getProfileName(payee).compareTo("YOU")) * -1;
+                            return Utility.getProfileName(payee).compareTo("YOU");
                         }
-                        return (Utility.getProfileName(payee).compareTo(Utility.getProfileName(another.payee))) * -1;
+                        return Utility.getProfileName(payee).compareTo(Utility.getProfileName(another.payee));
                     }
 
                 case BY_DEADLINE:

@@ -69,7 +69,7 @@ public class Utility {
         }
     }
 
-    public static void generateRawFriendList(ParseUser user){
+    public static void generateRawFriendList(ParseUser user, boolean modify){
         ParseQuery<ParseObject> queryA = ParseQuery.getQuery("FriendList");
         queryA.whereEqualTo("userOne", user);
         ParseQuery<ParseObject> queryB = ParseQuery.getQuery("FriendList");
@@ -84,8 +84,10 @@ public class Utility {
             if (temp != null) {
                 temp.put("list", rawList);
                 temp.pinInBackground();
-                editNewEntryField(ParseUser.getCurrentUser(), false, null);
-
+				if(modify){
+					editNewEntryField(ParseUser.getCurrentUser(), false, null);
+				}
+				
                 Utility.setChangedRecordFriend();
                 List<FriendObject.Friend> tempB = Utility.generateFriendArray();
                 Double runningSum = 0.0;
@@ -367,7 +369,7 @@ public class Utility {
         return  (int)(desiredDp * scale + 0.5f);
     }
 
-    public static void generateRawStatementList(final ParseUser user){
+    public static void generateRawStatementList(final ParseUser user, boolean modify){
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Statement");
         query.whereEqualTo("payer", user);
         query.whereEqualTo("payerReject", false);
@@ -388,7 +390,9 @@ public class Utility {
                 queryB = ParseQuery.getQuery("StatementGroup");
                 queryB.whereEqualTo("payee", user);
                 result.addAll(queryB.find());
-                editNewEntryField(ParseUser.getCurrentUser(), false, null);
+				if(modify){
+					editNewEntryField(ParseUser.getCurrentUser(), false, null);
+				}
             } catch (ParseException e1){
                 e1.printStackTrace();
             }
