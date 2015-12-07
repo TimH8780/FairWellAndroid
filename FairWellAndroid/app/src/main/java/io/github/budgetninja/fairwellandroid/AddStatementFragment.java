@@ -451,12 +451,13 @@ public class AddStatementFragment extends Fragment {
             if(mCurrentPhotoPath != null){
                 pictureUri = Uri.fromFile(new File(mCurrentPhotoPath));
                 //galleryAddPic();  //add photo to gallery so that system media controller could access to it
-                mCurrentPhotoPath = null;
+
             } else {
                 pictureUri = data.getData();
             }
 
             picture = new ParseFile("picture.JPEG", getBytesFromBitmap(getBitmapFromURI(pictureUri),25));
+            mCurrentPhotoPath = null;
             showProgressBar();
             picture.saveInBackground(new SaveCallback() {
                 @Override
@@ -474,28 +475,38 @@ public class AddStatementFragment extends Fragment {
 
     }
 
-    public Bitmap getBitmapFromURI(Uri u){
-        try {
-            BitmapFactory.Options options = new BitmapFactory.Options();
+    public Bitmap getBitmapFromURI(Uri u) {
+        if (mCurrentPhotoPath != null) {
 
-            int DPI = Utility.getDPI(parent.getApplicationContext());
-            int PIXEL_PHOTO = 500 * (DPI / 160);
-            options.inSampleSize = Utility.calculateInSampleSize(options, PIXEL_PHOTO, PIXEL_PHOTO);
+            try {
+                BitmapFactory.Options options = new BitmapFactory.Options();
 
-            return BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
-        }
-        catch (OutOfMemoryError e){
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
+                int DPI = Utility.getDPI(parent.getApplicationContext());
+                int PIXEL_PHOTO = 500 * (DPI / 160);
+                options.inSampleSize = Utility.calculateInSampleSize(options, PIXEL_PHOTO, PIXEL_PHOTO);
 
-            int DPI = Utility.getDPI(parent.getApplicationContext());
-            int PIXEL_PHOTO = 500 * (DPI / 160);
-            options.inSampleSize = Utility.calculateInSampleSize(options, PIXEL_PHOTO, PIXEL_PHOTO);
-            options.inJustDecodeBounds = false;
-            return BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
+                return BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
+            } catch (OutOfMemoryError e) {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
+
+                int DPI = Utility.getDPI(parent.getApplicationContext());
+                int PIXEL_PHOTO = 500 * (DPI / 160);
+                options.inSampleSize = Utility.calculateInSampleSize(options, PIXEL_PHOTO, PIXEL_PHOTO);
+                options.inJustDecodeBounds = false;
+                return BitmapFactory.decodeFile(new File(u.getPath()).getPath(), options);
+            }
+        }else {
+            try {
+                return MediaStore.Images.Media.getBitmap(parent.getContentResolver(), u);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;   
         }
     }
+
 
     /**
      *  Save the Image file of photo captured
